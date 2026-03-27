@@ -9,9 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { CRITERIA, type EvaluationResult } from "@/lib/types";
+import { downloadMarkdown } from "@/lib/export-markdown";
 import { ScoreBadge } from "./score-badge";
 import { QuestionsList } from "./questions-list";
+import { Download } from "lucide-react";
 
 interface EvaluationResultViewProps {
   result: EvaluationResult;
@@ -31,7 +34,17 @@ export function EvaluationResultView({ result }: EvaluationResultViewProps) {
       <div className="flex items-start gap-8">
         <ScoreBadge score={result.total_score} />
         <div className="flex-1 space-y-1">
-          <h2 className="text-xl font-semibold">Результат оценки</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Результат оценки</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadMarkdown(result)}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Скачать .md
+            </Button>
+          </div>
           <p className="text-sm text-muted-foreground">
             Оценка по {result.criteria.length} критериям с учётом весов.
             Высокий вес у критериев Проблема, Решение, Метрики и Ready for Dev.
