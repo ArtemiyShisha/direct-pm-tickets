@@ -1,64 +1,92 @@
 import { z } from "zod/v4";
-import { CRITERIA, type CriterionId } from "./types";
+import { CRITERIA, CRITERIA_GROUPS, type CriterionId } from "./types";
 
-const criterionIds = CRITERIA.map((c) => c.id) as [CriterionId, ...CriterionId[]];
+export function buildGroupZodSchema(groupCriteriaIds: readonly string[]) {
+  const ids = groupCriteriaIds as unknown as [CriterionId, ...CriterionId[]];
 
-const criterionResultSchema = z.object({
-  id: z.enum(criterionIds),
-  score: z.number().int().min(0).max(10),
-  comment: z.string(),
-  recommendation: z.string(),
-});
+  const criterionResultSchema = z.object({
+    id: z.enum(ids),
+    analysis: z.string(),
+    score: z.number().int().min(0).max(10),
+    comment: z.string(),
+    questions: z.array(z.string()),
+    suggestion: z.nullable(z.string()),
+  });
 
-export const evaluationResponseSchema = z.object({
-  criteria: z.array(criterionResultSchema).length(CRITERIA.length),
-  questions: z.array(z.string()).min(1).max(10),
-});
+  return z.object({
+    criteria: z.array(criterionResultSchema).length(groupCriteriaIds.length),
+  });
+}
 
-export type EvaluationLLMResponse = z.infer<typeof evaluationResponseSchema>;
-
-export const evaluationJsonSchema = {
-  name: "epic_evaluation",
-  strict: true,
-  schema: {
-    type: "object" as const,
-    properties: {
-      criteria: {
-        type: "array" as const,
-        items: {
-          type: "object" as const,
-          properties: {
-            id: {
-              type: "string" as const,
-              enum: criterionIds,
+export function buildGroupJsonSchema(groupCriteriaIds: readonly string[], schemaName: string) {
+  return {
+    name: schemaName,
+    strict: true,
+    schema: {
+      type: "object" as const,
+      properties: {
+        criteria: {
+          type: "array" as const,
+          items: {
+            type: "object" as const,
+            properties: {
+              id: {
+                type: "string" as const,
+                enum: groupCriteriaIds,
+              },
+              analysis: {
+                type: "string" as const,
+                description:
+                  "Chain-of-thought: что нашёл в тексте эпика по этому критерию, какие цитаты, чего не хватает.",
+              },
+              score: {
+                type: "integer" as const,
+                minimum: 0,
+                maximum: 10,
+              },
+              comment: {
+                type: "string" as const,
+                description:
+                  "Краткий вывод: что не хватило для более высокой оценки. Если оценка OK — почему.",
+              },
+              questions: {
+                type: "array" as const,
+                items: { type: "string" as const },
+                description:
+                  "Вопросы к менеджеру продукта по этому критерию. Пустой массив если вопросов нет.",
+              },
+              suggestion: {
+                type: ["string", "null"] as const,
+                description:
+                  "Черновик текста для вставки в эпик. null если score >= 7.",
+              },
             },
-            score: {
-              type: "integer" as const,
-              minimum: 0,
-              maximum: 10,
-            },
-            comment: {
-              type: "string" as const,
-              description:
-                "Что именно не хватило для более высокой оценки. Если оценка OK — кратко почему.",
-            },
-            recommendation: {
-              type: "string" as const,
-              description: "Конкретная рекомендация по улучшению.",
-            },
+            required: [
+              "id",
+              "analysis",
+              "score",
+              "comment",
+              "questions",
+              "suggestion",
+            ] as const,
+            additionalProperties: false,
           },
-          required: ["id", "score", "comment", "recommendation"] as const,
-          additionalProperties: false,
         },
       },
-      questions: {
-        type: "array" as const,
-        items: { type: "string" as const },
-        description:
-          "До 10 самых существенных вопросов менеджеру продукта для улучшения эпика.",
-      },
+      required: ["criteria"] as const,
+      additionalProperties: false,
     },
-    required: ["criteria", "questions"] as const,
-    additionalProperties: false,
-  },
-};
+  };
+}
+
+export const GROUP_SCHEMAS = CRITERIA_GROUPS.map((group) => ({
+  groupId: group.id,
+  label: group.label,
+  criteriaIds: group.criteriaIds,
+  zodSchema: buildGroupZodSchema(group.criteriaIds),
+  jsonSchema: buildGroupJsonSchema(group.criteriaIds, `eval_${group.id}`),
+}));
+
+export type GroupEvaluationResponse = z.infer<
+  ReturnType<typeof buildGroupZodSchema>
+>;

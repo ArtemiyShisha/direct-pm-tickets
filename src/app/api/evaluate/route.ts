@@ -1,8 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenAIClient } from "@/lib/openai";
-import { evaluationJsonSchema, evaluationResponseSchema } from "@/lib/evaluation-schema";
-import { SYSTEM_PROMPT } from "@/prompts/system-prompt";
-import { scoreToStatus, calculateTotalScore, type CriterionResult } from "@/lib/types";
+import { GROUP_SCHEMAS } from "@/lib/evaluation-schema";
+import { buildGroupPrompt } from "@/prompts/system-prompt";
+import {
+  scoreToStatus,
+  calculateTotalScore,
+  CRITERIA,
+  type CriterionResult,
+} from "@/lib/types";
+
+async function evaluateGroup(
+  epicText: string,
+  group: (typeof GROUP_SCHEMAS)[number]
+) {
+  const client = getOpenAIClient();
+  const systemPrompt = buildGroupPrompt(group.groupId);
+
+  const response = await client.chat.completions.create({
+    model: "gpt-5.4",
+    messages: [
+      { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: `Оцени следующий эпик:\n\n---\n${epicText}\n---`,
+      },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: group.jsonSchema,
+    },
+    temperature: 0.2,
+  });
+
+  const content = response.choices[0]?.message?.content;
+  if (!content) {
+    throw new Error(`Пустой ответ от LLM для группы "${group.label}"`);
+  }
+
+  const parsed = JSON.parse(content);
+  return group.zodSchema.parse(parsed);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,46 +60,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const client = getOpenAIClient();
+    const groupResults = await Promise.all(
+      GROUP_SCHEMAS.map((group) => evaluateGroup(epicText, group))
+    );
 
-    const response = await client.chat.completions.create({
-      model: "gpt-5.4",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `Оцени следующий эпик:\n\n---\n${epicText}\n---`,
-        },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: evaluationJsonSchema,
-      },
-      temperature: 0.2,
-    });
+    const criteriaOrder = CRITERIA.map((c) => c.id);
 
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      return NextResponse.json(
-        { error: "Пустой ответ от LLM" },
-        { status: 502 }
+    const allCriteria: CriterionResult[] = groupResults
+      .flatMap((result) => result.criteria)
+      .map((c) => ({
+        ...c,
+        status: scoreToStatus(c.score),
+      }))
+      .sort(
+        (a, b) =>
+          criteriaOrder.indexOf(a.id) - criteriaOrder.indexOf(b.id)
       );
-    }
 
-    const parsed = JSON.parse(content);
-    const validated = evaluationResponseSchema.parse(parsed);
-
-    const criteria: CriterionResult[] = validated.criteria.map((c) => ({
-      ...c,
-      status: scoreToStatus(c.score),
-    }));
-
-    const totalScore = calculateTotalScore(criteria);
+    const totalScore = calculateTotalScore(allCriteria);
 
     return NextResponse.json({
-      criteria,
+      criteria: allCriteria,
       total_score: totalScore,
-      questions: validated.questions,
     });
   } catch (error) {
     console.error("Evaluation error:", error);

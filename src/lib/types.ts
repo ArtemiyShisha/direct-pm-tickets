@@ -19,18 +19,45 @@ export type CriterionId = (typeof CRITERIA)[number]["id"];
 
 export type Status = "ok" | "partial" | "fail";
 
+export const CRITERIA_GROUPS = [
+  {
+    id: "business",
+    label: "Бизнес-обоснование",
+    criteriaIds: ["problem", "solution", "potential", "metrics", "analytics"],
+  },
+  {
+    id: "ux",
+    label: "UX и сценарии",
+    criteriaIds: ["design", "scenarios", "corner_cases", "onboarding"],
+  },
+  {
+    id: "technical",
+    label: "Техническая готовность",
+    criteriaIds: [
+      "interfaces",
+      "international",
+      "ready_for_dev",
+      "logging",
+      "launch",
+    ],
+  },
+] as const;
+
+export type GroupId = (typeof CRITERIA_GROUPS)[number]["id"];
+
 export interface CriterionResult {
   id: CriterionId;
+  analysis: string;
   score: number;
   status: Status;
   comment: string;
-  recommendation: string;
+  questions: string[];
+  suggestion: string | null;
 }
 
 export interface EvaluationResult {
   criteria: CriterionResult[];
   total_score: number;
-  questions: string[];
 }
 
 export function scoreToStatus(score: number): Status {
