@@ -1,36 +1,163 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Epic Reviewer
 
-## Getting Started
+Инструмент автоматической оценки эпиков и PRD для Яндекс Директа. Анализирует текст эпика по 14 критериям качества, задаёт вопросы по пробелам и предлагает черновики для доработки.
 
-First, run the development server:
+## Зачем это нужно
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Менеджеры продукта пишут эпики, которые потом берутся в разработку. Проблема: качество описания сильно варьируется — где-то нет метрик, где-то нет сценариев, где-то нет плана запуска. Это приводит к:
+
+- Потере времени на уточнения уже в процессе разработки
+- Непредсказуемым результатам из-за непроработанных корнер-кейсов
+- Переделкам из-за отсутствия критериев приёмки
+
+Epic Reviewer проверяет эпик *до* того, как он попадёт в бэклог, и помогает его доработать.
+
+## Что делает инструмент
+
+1. PM вставляет текст эпика или загружает `.md` файл
+2. Система оценивает его по 14 критериям в 3 параллельных потоках
+3. Для каждого критерия выдаёт:
+   - **Анализ** — что нашла в тексте и чего не хватает (chain-of-thought)
+   - **Оценку** — 0-10 баллов с обоснованием
+   - **Вопросы к PM** — конкретные вопросы по пробелам (без ограничения на количество)
+   - **Черновик** — готовый текст для вставки в эпик (при score < 7)
+4. Считает итоговый балл 0-100 с учётом весов критериев
+5. Позволяет скачать результат в Markdown
+
+## Критерии оценки
+
+14 критериев разбиты на 3 группы. Каждая группа оценивается отдельным вызовом LLM для более глубокого анализа.
+
+### Бизнес-обоснование
+
+| Критерий | Вес | Что оценивает |
+|----------|-----|---------------|
+| Проблема | x1.5 | Кто страдает, масштаб, доля выручки |
+| Решение | x1.5 | Суть подхода к решению проблемы |
+| Потенциал | x1.0 | Ожидаемый бизнес-результат с цифрами |
+| Метрики успеха | x1.5 | Основная и доп. метрики с целевыми значениями |
+| Аналитика | x1.0 | Данные, подтверждающие гипотезы |
+
+### UX и сценарии
+
+| Критерий | Вес | Что оценивает |
+|----------|-----|---------------|
+| Дизайн | x0.7 | Макеты в Figma, покрытие состояний |
+| Сценарии | x1.0 | Шаги пользователя, состояния UI, реакция системы |
+| Корнер-кейсы | x1.0 | Граничные случаи и поведение системы |
+| Онбординг | x0.7 | Механики для новых и существующих пользователей |
+
+### Техническая готовность
+
+| Критерий | Вес | Что оценивает |
+|----------|-----|---------------|
+| Интерфейсы | x0.7 | Какие клиенты затронуты (веб, моб, API, Excel) |
+| Межнар | x0.7 | Страны и языки поддержки |
+| Ready For Dev | x1.5 | Достаточно ли описания для старта разработки |
+| Логирование | x0.7 | Что логировать, формат, retention |
+| Запуск | x1.0 | План раскатки, эксперимент, критерии приёмки |
+
+### Система весов
+
+Итоговый балл: `sum(score_i * weight_i) / sum(10 * weight_i) * 100`
+
+Высокий вес (x1.5) у критериев, без которых разработка не может начаться: Проблема, Решение, Метрики, Ready For Dev. Низкий вес (x0.7) у критериев, которые могут прорабатываться параллельно.
+
+### Шкала оценки
+
+| Баллы | Статус | Значение |
+|-------|--------|----------|
+| 0-1 | FAIL | Полностью отсутствует |
+| 2-3 | FAIL | Упомянуто без конкретики |
+| 4-5 | PARTIAL | Попытка с существенными пробелами |
+| 6 | PARTIAL | Базовый уровень, не хватает глубины |
+| 7-8 | OK | Хорошо проработано |
+| 9-10 | OK | Отлично, придраться не к чему |
+
+## Архитектура
+
+### Стек
+
+- **Next.js 16** (App Router) — фронтенд + API routes
+- **TypeScript** — сквозная типизация
+- **Tailwind CSS 4 + shadcn/ui** — UI-компоненты
+- **OpenAI GPT-5.4** — LLM с structured output (JSON Schema)
+- **Zod 4** — валидация ответов LLM
+
+### Пайплайн оценки (v2)
+
+```
+Текст эпика
+    │
+    ├──→ GPT: Бизнес-обоснование (5 критериев)  ─┐
+    ├──→ GPT: UX и сценарии (4 критерия)         ─┤  параллельно
+    └──→ GPT: Тех. готовность (5 критериев)      ─┘
+                                                   │
+                                          Сервер: merge + validate
+                                                   │
+                                          Результат: 14 критериев
+                                          + total_score 0-100
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Каждый вызов GPT:
+- Получает полный текст эпика + промпт, сфокусированный на 4-5 критериях
+- Возвращает structured JSON по заданной JSON Schema
+- Для каждого критерия выполняет chain-of-thought (analysis → score → questions → suggestion)
+- Валидируется Zod-схемой на сервере
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Структура проекта
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── api/evaluate/route.ts    # POST endpoint: 3 параллельных вызова GPT
+│   ├── layout.tsx               # Root layout
+│   └── page.tsx                 # Главная страница (ввод + результаты)
+├── components/
+│   ├── epic-input.tsx           # Textarea + drag-n-drop .md/.txt
+│   ├── evaluation-result.tsx    # Раскрывающиеся карточки по группам
+│   ├── score-badge.tsx          # Круговой индикатор 0-100
+│   └── ui/                     # shadcn/ui примитивы
+├── lib/
+│   ├── types.ts                 # Критерии, веса, группы, типы результатов
+│   ├── evaluation-schema.ts     # Zod + JSON Schema для каждой группы
+│   ├── export-markdown.ts       # Экспорт результата в .md
+│   ├── openai.ts                # OpenAI client singleton
+│   └── utils.ts                 # cn() helper
+└── prompts/
+    └── system-prompt.ts         # Базовый промпт + buildGroupPrompt()
+```
 
-## Learn More
+### Ключевые модули
 
-To learn more about Next.js, take a look at the following resources:
+**`types.ts`** — единый источник правды: массив `CRITERIA` (id, label, weight), `CRITERIA_GROUPS` (3 группы), интерфейсы `CriterionResult` и `EvaluationResult`, функции `scoreToStatus()` и `calculateTotalScore()`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**`evaluation-schema.ts`** — функции `buildGroupZodSchema()` и `buildGroupJsonSchema()` генерируют валидационные схемы для каждой группы критериев. `GROUP_SCHEMAS` — предсобранные схемы для всех 3 групп.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**`system-prompt.ts`** — `buildGroupPrompt(groupId)` собирает промпт из базовой части (правила, шкала, инструкция по формату) + список критериев группы + few-shot пример. Каждая группа имеет свой пример оценки.
 
-## Deploy on Vercel
+**`route.ts`** — `evaluateGroup()` вызывает GPT с промптом и JSON Schema конкретной группы. `POST` handler запускает 3 `evaluateGroup()` через `Promise.all`, мержит результаты, добавляет статусы и считает итоговый балл.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Локальная разработка
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm install
+cp .env.local.example .env.local  # добавить OPENAI_API_KEY
+npm run dev                        # http://localhost:3000
+```
+
+## Деплой
+
+Хостинг на Railway. Репозиторий подключён к Railway — автодеплой при пуше в `main`.
+
+Переменные окружения на Railway:
+- `OPENAI_API_KEY` — ключ API OpenAI
+
+## Возможные улучшения
+
+- Калибровка на реальных эпиках (ground truth от экспертов)
+- Self-consistency (несколько прогонов, медиана score)
+- Конституция команды (настраиваемый контекст: какие критерии ослабить, специфика процессов)
+- Интеграция в Tracker/Jira (бот, автоматическая проверка)
+- Итеративный flow (оценил → доработал → оценил повторно → прогресс)
+- История оценок и аналитика по команде
