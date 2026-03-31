@@ -7,6 +7,8 @@ export function buildGroupZodSchema(groupCriteriaIds: readonly string[]) {
   const criterionResultSchema = z.object({
     id: z.enum(ids),
     analysis: z.string(),
+    found_items: z.array(z.string()),
+    missing_items: z.array(z.string()),
     score: z.number().int().min(0).max(10),
     comment: z.string(),
     questions: z.array(z.string()),
@@ -39,6 +41,18 @@ export function buildGroupJsonSchema(groupCriteriaIds: readonly string[], schema
                 description:
                   "Chain-of-thought: что нашёл в тексте эпика по этому критерию, какие цитаты, чего не хватает.",
               },
+              found_items: {
+                type: "array" as const,
+                items: { type: "string" as const },
+                description:
+                  "Список конкретных пунктов, которые НАЙДЕНЫ в тексте эпика по этому критерию. Каждый пункт — короткая фраза.",
+              },
+              missing_items: {
+                type: "array" as const,
+                items: { type: "string" as const },
+                description:
+                  "Список конкретных пунктов, которых НЕ ХВАТАЕТ в тексте эпика по этому критерию. Каждый пункт — короткая фраза.",
+              },
               score: {
                 type: "integer" as const,
                 minimum: 0,
@@ -64,6 +78,8 @@ export function buildGroupJsonSchema(groupCriteriaIds: readonly string[], schema
             required: [
               "id",
               "analysis",
+              "found_items",
+              "missing_items",
               "score",
               "comment",
               "questions",

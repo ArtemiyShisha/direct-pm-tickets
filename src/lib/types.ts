@@ -48,6 +48,8 @@ export type GroupId = (typeof CRITERIA_GROUPS)[number]["id"];
 export interface CriterionResult {
   id: CriterionId;
   analysis: string;
+  found_items: string[];
+  missing_items: string[];
   score: number;
   status: Status;
   comment: string;

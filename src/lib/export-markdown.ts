@@ -57,6 +57,16 @@ export function exportToMarkdown(result: EvaluationResult): string {
         lines.push(``, `**Анализ:** ${c.analysis}`);
       }
 
+      if (c.found_items && c.found_items.length > 0) {
+        lines.push(``, `**✓ Найдено в эпике:**`);
+        c.found_items.forEach((item) => lines.push(`- ${item}`));
+      }
+
+      if (c.missing_items && c.missing_items.length > 0) {
+        lines.push(``, `**✗ Не хватает:**`);
+        c.missing_items.forEach((item) => lines.push(`- ${item}`));
+      }
+
       if (c.questions.length > 0) {
         lines.push(``, `**Вопросы к PM:**`);
         c.questions.forEach((q, i) => lines.push(`${i + 1}. ${q}`));
