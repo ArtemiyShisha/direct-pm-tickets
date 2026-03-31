@@ -17,7 +17,7 @@ export const CRITERIA = [
 
 export type CriterionId = (typeof CRITERIA)[number]["id"];
 
-export type Status = "ok" | "partial" | "fail";
+export type Status = "ok" | "partial" | "fail" | "na";
 
 export const CRITERIA_GROUPS = [
   {
@@ -63,6 +63,7 @@ export interface EvaluationResult {
 }
 
 export function scoreToStatus(score: number): Status {
+  if (score === -1) return "na";
   if (score >= 7) return "ok";
   if (score >= 4) return "partial";
   return "fail";
@@ -77,6 +78,7 @@ export function calculateTotalScore(criteria: CriterionResult[]): number {
   for (const result of criteria) {
     const meta = criteriaMap.get(result.id);
     if (!meta) continue;
+    if (result.score === -1) continue;
     weightedSum += result.score * meta.weight;
     maxWeightedSum += 10 * meta.weight;
   }

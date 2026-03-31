@@ -9,7 +9,7 @@ export function buildGroupZodSchema(groupCriteriaIds: readonly string[]) {
     analysis: z.string(),
     found_items: z.array(z.string()),
     missing_items: z.array(z.string()),
-    score: z.number().int().min(0).max(10),
+    score: z.number().int().min(-1).max(10),
     comment: z.string(),
     questions: z.array(z.string()),
     suggestion: z.nullable(z.string()),
@@ -55,8 +55,10 @@ export function buildGroupJsonSchema(groupCriteriaIds: readonly string[], schema
               },
               score: {
                 type: "integer" as const,
-                minimum: 0,
+                minimum: -1,
                 maximum: 10,
+                description:
+                  "Оценка 0-10 или -1 если критерий неприменим к данному эпику",
               },
               comment: {
                 type: "string" as const,
@@ -72,7 +74,7 @@ export function buildGroupJsonSchema(groupCriteriaIds: readonly string[], schema
               suggestion: {
                 type: ["string", "null"] as const,
                 description:
-                  "Черновик текста для вставки в эпик. null только если score = 10 или missing_items пуст.",
+                  "Черновик текста для вставки в эпик. null если score = 10, score = -1 или missing_items пуст.",
               },
             },
             required: [

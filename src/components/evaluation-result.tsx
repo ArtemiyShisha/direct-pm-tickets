@@ -56,6 +56,13 @@ const statusConfig = {
     border: "border-l-red-500",
     bg: "bg-red-50/30",
   },
+  na: {
+    label: "N/A",
+    emoji: "⚪",
+    variant: "outline" as const,
+    border: "border-l-gray-300",
+    bg: "bg-gray-50/30",
+  },
 };
 
 function CopyButton({ text }: { text: string }) {
@@ -137,7 +144,7 @@ function CriterionCard({
   const hasQuestions = criterion.questions.length > 0;
   const hasSuggestion = criterion.suggestion !== null;
   const hasDetails = hasQuestions || hasSuggestion || criterion.analysis;
-  const showSummary = criterion.status !== "ok";
+  const showSummary = criterion.status !== "ok" && criterion.status !== "na";
 
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
@@ -157,7 +164,7 @@ function CriterionCard({
           </span>
 
           <span className="tabular-nums text-sm font-semibold w-12 text-right text-foreground">
-            {criterion.score}/10
+            {criterion.score === -1 ? "N/A" : `${criterion.score}/10`}
           </span>
 
           <Badge variant={config.variant} className="text-xs shrink-0">
@@ -289,12 +296,14 @@ export function EvaluationResultView({ result }: EvaluationResultViewProps) {
 
         if (groupCriteria.length === 0) return null;
 
-        const avgScore =
-          Math.round(
-            (groupCriteria.reduce((sum, c) => sum + c.score, 0) /
-              groupCriteria.length) *
-              10
-          ) / 10;
+        const applicableCriteria = groupCriteria.filter((c) => c.score !== -1);
+        const avgScore = applicableCriteria.length > 0
+          ? Math.round(
+              (applicableCriteria.reduce((sum, c) => sum + c.score, 0) /
+                applicableCriteria.length) *
+                10
+            ) / 10
+          : -1;
 
         return (
           <div key={group.id} className="space-y-2">
@@ -303,7 +312,7 @@ export function EvaluationResultView({ result }: EvaluationResultViewProps) {
                 {group.label}
               </h3>
               <span className="text-xs text-muted-foreground tabular-nums">
-                Среднее: {avgScore}/10
+                {avgScore === -1 ? "" : `Среднее: ${avgScore}/10`}
               </span>
             </div>
             <div className="space-y-1.5">

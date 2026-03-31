@@ -1,6 +1,6 @@
 import { CRITERIA, CRITERIA_GROUPS, type EvaluationResult } from "./types";
 
-const STATUS_EMOJI = { ok: "🟢", partial: "🟡", fail: "🔴" } as const;
+const STATUS_EMOJI = { ok: "🟢", partial: "🟡", fail: "🔴", na: "⚪" } as const;
 
 export function exportToMarkdown(result: EvaluationResult): string {
   const criteriaMap = new Map(CRITERIA.map((c) => [c.id, c]));
@@ -34,8 +34,9 @@ export function exportToMarkdown(result: EvaluationResult): string {
       const label = meta?.label ?? id;
       const emoji = STATUS_EMOJI[c.status];
       const weight = meta && meta.weight !== 1.0 ? ` (x${meta.weight})` : "";
+      const scoreText = c.score === -1 ? "N/A" : `${c.score}/10`;
       lines.push(
-        `| ${label}${weight} | ${c.score}/10 | ${emoji} ${c.status.toUpperCase()} | ${c.comment} |`
+        `| ${label}${weight} | ${scoreText} | ${emoji} ${c.status.toUpperCase()} | ${c.comment} |`
       );
     }
 
