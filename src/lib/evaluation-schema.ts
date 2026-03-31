@@ -72,7 +72,7 @@ export function buildGroupJsonSchema(groupCriteriaIds: readonly string[], schema
               suggestion: {
                 type: ["string", "null"] as const,
                 description:
-                  "Черновик текста для вставки в эпик. null если score >= 7.",
+                  "Черновик текста для вставки в эпик. null только если score = 10 или missing_items пуст.",
               },
             },
             required: [

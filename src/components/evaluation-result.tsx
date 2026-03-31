@@ -259,26 +259,27 @@ export function EvaluationResultView({ result }: EvaluationResultViewProps) {
         <div className="flex-1 space-y-1">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Результат оценки</h2>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={toggleAll}>
-                <ChevronsUpDown className="mr-2 h-4 w-4" />
-                {allExpanded ? "Свернуть все" : "Развернуть все"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => downloadMarkdown(result)}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Скачать .md
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadMarkdown(result)}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Скачать .md
+            </Button>
           </div>
           <p className="text-sm text-muted-foreground">
             Оценка по {result.criteria.length} критериям в 3 группах.
             Раскройте критерий для анализа, вопросов и черновиков.
           </p>
         </div>
+      </div>
+
+      <div className="flex justify-end">
+        <Button variant="ghost" size="sm" onClick={toggleAll}>
+          <ChevronsUpDown className="mr-2 h-4 w-4" />
+          {allExpanded ? "Свернуть все" : "Развернуть все"}
+        </Button>
       </div>
 
       {CRITERIA_GROUPS.map((group) => {
