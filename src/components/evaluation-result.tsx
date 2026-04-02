@@ -40,28 +40,24 @@ const statusConfig = {
     emoji: "🟢",
     variant: "default" as const,
     border: "border-l-emerald-500",
-    bg: "",
   },
   partial: {
     label: "PARTIAL",
     emoji: "🟡",
     variant: "secondary" as const,
     border: "border-l-amber-500",
-    bg: "bg-amber-50/50",
   },
   fail: {
     label: "FAIL",
     emoji: "🔴",
     variant: "destructive" as const,
     border: "border-l-red-500",
-    bg: "bg-red-50/30",
   },
   na: {
     label: "N/A",
     emoji: "⚪",
     variant: "outline" as const,
     border: "border-l-gray-300",
-    bg: "bg-gray-50/30",
   },
 };
 
@@ -104,7 +100,7 @@ function FoundMissingLists({ criterion }: { criterion: CriterionResult }) {
             {criterion.found_items.map((item, i) => (
               <li key={i} className="flex items-start gap-2 text-sm">
                 <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-                <span className="text-foreground/90">{item}</span>
+                <span className="text-black">{item}</span>
               </li>
             ))}
           </ul>
@@ -120,7 +116,7 @@ function FoundMissingLists({ criterion }: { criterion: CriterionResult }) {
             {criterion.missing_items.map((item, i) => (
               <li key={i} className="flex items-start gap-2 text-sm">
                 <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-                <span className="text-foreground/90">{item}</span>
+                <span className="text-black">{item}</span>
               </li>
             ))}
           </ul>
@@ -149,7 +145,7 @@ function CriterionCard({
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <CollapsibleTrigger
-        className={`flex w-full flex-col gap-1 rounded-lg border border-l-4 px-4 py-3 text-left transition-colors hover:bg-muted/50 data-[open]:rounded-b-none data-[open]:border-b-0 ${config.border} ${config.bg}`}
+        className={`flex w-full flex-col gap-1 rounded-lg border border-l-4 bg-white px-4 py-3 text-left transition-colors hover:bg-muted/50 data-[open]:rounded-b-none data-[open]:border-b-0 ${config.border}`}
       >
         <div className="flex w-full items-center gap-3">
           <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform [[data-open]>&]:rotate-90" />
@@ -173,7 +169,7 @@ function CriterionCard({
         </div>
 
         {showSummary && (
-          <p className="ml-7 text-xs text-muted-foreground leading-relaxed line-clamp-2">
+          <p className="ml-7 text-xs text-black/70 leading-relaxed line-clamp-2">
             {criterion.comment}
           </p>
         )}
@@ -181,15 +177,15 @@ function CriterionCard({
 
       {hasDetails && (
         <CollapsibleContent
-          className={`rounded-b-lg border border-t-0 border-l-4 px-4 pb-4 pt-3 space-y-4 ${config.border} ${config.bg}`}
+          className={`rounded-b-lg border border-t-0 border-l-4 bg-white px-4 pb-4 pt-3 space-y-4 ${config.border}`}
         >
           {criterion.analysis && (
             <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-black/60">
                 <Search className="h-3 w-3" />
                 Анализ
               </div>
-              <p className="text-sm text-foreground leading-relaxed">
+              <p className="text-sm text-black leading-relaxed">
                 {criterion.analysis}
               </p>
             </div>
@@ -199,17 +195,17 @@ function CriterionCard({
 
           {hasQuestions && (
             <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-black/60">
                 <MessageCircleQuestion className="h-3 w-3" />
                 Вопросы к PM
               </div>
               <ol className="space-y-1 pl-1">
                 {criterion.questions.map((q, i) => (
                   <li key={i} className="flex gap-2 text-sm">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold tabular-nums">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold tabular-nums text-black">
                       {i + 1}
                     </span>
-                    <span className="pt-0.5 text-foreground">{q}</span>
+                    <span className="pt-0.5 text-black">{q}</span>
                   </li>
                 ))}
               </ol>
@@ -219,13 +215,13 @@ function CriterionCard({
           {hasSuggestion && (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <div className="flex items-center gap-1.5 text-xs font-medium text-black/60">
                   <Lightbulb className="h-3 w-3" />
                   Черновик для вставки
                 </div>
                 <CopyButton text={criterion.suggestion!} />
               </div>
-              <div className="rounded-md bg-muted/60 px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap border">
+              <div className="rounded-md bg-muted/60 px-3 py-2 text-sm text-black leading-relaxed whitespace-pre-wrap border">
                 {criterion.suggestion}
               </div>
             </div>
