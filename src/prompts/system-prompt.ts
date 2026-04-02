@@ -1,4 +1,4 @@
-import { CRITERIA, CRITERIA_GROUPS } from "@/lib/types";
+import { CRITERIA, CRITERIA_GROUPS, type PreAnalysisResult } from "@/lib/types";
 
 const BASE_PROMPT = `Ты проводишь ревью эпика перед приёмкой в бэклог Яндекс Директа. Твоя задача — найти пробелы, из-за которых разработка может застопориться, и помочь улучшить описание.
 
@@ -32,7 +32,8 @@ const BASE_PROMPT = `Ты проводишь ревью эпика перед п
 const CRITERIA_DESCRIPTIONS: Record<string, string> = {
   problem:
     "Проблема пользователя/бизнеса: кто страдает и почему. Для комплаенс-эпиков сам регуляторный триггер — это проблема. Для миграций — необходимость перевести legacy. Контекст и обоснование важнее точных цифр",
-  solution: "Как именно решаем проблему, суть подхода",
+  solution:
+    "Краткое описание сути решения в верхнем разделе эпика (ответ на 'Что делаем?'). Оцени, достаточно ли одного абзаца, чтобы любой человек в команде понял суть подхода. Детали реализации оцениваются в других критериях (scenarios, corner_cases, ready_for_dev)",
   potential:
     "Ожидаемый бизнес-эффект. Количественная оценка — плюс, но качественное обоснование ценности тоже засчитывается. Для комплаенс/регуляторных эпиков может быть N/A (-1)",
   metrics:
@@ -120,7 +121,10 @@ const GROUP_EXAMPLES: Record<string, string> = {
   suggestion: "Логирование:\\n- [Действие 1]: [описание события]\\n- [Действие 2]: [описание события]\\n- ..."`,
 };
 
-export function buildGroupPrompt(groupId: string): string {
+export function buildGroupPrompt(
+  groupId: string,
+  preAnalysis?: PreAnalysisResult
+): string {
   const group = CRITERIA_GROUPS.find((g) => g.id === groupId);
   if (!group) throw new Error(`Unknown group: ${groupId}`);
 
@@ -134,8 +138,43 @@ export function buildGroupPrompt(groupId: string): string {
 
   const example = GROUP_EXAMPLES[groupId] ?? "";
 
-  return `${BASE_PROMPT}
+  let contextBlock = "";
+  if (preAnalysis) {
+    const lines: string[] = [];
+    lines.push(`КОНТЕКСТ ЭПИКА (определён автоматически):`);
+    lines.push(`- Тип эпика: ${preAnalysis.epic_type}`);
+    lines.push(`- ${preAnalysis.product_context_note}`);
 
+    const groupNaCriteria = preAnalysis.na_criteria.filter((na) =>
+      (group.criteriaIds as readonly string[]).includes(na.criterion_id)
+    );
+    if (groupNaCriteria.length > 0) {
+      lines.push(``);
+      lines.push(`НЕПРИМЕНИМЫЕ КРИТЕРИИ В ЭТОЙ ГРУППЕ:`);
+      lines.push(
+        `Для следующих критериев ОБЯЗАТЕЛЬНО ставь score = -1 (N/A):`
+      );
+      for (const na of groupNaCriteria) {
+        lines.push(`- ${na.criterion_id}: ${na.reason}`);
+      }
+    }
+
+    if (
+      preAnalysis.solution_summary &&
+      groupId === "business"
+    ) {
+      lines.push(``);
+      lines.push(
+        `САММАРИ РЕШЕНИЯ ИЗ ВЕРХНЕГО РАЗДЕЛА ЭПИКА (для оценки критерия "solution"):`
+      );
+      lines.push(`«${preAnalysis.solution_summary}»`);
+    }
+
+    contextBlock = `\n${lines.join("\n")}\n`;
+  }
+
+  return `${BASE_PROMPT}
+${contextBlock}
 ТВОЯ ГРУППА КРИТЕРИЕВ: ${group.label}
 
 Оцени ТОЛЬКО следующие критерии:

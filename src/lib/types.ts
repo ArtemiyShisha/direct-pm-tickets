@@ -62,6 +62,28 @@ export interface EvaluationResult {
   total_score: number;
 }
 
+export const EPIC_TYPES = [
+  "compliance",
+  "migration",
+  "product_feature",
+  "tech_debt",
+  "infrastructure",
+  "experiment",
+] as const;
+
+export type EpicType = (typeof EPIC_TYPES)[number];
+
+export interface PreAnalysisResult {
+  epic_type: EpicType;
+  product_ids: string[];
+  na_criteria: Array<{
+    criterion_id: CriterionId;
+    reason: string;
+  }>;
+  solution_summary: string | null;
+  product_context_note: string;
+}
+
 export function scoreToStatus(score: number): Status {
   if (score === -1) return "na";
   if (score >= 7) return "ok";
