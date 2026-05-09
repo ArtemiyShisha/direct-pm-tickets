@@ -1,6 +1,81 @@
-import { CRITERIA, CRITERIA_GROUPS, type EvaluationResult } from "./types";
+import {
+  CRITERIA,
+  CRITERIA_GROUPS,
+  type EvaluationResult,
+  type ProductChallenge,
+} from "./types";
 
 const STATUS_EMOJI = { ok: "🟢", partial: "🟡", fail: "🔴", na: "⚪" } as const;
+
+const CHALLENGE_TYPE_LABEL: Record<ProductChallenge["type"], string> = {
+  question: "Вопрос",
+  risk: "Риск",
+  contradiction: "Противоречие",
+  missing_scenario: "Пропущенный сценарий",
+};
+
+const CHALLENGE_SEVERITY_ORDER: Record<ProductChallenge["severity"], number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+};
+
+function appendChallengesSection(
+  lines: string[],
+  challenges: ProductChallenge[],
+): void {
+  if (challenges.length === 0) return;
+
+  const criteriaMap = new Map(CRITERIA.map((c) => [c.id, c]));
+  const sorted = [...challenges].sort(
+    (a, b) =>
+      CHALLENGE_SEVERITY_ORDER[a.severity] -
+      CHALLENGE_SEVERITY_ORDER[b.severity],
+  );
+
+  lines.push(`## Продуктовые челленджи`, ``);
+  lines.push(
+    `_Не влияют на оценку. Вопросы и риски к продуктовой идее в контексте Direct.Pro._`,
+    ``,
+  );
+
+  for (const challenge of sorted) {
+    const severityLabel = challenge.severity.toUpperCase();
+    const typeLabel = CHALLENGE_TYPE_LABEL[challenge.type];
+    const target = challenge.target ? ` — ${challenge.target}` : "";
+    lines.push(`### [${severityLabel}] ${typeLabel}${target}`, ``);
+
+    if (challenge.observation) {
+      lines.push(`**Что заметили:** ${challenge.observation}`);
+    }
+    if (challenge.direct_context) {
+      lines.push(`**Контекст Direct.Pro:** ${challenge.direct_context}`);
+    }
+    if (challenge.why_it_matters) {
+      lines.push(`**Почему это важно:** ${challenge.why_it_matters}`);
+    }
+    if (challenge.question) {
+      lines.push(`**Вопрос к PM:** ${challenge.question}`);
+    }
+    if (challenge.good_answer) {
+      lines.push(`**Хороший ответ:** ${challenge.good_answer}`);
+    }
+
+    const relatedLabels = challenge.related_criteria
+      .map((id) => criteriaMap.get(id)?.label ?? id)
+      .filter(Boolean);
+    if (relatedLabels.length > 0) {
+      lines.push(`**Связанные критерии:** ${relatedLabels.join(", ")}`);
+    }
+    if (challenge.knowledge_card_ids.length > 0) {
+      lines.push(
+        `**Карточки знания:** ${challenge.knowledge_card_ids.join(", ")}`,
+      );
+    }
+
+    lines.push(``);
+  }
+}
 
 export function exportToMarkdown(result: EvaluationResult): string {
   const criteriaMap = new Map(CRITERIA.map((c) => [c.id, c]));
@@ -84,6 +159,10 @@ export function exportToMarkdown(result: EvaluationResult): string {
 
       lines.push(``);
     }
+  }
+
+  if (result.product_challenges && result.product_challenges.length > 0) {
+    appendChallengesSection(lines, result.product_challenges);
   }
 
   return lines.join("\n");

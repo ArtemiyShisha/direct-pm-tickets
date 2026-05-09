@@ -13,6 +13,7 @@ import {
   CRITERIA_GROUPS,
   type CriterionResult,
   type EvaluationResult,
+  type ProductChallenge,
 } from "@/lib/types";
 import { downloadMarkdown } from "@/lib/export-markdown";
 import { ScoreBadge } from "./score-badge";
@@ -28,6 +29,10 @@ import {
   CircleCheck,
   CircleX,
   ChevronsUpDown,
+  AlertTriangle,
+  HelpCircle,
+  Compass,
+  ClipboardCheck,
 } from "lucide-react";
 
 interface EvaluationResultViewProps {
@@ -59,6 +64,37 @@ const statusConfig = {
     variant: "outline" as const,
     border: "border-l-gray-300",
   },
+};
+
+const challengeSeverityConfig: Record<
+  ProductChallenge["severity"],
+  { label: string; border: string; badgeVariant: "destructive" | "secondary" | "outline" }
+> = {
+  high: {
+    label: "HIGH",
+    border: "border-l-red-500",
+    badgeVariant: "destructive",
+  },
+  medium: {
+    label: "MEDIUM",
+    border: "border-l-amber-500",
+    badgeVariant: "secondary",
+  },
+  low: {
+    label: "LOW",
+    border: "border-l-blue-400",
+    badgeVariant: "outline",
+  },
+};
+
+const challengeTypeConfig: Record<
+  ProductChallenge["type"],
+  { label: string; Icon: typeof HelpCircle }
+> = {
+  question: { label: "Вопрос", Icon: HelpCircle },
+  risk: { label: "Риск", Icon: AlertTriangle },
+  contradiction: { label: "Противоречие", Icon: AlertTriangle },
+  missing_scenario: { label: "Пропущенный сценарий", Icon: Compass },
 };
 
 function CopyButton({ text }: { text: string }) {
@@ -232,6 +268,151 @@ function CriterionCard({
   );
 }
 
+function ProductChallengeCard({
+  challenge,
+}: {
+  challenge: ProductChallenge;
+}) {
+  const severity = challengeSeverityConfig[challenge.severity];
+  const typeMeta = challengeTypeConfig[challenge.type];
+  const TypeIcon = typeMeta.Icon;
+
+  const relatedLabels = challenge.related_criteria
+    .map((id) => CRITERIA.find((c) => c.id === id)?.label ?? id)
+    .filter(Boolean);
+
+  return (
+    <div
+      className={`rounded-lg border border-l-4 bg-white px-4 py-3 ${severity.border}`}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant={severity.badgeVariant} className="text-xs">
+          {severity.label}
+        </Badge>
+        <Badge variant="outline" className="text-xs">
+          <TypeIcon className="h-3 w-3" />
+          {typeMeta.label}
+        </Badge>
+        {challenge.target && (
+          <span className="text-sm font-medium text-foreground">
+            {challenge.target}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 space-y-3 text-sm text-black leading-relaxed">
+        {challenge.observation && (
+          <div>
+            <div className="text-xs font-medium text-black/60 mb-0.5">
+              Что заметили
+            </div>
+            <p>{challenge.observation}</p>
+          </div>
+        )}
+
+        {challenge.direct_context && (
+          <div>
+            <div className="text-xs font-medium text-black/60 mb-0.5">
+              Контекст Direct.Pro
+            </div>
+            <p>{challenge.direct_context}</p>
+          </div>
+        )}
+
+        {challenge.why_it_matters && (
+          <div>
+            <div className="text-xs font-medium text-black/60 mb-0.5">
+              Почему это важно
+            </div>
+            <p>{challenge.why_it_matters}</p>
+          </div>
+        )}
+
+        {challenge.question && (
+          <div>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-black/60 mb-0.5">
+              <MessageCircleQuestion className="h-3 w-3" />
+              Вопрос к PM
+            </div>
+            <p className="font-medium">{challenge.question}</p>
+          </div>
+        )}
+
+        {challenge.good_answer && (
+          <div>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-black/60 mb-0.5">
+              <ClipboardCheck className="h-3 w-3" />
+              Хороший ответ выглядит так
+            </div>
+            <p className="text-black/80">{challenge.good_answer}</p>
+          </div>
+        )}
+      </div>
+
+      {(relatedLabels.length > 0 || challenge.knowledge_card_ids.length > 0) && (
+        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t pt-3">
+          {relatedLabels.map((label) => (
+            <Badge key={`crit-${label}`} variant="secondary" className="text-xs">
+              {label}
+            </Badge>
+          ))}
+          {challenge.knowledge_card_ids.map((id) => (
+            <Badge key={`card-${id}`} variant="ghost" className="text-xs font-mono">
+              {id}
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProductChallengesSection({
+  challenges,
+}: {
+  challenges: ProductChallenge[];
+}) {
+  const sorted = [...challenges].sort((a, b) => {
+    const order: Record<ProductChallenge["severity"], number> = {
+      high: 0,
+      medium: 1,
+      low: 2,
+    };
+    return order[a.severity] - order[b.severity];
+  });
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-baseline justify-between px-1">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <h3 className="text-sm font-semibold text-foreground">
+            Продуктовые челленджи
+          </h3>
+          <span className="text-xs text-muted-foreground">
+            {challenges.length}
+          </span>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          Не влияют на оценку
+        </span>
+      </div>
+      <p className="px-1 text-xs text-muted-foreground">
+        Вопросы и риски к продуктовой идее в контексте Direct.Pro. Появляются
+        даже когда формальные критерии зелёные.
+      </p>
+      <div className="space-y-2">
+        {sorted.map((challenge, i) => (
+          <ProductChallengeCard
+            key={`${challenge.type}-${i}`}
+            challenge={challenge}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function EvaluationResultView({ result }: EvaluationResultViewProps) {
   const criteriaMap = new Map(result.criteria.map((c) => [c.id, c]));
   const allIds = result.criteria.map((c) => c.id);
@@ -277,6 +458,10 @@ export function EvaluationResultView({ result }: EvaluationResultViewProps) {
           </p>
         </div>
       </div>
+
+      {result.product_challenges && result.product_challenges.length > 0 && (
+        <ProductChallengesSection challenges={result.product_challenges} />
+      )}
 
       <div className="flex justify-end">
         <Button variant="ghost" size="sm" onClick={toggleAll}>
