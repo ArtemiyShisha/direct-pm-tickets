@@ -5,14 +5,21 @@ import {
   preAnalysisZodSchema,
   preAnalysisJsonSchema,
 } from "@/lib/pre-analysis-schema";
+import {
+  productChallengerJsonSchema,
+  productChallengerZodSchema,
+} from "@/lib/product-challenger-schema";
 import { buildPreAnalysisPrompt } from "@/prompts/pre-analysis-prompt";
 import { buildGroupPrompt } from "@/prompts/system-prompt";
+import { buildProductChallengerPrompt } from "@/prompts/product-challenger-prompt";
+import { selectDirectProCards } from "@/knowledge/direct-pro/select";
 import {
   scoreToStatus,
   calculateTotalScore,
   CRITERIA,
   type CriterionResult,
   type PreAnalysisResult,
+  type ProductChallenge,
 } from "@/lib/types";
 
 async function runPreAnalysis(epicText: string): Promise<PreAnalysisResult> {
@@ -75,6 +82,46 @@ async function evaluateGroup(
 
   const parsed = JSON.parse(content);
   return group.zodSchema.parse(parsed);
+}
+
+async function runProductChallenger(
+  epicText: string,
+  preAnalysis: PreAnalysisResult,
+  criteria: CriterionResult[],
+): Promise<ProductChallenge[]> {
+  const cards = selectDirectProCards(epicText);
+  if (cards.length === 0) return [];
+
+  const client = getOpenAIClient();
+  const systemPrompt = buildProductChallengerPrompt(
+    preAnalysis,
+    criteria,
+    cards,
+  );
+
+  const response = await client.chat.completions.create({
+    model: EVALUATION_MODEL,
+    messages: [
+      { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: `Прочитай эпик и сформулируй продуктовые челленджи:\n\n---\n${epicText}\n---`,
+      },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: productChallengerJsonSchema,
+    },
+    temperature: 0.2,
+  });
+
+  const content = response.choices[0]?.message?.content;
+  if (!content) {
+    throw new Error("Пустой ответ от LLM на этапе Product Challenger");
+  }
+
+  return productChallengerZodSchema.parse(JSON.parse(content))
+    .product_challenges;
 }
 
 function forceNaCriteria(
@@ -143,9 +190,22 @@ export async function POST(request: NextRequest) {
 
     const totalScore = calculateTotalScore(allCriteria);
 
+    // Step 4: Product Challenger (best-effort: never fails the whole evaluation)
+    let productChallenges: ProductChallenge[] = [];
+    try {
+      productChallenges = await runProductChallenger(
+        epicText,
+        preAnalysis,
+        allCriteria,
+      );
+    } catch (challengerError) {
+      console.error("Product Challenger error:", challengerError);
+    }
+
     return NextResponse.json({
       criteria: allCriteria,
       total_score: totalScore,
+      product_challenges: productChallenges,
     });
   } catch (error) {
     console.error("Evaluation error:", error);
