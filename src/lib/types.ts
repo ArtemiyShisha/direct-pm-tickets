@@ -57,9 +57,23 @@ export interface CriterionResult {
   suggestion: string | null;
 }
 
+export interface ProductChallenge {
+  type: "question" | "risk" | "contradiction" | "missing_scenario";
+  severity: "high" | "medium" | "low";
+  target: string;
+  observation: string;
+  direct_context: string;
+  why_it_matters: string;
+  question: string;
+  good_answer: string;
+  related_criteria: CriterionId[];
+  knowledge_card_ids: string[];
+}
+
 export interface EvaluationResult {
   criteria: CriterionResult[];
   total_score: number;
+  product_challenges?: ProductChallenge[];
 }
 
 export const EPIC_TYPES = [
