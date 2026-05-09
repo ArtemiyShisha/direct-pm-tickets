@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local/private knowledge extraction artifacts
+/knowledge/arcadia/
+/knowledge/wiki-dumps/
+/knowledge/drafts/
+/knowledge/raw-arcadia/
+/knowledge/raw-wiki/
+/work/direct-pro-knowledge/
