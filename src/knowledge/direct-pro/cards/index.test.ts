@@ -1,0 +1,26 @@
+import { describe, expect, it } from "vitest";
+import { directProKnowledgeCardSchema } from "../schema";
+import { DIRECT_PRO_KNOWLEDGE_CARDS } from "./index";
+
+describe("DIRECT_PRO_KNOWLEDGE_CARDS", () => {
+  it("contains unique card ids", () => {
+    const ids = DIRECT_PRO_KNOWLEDGE_CARDS.map((card) => card.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("contains cards for the core campaign hierarchy", () => {
+    expect(DIRECT_PRO_KNOWLEDGE_CARDS.map((card) => card.id)).toEqual(
+      expect.arrayContaining([
+        "entity.campaign",
+        "entity.ad_group",
+        "entity.ad",
+      ]),
+    );
+  });
+
+  it("conforms every card to the knowledge card schema", () => {
+    for (const card of DIRECT_PRO_KNOWLEDGE_CARDS) {
+      expect(() => directProKnowledgeCardSchema.parse(card)).not.toThrow();
+    }
+  });
+});
