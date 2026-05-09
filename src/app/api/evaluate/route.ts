@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOpenAIClient } from "@/lib/openai";
+import { getOpenAIClient, EVALUATION_MODEL } from "@/lib/openai";
 import { GROUP_SCHEMAS } from "@/lib/evaluation-schema";
 import {
   preAnalysisZodSchema,
@@ -20,7 +20,7 @@ async function runPreAnalysis(epicText: string): Promise<PreAnalysisResult> {
   const systemPrompt = buildPreAnalysisPrompt();
 
   const response = await client.chat.completions.create({
-    model: "gpt-5.4",
+    model: EVALUATION_MODEL,
     messages: [
       { role: "system", content: systemPrompt },
       {
@@ -53,7 +53,7 @@ async function evaluateGroup(
   const systemPrompt = buildGroupPrompt(group.groupId, preAnalysis);
 
   const response = await client.chat.completions.create({
-    model: "gpt-5.4",
+    model: EVALUATION_MODEL,
     messages: [
       { role: "system", content: systemPrompt },
       {
