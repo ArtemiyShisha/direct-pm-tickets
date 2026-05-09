@@ -5,7 +5,7 @@ export const CORE_DIRECT_PRO_CARDS: DirectProKnowledgeCard[] = [
     id: "entity.campaign",
     kind: "entity",
     label: "Campaign",
-    aliases: ["campaign", "campaigns", "кампания", "кампании"],
+    aliases: ["campaign", "campaigns", "кампани"],
     summary:
       "A campaign is a central Direct.Pro object. Product changes touching campaigns should consider lifecycle, copying, moderation, statistics, and related ad groups.",
     entityLevel: "campaign",
@@ -35,7 +35,7 @@ export const CORE_DIRECT_PRO_CARDS: DirectProKnowledgeCard[] = [
     id: "entity.ad_group",
     kind: "entity",
     label: "Ad group",
-    aliases: ["ad group", "group", "groups", "группа", "группы"],
+    aliases: ["ad group", "ad groups", "групп"],
     summary:
       "An ad group is a Direct.Pro object below campaign level. Settings and targeting behavior may live at group level and should not be silently treated as campaign-level behavior.",
     entityLevel: "ad_group",
@@ -65,7 +65,7 @@ export const CORE_DIRECT_PRO_CARDS: DirectProKnowledgeCard[] = [
     id: "entity.ad",
     kind: "entity",
     label: "Ad",
-    aliases: ["ad", "ads", "banner", "объявление", "объявления", "баннер"],
+    aliases: ["объявлен", "баннер", " ad ", " ads ", " ad,", " ad."],
     summary:
       "An ad is a Direct.Pro object below ad group level. Product changes touching ad fields should consider moderation, preview, copying, and bulk editing.",
     entityLevel: "ad",
