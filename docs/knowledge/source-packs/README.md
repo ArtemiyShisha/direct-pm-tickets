@@ -76,6 +76,8 @@ docs/knowledge/source-packs/
     inputs/                         # user-approved sources (PDF/text), committed
     notes.md                        # optional, committed
 knowledge/drafts/<pack-id>/         # gitignored extractor outputs
+  inputs/                           # gitignored (or symlinks into baza_znaniy/)
+  extracted/                        # gitignored (output of extract_pdf_text.py)
   candidate-cards.json
   unresolved-questions.md
   conflicts.md
@@ -83,3 +85,12 @@ knowledge/drafts/<pack-id>/         # gitignored extractor outputs
 ```
 
 The reviewer reads `notes.md` + `candidate-cards.json` together with the inputs and decides which cards graduate to `src/knowledge/direct-pro/cards/<domain>.ts`.
+
+## Tooling
+
+The end-to-end runbook for a single pack lives in `tools/direct-pro-knowledge/README.md`. The two scripts you will use:
+
+- `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py <pack-id>` — turn PDFs in `knowledge/drafts/<pack-id>/inputs/` into `.txt` files in `knowledge/drafts/<pack-id>/extracted/` (both gitignored).
+- `npx tsx tools/direct-pro-knowledge/validate-candidates.ts <pack-id>` — validate `candidate-cards.json` against the runtime Zod schema and check id collisions before asking for human review.
+
+Promotion (after the user approves a draft pack) and the resume rules for fresh sessions are documented in `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` under "How to resume Task 10".

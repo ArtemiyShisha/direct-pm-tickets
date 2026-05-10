@@ -12,7 +12,7 @@
 
 ## Implementation Status
 
-> Status as of `ab0bc1a`. Tasks 1-9 and 11 are merged into `main`. Task 10 is intentionally left iterative (one source pack at a time, human review between batches) — no cards from Task 10 have been authored yet.
+> Status as of `ab0bc1a` for Tasks 1-9, 11. Task 10 is iterative (one source pack at a time, human review between batches). Pack `campaign-types-v1` is currently **drafted in `knowledge/drafts/campaign-types-v1/` (gitignored)** and waiting for human review before being promoted into `src/knowledge/direct-pro/cards/campaign-types.ts`.
 
 | Task | Status | Commit |
 |------|--------|--------|
@@ -26,8 +26,27 @@
 | 7. Wire challenger into evaluation API | Done | `54f1954` |
 | 8. Render challenges in the UI + Markdown export | Done | `30bf5b1` |
 | 9. Source intake docs (no adapters yet) | Done | `ab0bc1a` |
-| 10. Fill knowledge cards by domain batch | **Not started** — see "How to resume Task 10" below |
+| 10. Fill knowledge cards by domain batch | **In progress** — `campaign-types-v1` drafted, awaiting human review (see "How to resume Task 10" below) |
 | 11. Human review loop for cards (`card-review-process.md`) | Done | `ab0bc1a` |
+
+### Tooling that exists for Task 10 batches
+
+- `tools/direct-pro-knowledge/extract_pdf_text.py` — PyMuPDF-based PDF → text extractor. Reads `knowledge/drafts/<pack-id>/inputs/`, writes UTF-8 text into `knowledge/drafts/<pack-id>/extracted/`.
+- `tools/direct-pro-knowledge/validate-candidates.ts` — Zod-validator for `candidate-cards.json` (schema + id uniqueness vs runtime + drafts must be `review_needed`).
+- `.venv-pdf/` — local Python venv with `pymupdf` (gitignored). Recreate with `python3 -m venv .venv-pdf && .venv-pdf/bin/pip install --quiet pymupdf`.
+- `baza_znaniy/` — gitignored drop folder for user-provided PDFs. Symlinked from `knowledge/drafts/<pack-id>/inputs/` so the manifest path remains stable.
+
+### Pack `campaign-types-v1` — current state
+
+- Manifest: `docs/knowledge/source-packs/campaign-types-v1/source-pack.yaml` (committed).
+- Authoring rules for this batch: `docs/knowledge/source-packs/campaign-types-v1/notes.md` (committed).
+- Inputs (gitignored, as symlinks): `knowledge/drafts/campaign-types-v1/inputs/*.pdf` → `baza_znaniy/campaigns/`.
+- Extracted text (gitignored): `knowledge/drafts/campaign-types-v1/extracted/*.txt`.
+- Drafts (gitignored, validated against `directProKnowledgeCardSchema`):
+  - `candidate-cards.json` — 8 cards: `campaign_type.{epk, master_campaigns, simple_start, product_campaign, reach_campaign, thematic_promotion, content_promotion, context_banner}`.
+  - `unresolved-questions.md`, `conflicts.md`, `coverage-note.md`.
+
+The next agent in this workstream should **start by reading `coverage-note.md`, `unresolved-questions.md`, `conflicts.md`, and `candidate-cards.json` for `campaign-types-v1` together with the user's review feedback**, then promote whatever the user approves (see "How to resume Task 10" below). Do not author a new pack until `campaign-types-v1` lands in `src/knowledge/direct-pro/cards/`.
 
 ### Decisions baked into the implementation
 
@@ -39,12 +58,52 @@
 
 ### How to resume Task 10 in a fresh session
 
-1. Read this plan, then `docs/knowledge/source-packs/README.md` and `docs/knowledge/card-review-process.md`.
-2. Confirm the next source pack from the batch order (start: `campaign-types-v1`). Ask the user for the source pack's input file(s) — usually a sanitized PDF or an approved Wiki/text export.
-3. Drop the file(s) into either `docs/knowledge/source-packs/<pack-id>/inputs/` (committed, if user approves) or `knowledge/drafts/<pack-id>/inputs/` (gitignored, never committed).
-4. Produce drafts into `knowledge/drafts/<pack-id>/` (gitignored): `candidate-cards.json`, `unresolved-questions.md`, `conflicts.md`, `coverage-note.md`.
-5. Stop for human review. After approval, promote cards to `src/knowledge/direct-pro/cards/<domain>.ts`, add realistic aliases, ensure ids are unique and the schema test passes.
-6. Re-run `npx vitest run` and `npm run build`. Only then start the next pack.
+There are two distinct entry states. Always check first which one you are in.
+
+#### A) A pack is already drafted, waiting for human review (current state for `campaign-types-v1`)
+
+This is the **default situation when you open a fresh session and `knowledge/drafts/<pack-id>/candidate-cards.json` already exists**.
+
+1. Read this plan ("Implementation Status" → "Pack X — current state"), then `docs/knowledge/card-review-process.md`, then `tools/direct-pro-knowledge/README.md` (workflow + validator).
+2. Read all four pack outputs in order: `coverage-note.md` (what was covered), `conflicts.md`, `unresolved-questions.md`, finally `candidate-cards.json`. Read the matching `notes.md` and `source-pack.yaml` for authoring rules.
+3. Wait for the user's verdict: which cards are approved as-is, which need edits, which are dropped.
+4. Re-validate after edits:
+   ```bash
+   npx tsx tools/direct-pro-knowledge/validate-candidates.ts <pack-id>
+   ```
+5. **Promote** approved cards into a typed file `src/knowledge/direct-pro/cards/<domain>.ts`. Use the convention `<domain>.ts` matching the pack's domain (e.g. `campaign-types.ts` for `campaign-types-v1`). Steps:
+   - Create `src/knowledge/direct-pro/cards/<domain>.ts` exporting a const array typed as `DirectProKnowledgeCard[]`.
+   - Add it to `src/knowledge/direct-pro/cards/index.ts` so it joins `DIRECT_PRO_KNOWLEDGE_CARDS`.
+   - Aliases must be realistic — keep the ones the draft already chose unless the user said otherwise. Do not broaden the selector speculatively.
+   - Confidence stays `"review_needed"` unless the user explicitly signed off as `"approved"` per `card-review-process.md`.
+6. Run the full check:
+   ```bash
+   npx vitest run     # cards/index uniqueness test must stay green
+   npm run build      # typecheck + Next.js build
+   ```
+7. Commit with a message like `feat(knowledge): promote <pack-id> cards`. Optionally push.
+8. Only then start the next pack (see B).
+
+The drafts (`candidate-cards.json`, `*.md`, `inputs/`, `extracted/`) stay gitignored after promotion. Do not delete them — they are useful for re-derivation if a card needs to be reverted.
+
+#### B) Starting a fresh pack (no drafts yet)
+
+1. Read this plan, `docs/knowledge/source-packs/README.md`, `docs/knowledge/card-review-process.md`, `tools/direct-pro-knowledge/README.md`.
+2. Confirm the next source pack from the batch order in `docs/knowledge/source-packs/README.md`. Ask the user which pack and which input files (usually sanitized PDFs or approved Wiki/text exports).
+3. Inputs:
+   - If the file is small and approvable for commit → drop into `docs/knowledge/source-packs/<pack-id>/inputs/` (committed).
+   - If the file is large or sensitive → drop into `baza_znaniy/<subfolder>/` (gitignored) and create symlinks under `knowledge/drafts/<pack-id>/inputs/` (gitignored). The pack manifest references the symlink path.
+4. Set up extraction (only the first time per machine):
+   ```bash
+   python3 -m venv .venv-pdf && .venv-pdf/bin/pip install --quiet pymupdf
+   ```
+5. Author the pack:
+   - `docs/knowledge/source-packs/<pack-id>/source-pack.yaml` (committed).
+   - `docs/knowledge/source-packs/<pack-id>/notes.md` (committed) — authoring rules for the batch.
+   - Run `tools/direct-pro-knowledge/extract_pdf_text.py <pack-id>` to get extracted text under `knowledge/drafts/<pack-id>/extracted/`.
+   - Read the extracted text and write `candidate-cards.json` + `unresolved-questions.md` + `conflicts.md` + `coverage-note.md` into `knowledge/drafts/<pack-id>/` (all gitignored).
+   - Run `npx tsx tools/direct-pro-knowledge/validate-candidates.ts <pack-id>` and fix anything it flags.
+6. Stop for human review. After approval, follow the promote steps from path A.
 
 Do not attempt multiple packs in one session; the plan's "Context Management Rules" exist precisely to prevent cross-domain pollution.
 

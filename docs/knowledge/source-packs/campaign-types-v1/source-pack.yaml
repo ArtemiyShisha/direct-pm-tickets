@@ -1,0 +1,40 @@
+id: campaign-types-v1
+domain: campaign_types
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/. The PDFs themselves are gitignored (see .gitignore:
+  # /baza_znaniy/ and /knowledge/drafts/) and never committed.
+  - knowledge/drafts/campaign-types-v1/inputs/Единая перфоманс-кампания-v1-5_9.pdf
+  - knowledge/drafts/campaign-types-v1/inputs/Мастер кампаний-v1-5_9_2026, 11_22_31 PM.pdf
+  - knowledge/drafts/campaign-types-v1/inputs/Простой старт-v1-5_9_2026, 11_28_55 PM.pdf
+  - knowledge/drafts/campaign-types-v1/inputs/Товарная кампания-v1-5_9_2026, 11_25_25.pdf
+  - knowledge/drafts/campaign-types-v1/inputs/Охватные кампании в Директе-v1-.pdf
+  - knowledge/drafts/campaign-types-v1/inputs/Продвижение в тематических ра.pdf
+  - knowledge/drafts/campaign-types-v1/inputs/Продвижение контента-v1-5_9_2026, 11.pdf
+  - knowledge/drafts/campaign-types-v1/inputs/Баннер на Поиске (Контекстный .pdf
+  - knowledge/drafts/campaign-types-v1/inputs/Web+App-v1-5_9_2026, 11_31_10 PM.pdf
+expected_card_kinds:
+  - campaign_type
+out_of_scope:
+  # Topics that surface in these PDFs but belong to later batches.
+  - detailed campaign settings (autotargeting, geo, time, bid adjustments, URL params, Metrica) — covered by campaign-group-settings-v1
+  - moderation flow and moderation statuses — covered by moderation-ad-materials-v1
+  - reports / statistics views and discrepancies — covered by reports-statistics-optimization-v1
+  - ad assets (titles, images, video, callouts, organization card, etc.) — covered by moderation-ad-materials-v1
+  - billing, payers, agency relations — covered by billing-agency-legal-entities-v1
+  - legal marking, ORD, sanctions — covered by legal-marking-compliance-v1
+  - bulk surfaces (grids, mass edit, Commander, Excel, API, mobile app, change history) — covered by bulk-professional-surfaces-v1
+  - targeting and semantics (keywords, audience segments, retargeting, display conditions) — covered by targeting-semantics-v1
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/campaign-types-v1/
+
+# Notes:
+# - PDFs total ~190 MB and live under /baza_znaniy/ (gitignored). Symlinks
+#   under knowledge/drafts/<pack-id>/inputs/ are the runtime path.
+# - Extract text into knowledge/drafts/<pack-id>/extracted/<basename>.txt with
+#   `tools/direct-pro-knowledge/extract_pdf_text.py campaign-types-v1`. The
+#   extracted text is also gitignored.
+# - Do not commit the PDFs or extracted text.

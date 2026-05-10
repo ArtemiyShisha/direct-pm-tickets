@@ -6,14 +6,25 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Active plan
 
-The current product workstream is the **Direct.Pro Product Challenger knowledge map**. Before touching `src/knowledge/direct-pro/`, `src/app/api/evaluate/route.ts`, the Challenger prompt or any source intake / source pack docs, read:
+The current product workstream is the **Direct.Pro Product Challenger knowledge map**, Task 10 — filling knowledge cards by domain batch. **Right now the pack `campaign-types-v1` is drafted in `knowledge/drafts/campaign-types-v1/` (gitignored) and waiting for human review before promotion into `src/knowledge/direct-pro/cards/campaign-types.ts`.** Do not start a new pack until that one lands.
 
-- `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` — the plan. Start with the "Implementation Status" table and "How to resume Task 10 in a fresh session" right after the goal/architecture section. Tasks 1-9 and 11 are merged; Task 10 (filling cards by domain batch) is iterative — one source pack at a time with human review between batches.
+Before touching `src/knowledge/direct-pro/`, `src/app/api/evaluate/route.ts`, the Challenger prompt, or any source intake / source pack docs / extractor tooling, read:
+
+- `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` — the plan. Start with "Implementation Status" (incl. "Pack `campaign-types-v1` — current state") and "How to resume Task 10 in a fresh session" — that section has two distinct paths (A: pack already drafted, awaiting promotion; B: starting a fresh pack). Pick the right one.
 - `docs/knowledge/source-packs/README.md` — source pack manifest format and the fixed 10-batch order.
 - `docs/knowledge/card-review-process.md` — card lifecycle (`draft → review_needed → approved → deprecated`) and the promotion criteria.
-- `tools/direct-pro-knowledge/README.md` — hard rule about what may be committed and what stays gitignored under `knowledge/raw-*`, `knowledge/drafts/`, `work/direct-pro-knowledge/`.
+- `tools/direct-pro-knowledge/README.md` — hard rule about what may be committed (sanitized cards, manifests, extractor scripts) and what stays gitignored (`knowledge/raw-*`, `knowledge/drafts/`, `work/direct-pro-knowledge/`, `baza_znaniy/`, `.venv-pdf/`). Contains the end-to-end runbook for the manual PDF drop adapter and the validator.
 
 For broader context (Pre-Analysis round, scoring calibration history, key files), read `CONTEXT.md`.
+
+## Knowledge extraction tooling
+
+For Task 10 batches, two committed scripts handle the manual PDF drop workflow:
+
+- `tools/direct-pro-knowledge/extract_pdf_text.py` — PyMuPDF-based extractor; reads `knowledge/drafts/<pack-id>/inputs/` (often symlinks into `baza_znaniy/`), writes `.txt` into `knowledge/drafts/<pack-id>/extracted/`. Requires the local `.venv-pdf` (`python3 -m venv .venv-pdf && .venv-pdf/bin/pip install --quiet pymupdf`).
+- `tools/direct-pro-knowledge/validate-candidates.ts` — Zod-validator for `candidate-cards.json`. Run `npx tsx tools/direct-pro-knowledge/validate-candidates.ts <pack-id>` before asking the user for review and again before promotion.
+
+Both `baza_znaniy/` and `.venv-pdf/` are gitignored. The PDFs themselves should never enter git.
 
 ## Model + tests
 

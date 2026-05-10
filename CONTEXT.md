@@ -123,7 +123,27 @@
 - `docs/knowledge/card-review-process.md` — переходы `draft → review_needed → approved → deprecated` и критерии каждого.
 - `tools/direct-pro-knowledge/README.md` — правила локальных raw-источников и кандидаты на адаптеры (пока ни одного не реализовано).
 
-**Результат**: Tasks 1-9 и 11 закрыты, Task 10 (заполнение карточек по батчам) ждёт первый source pack от пользователя. Подробнее см. секцию "Implementation Status" в плане.
+**Результат**: Tasks 1-9 и 11 закрыты. Task 10 — в процессе: первый source pack `campaign-types-v1` уже **drafted в `knowledge/drafts/campaign-types-v1/` (gitignored)** и ждёт human review перед promote в `src/knowledge/direct-pro/cards/campaign-types.ts`. Подробнее см. секцию "Implementation Status" в плане.
+
+### Раунд 6: Manual PDF drop tooling + первый knowledge pack `campaign-types-v1`
+
+Реализован первый source-pack adapter — manual PDF drop. Добавлены два committed-инструмента в `tools/direct-pro-knowledge/`:
+
+- `extract_pdf_text.py` — PyMuPDF-based PDF→text extractor. Читает `knowledge/drafts/<pack-id>/inputs/` (gitignored, может содержать симлинки), пишет UTF-8 текст в `knowledge/drafts/<pack-id>/extracted/`.
+- `validate-candidates.ts` — Zod-валидатор для `candidate-cards.json`. Парсит против `directProKnowledgeCardSchema`, проверяет уникальность id (внутри драфта и относительно уже промоутнутых runtime-карточек), запрещает `confidence: "approved"` для драфтов.
+
+В `.gitignore` добавлены `/baza_znaniy/` (drop-folder для пользовательских PDF) и `/.venv-pdf/` (локальный venv с pymupdf). Обновлены: `docs/knowledge/source-packs/README.md`, `tools/direct-pro-knowledge/README.md`, план (Implementation Status + "How to resume Task 10").
+
+Подготовлен первый домен-батч `campaign-types-v1`: 8 draft-карточек по основным типам кампаний Direct.Pro (`campaign_type.{epk, master_campaigns, simple_start, product_campaign, reach_campaign, thematic_promotion, content_promotion, context_banner}`). Все валидируются Zod-схемой, лежат в gitignored `knowledge/drafts/campaign-types-v1/candidate-cards.json`. Сопровождаются `unresolved-questions.md` (15 пунктов), `conflicts.md` (5 пунктов), `coverage-note.md`. Источник — 9 PDF в `baza_znaniy/campaigns/`, текст извлечён в `knowledge/drafts/campaign-types-v1/extracted/`.
+
+**Новые файлы:**
+
+- `tools/direct-pro-knowledge/extract_pdf_text.py`
+- `tools/direct-pro-knowledge/validate-candidates.ts`
+- `docs/knowledge/source-packs/campaign-types-v1/source-pack.yaml`
+- `docs/knowledge/source-packs/campaign-types-v1/notes.md`
+
+**Состояние**: ждёт human review. После одобрения пользователем карточки промотятся в `src/knowledge/direct-pro/cards/campaign-types.ts`, добавляются в barrel `cards/index.ts`, прогоняются `npx vitest run` + `npm run build`, после чего `selectDirectProCards` начинает ловить эпики про ЕПК, МК, Простой старт, Товарную, Охватные, тематические разделы, Продвижение контента, Баннер на Поиске.
 
 ### Что нужно проверить
 
@@ -142,7 +162,9 @@
 | `docs/knowledge/direct-pro-knowledge-skeleton.md` | Скелетон 20 доменов Direct.Pro (campaign types, hierarchy, settings, surfaces, targeting, moderation, billing, stats, legal, adjacent, ...). |
 | `docs/knowledge/source-packs/README.md` | Манифесты source pack'ов, порядок 10 батчей. |
 | `docs/knowledge/card-review-process.md` | Жизненный цикл карточек, критерии promotion и demotion. |
-| `tools/direct-pro-knowledge/README.md` | Правила raw-источников, кандидаты адаптеров. |
+| `tools/direct-pro-knowledge/README.md` | Правила raw-источников, runbook манул-PDF-адаптера, end-to-end workflow для пака. |
+| `tools/direct-pro-knowledge/extract_pdf_text.py` | PDF→text extractor (PyMuPDF). Запуск: `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py <pack-id>`. |
+| `tools/direct-pro-knowledge/validate-candidates.ts` | Валидатор `candidate-cards.json` против Zod-схемы. Запуск: `npx tsx tools/direct-pro-knowledge/validate-candidates.ts <pack-id>`. |
 | `src/lib/openai.ts` | `EVALUATION_MODEL = "gpt-5.5"` + клиент OpenAI. |
 | `src/lib/types.ts` | CRITERIA, CRITERIA_GROUPS, PreAnalysisResult, **ProductChallenge**, scoreToStatus(), calculateTotalScore(). |
 | `src/lib/evaluation-schema.ts` | Zod + JSON Schema для валидации ответов LLM по группам критериев. |
@@ -185,20 +207,22 @@
 
 ### Прямо сейчас на повестке (Task 10 из плана)
 
-Заполнение знаниевых карточек по доменным батчам. Делается **итеративно**, по одному source pack за раз, с human review между батчами. Подробный how-to — в `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` (секция "How to resume Task 10 in a fresh session").
+Заполнение знаниевых карточек по доменным батчам. Делается **итеративно**, по одному source pack за раз, с human review между батчами. Подробный how-to — в `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` (секция "How to resume Task 10 in a fresh session" — там два пути: A для пакетов в состоянии «drafted, ждёт promotion», B для старта нового пакета).
+
+**Текущий статус — путь A:** `campaign-types-v1` drafted, ждёт ревью пользователя. Следующий шаг — после approve промотить approved карточки в `src/knowledge/direct-pro/cards/campaign-types.ts`.
 
 Очередь батчей (порядок зафиксирован в `docs/knowledge/source-packs/README.md`):
 
-1. `campaign-types-v1` — EPK, Master of Campaigns, Simple Start, mobile app promotion, Telegram, product, reach, archived types.
-2. `campaign-hierarchy-lifecycle-v1`.
-3. `campaign-group-settings-v1`.
-4. `bulk-professional-surfaces-v1`.
-5. `targeting-semantics-v1`.
-6. `moderation-ad-materials-v1`.
-7. `billing-agency-legal-entities-v1`.
-8. `reports-statistics-optimization-v1`.
-9. `legal-marking-compliance-v1`.
-10. `support-adjacent-services-v1`.
+1. `campaign-types-v1` — **drafted, awaiting review** (8 cards: ЕПК, МК, Простой старт, Товарная, Охватные, тематические разделы, Продвижение контента, Контекстный баннер).
+2. `campaign-hierarchy-lifecycle-v1` — pending.
+3. `campaign-group-settings-v1` — pending.
+4. `bulk-professional-surfaces-v1` — pending.
+5. `targeting-semantics-v1` — pending.
+6. `moderation-ad-materials-v1` — pending.
+7. `billing-agency-legal-entities-v1` — pending.
+8. `reports-statistics-optimization-v1` — pending.
+9. `legal-marking-compliance-v1` — pending.
+10. `support-adjacent-services-v1` — pending.
 
 Каждый батч ждёт от пользователя одобренный source pack (PDF / sanitized текст / approved Wiki выгрузка).
 
