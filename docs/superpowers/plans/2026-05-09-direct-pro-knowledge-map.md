@@ -10,6 +10,46 @@
 
 ---
 
+## Implementation Status
+
+> Status as of `ab0bc1a`. Tasks 1-9 and 11 are merged into `main`. Task 10 is intentionally left iterative (one source pack at a time, human review between batches) — no cards from Task 10 have been authored yet.
+
+| Task | Status | Commit |
+|------|--------|--------|
+| 1. Lock down local knowledge artifact policy | Done | `92277d0` |
+| 2. Define the approved knowledge card schema | Done | `fb55907` |
+| 3. Add a minimal approved card set (campaign / ad_group / ad) | Done | `e20fe2d` |
+| 4. Build card selection for epics | Done | `2a97ad0` |
+| 5. Add Product Challenger structured output | Done | `d6d00c5` |
+| — Refactor: `EVALUATION_MODEL = "gpt-5.5"` | Done | `6930b05` |
+| 6. Build the challenger prompt | Done | `e4f7fa5` |
+| 7. Wire challenger into evaluation API | Done | `54f1954` |
+| 8. Render challenges in the UI + Markdown export | Done | `30bf5b1` |
+| 9. Source intake docs (no adapters yet) | Done | `ab0bc1a` |
+| 10. Fill knowledge cards by domain batch | **Not started** — see "How to resume Task 10" below |
+| 11. Human review loop for cards (`card-review-process.md`) | Done | `ab0bc1a` |
+
+### Decisions baked into the implementation
+
+- **LLM model:** all four GPT calls (Pre-Analysis, 3 group evaluators, Product Challenger) share the constant `EVALUATION_MODEL = "gpt-5.5"` in `src/lib/openai.ts`. Bump it in one place if needed.
+- **Challenger when no cards match:** if `selectDirectProCards(epicText)` returns `[]`, the Product Challenger LLM call is skipped and `product_challenges: []` is returned. The base per-criterion "Вопросы к PM" still come from the existing pipeline, so a Direct.Pro-irrelevant epic is not left silent — see `src/app/api/evaluate/route.ts`.
+- **Test runner:** Vitest is set up with `npm test` / `npm run test:watch`. `vitest.config.ts` mirrors the `@/*` tsconfig path alias.
+- **Card confidence floor for runtime:** the three core cards ship with `confidence: "review_needed"`. They are good enough to keep the Challenger from being mute, but they are not "approved" facts. Promotion rules live in `docs/knowledge/card-review-process.md`.
+- **Selector aliases:** intentionally narrow ("кампани", "групп", "объявлен", "ad group", " ad ") to avoid false positives on words like "additional". Adding broader aliases speculatively is discouraged — add them with the card that needs them.
+
+### How to resume Task 10 in a fresh session
+
+1. Read this plan, then `docs/knowledge/source-packs/README.md` and `docs/knowledge/card-review-process.md`.
+2. Confirm the next source pack from the batch order (start: `campaign-types-v1`). Ask the user for the source pack's input file(s) — usually a sanitized PDF or an approved Wiki/text export.
+3. Drop the file(s) into either `docs/knowledge/source-packs/<pack-id>/inputs/` (committed, if user approves) or `knowledge/drafts/<pack-id>/inputs/` (gitignored, never committed).
+4. Produce drafts into `knowledge/drafts/<pack-id>/` (gitignored): `candidate-cards.json`, `unresolved-questions.md`, `conflicts.md`, `coverage-note.md`.
+5. Stop for human review. After approval, promote cards to `src/knowledge/direct-pro/cards/<domain>.ts`, add realistic aliases, ensure ids are unique and the schema test passes.
+6. Re-run `npx vitest run` and `npm run build`. Only then start the next pack.
+
+Do not attempt multiple packs in one session; the plan's "Context Management Rules" exist precisely to prevent cross-domain pollution.
+
+---
+
 ## Current Findings
 
 - The existing app already has a `Pre-Analysis` step and a small `src/knowledge/direct-context.ts` product catalog.
@@ -177,7 +217,7 @@ Every batch must end with:
 - Create: `docs/knowledge/direct-pro-knowledge-skeleton.md`
 - Create: `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md`
 
-- [ ] **Step 1: Ensure local Arcadia/Wiki raw outputs are ignored**
+- [x] **Step 1: Ensure local Arcadia/Wiki raw outputs are ignored**
 
 Add ignore rules:
 
@@ -191,7 +231,7 @@ Add ignore rules:
 /work/direct-pro-knowledge/
 ```
 
-- [ ] **Step 2: Verify ignore rules**
+- [x] **Step 2: Verify ignore rules**
 
 Run:
 
@@ -201,7 +241,7 @@ git check-ignore -v knowledge/arcadia/example.md knowledge/wiki-dumps/page.md kn
 
 Expected: each raw/draft path is matched by `.gitignore`. User-approved source files outside these ignored paths are not ignored by this rule.
 
-- [ ] **Step 3: Commit the documentation-only baseline**
+- [x] **Step 3: Commit the documentation-only baseline**
 
 Run:
 
@@ -218,7 +258,7 @@ Expected: a commit containing only documentation and ignore rules.
 - Create: `src/knowledge/direct-pro/schema.ts`
 - Create: `src/knowledge/direct-pro/schema.test.ts`
 
-- [ ] **Step 1: Add schema tests**
+- [x] **Step 1: Add schema tests**
 
 Create `src/knowledge/direct-pro/schema.test.ts` with examples that represent approved runtime cards:
 
@@ -262,7 +302,7 @@ describe("directProKnowledgeCardSchema", () => {
 });
 ```
 
-- [ ] **Step 2: Add schema implementation**
+- [x] **Step 2: Add schema implementation**
 
 Create `src/knowledge/direct-pro/schema.ts`:
 
@@ -327,7 +367,7 @@ export const directProKnowledgeCardSchema = z.object({
 export type DirectProKnowledgeCard = z.infer<typeof directProKnowledgeCardSchema>;
 ```
 
-- [ ] **Step 3: Run schema tests**
+- [x] **Step 3: Run schema tests**
 
 Run:
 
@@ -335,7 +375,7 @@ Run:
 npm test -- src/knowledge/direct-pro/schema.test.ts
 ```
 
-Expected: the test command may need to be added first because the current project has no test script. If no test runner exists yet, add Vitest in a separate task.
+Done: Vitest is installed and `npm test` / `npm run test:watch` are wired in `package.json`. `vitest.config.ts` mirrors the `@/*` tsconfig path alias so tests in `src/**` can import via `@/lib/...` and `@/knowledge/...`.
 
 ## Task 3: Add A Minimal Approved Card Set
 
@@ -344,7 +384,7 @@ Expected: the test command may need to be added first because the current projec
 - Create: `src/knowledge/direct-pro/cards/index.ts`
 - Create: `src/knowledge/direct-pro/cards/index.test.ts`
 
-- [ ] **Step 1: Add tests for card uniqueness**
+- [x] **Step 1: Add tests for card uniqueness**
 
 Create `src/knowledge/direct-pro/cards/index.test.ts`:
 
@@ -366,7 +406,7 @@ describe("DIRECT_PRO_KNOWLEDGE_CARDS", () => {
 });
 ```
 
-- [ ] **Step 2: Add a minimal sanitized card file**
+- [x] **Step 2: Add a minimal sanitized card file**
 
 Create `src/knowledge/direct-pro/cards/core.ts`:
 
@@ -446,7 +486,7 @@ export const CORE_DIRECT_PRO_CARDS: DirectProKnowledgeCard[] = [
 ];
 ```
 
-- [ ] **Step 3: Export cards**
+- [x] **Step 3: Export cards**
 
 Create `src/knowledge/direct-pro/cards/index.ts`:
 
@@ -462,7 +502,7 @@ export const DIRECT_PRO_KNOWLEDGE_CARDS = [...CORE_DIRECT_PRO_CARDS] as const;
 - Create: `src/knowledge/direct-pro/select.ts`
 - Create: `src/knowledge/direct-pro/select.test.ts`
 
-- [ ] **Step 1: Add selector tests**
+- [x] **Step 1: Add selector tests**
 
 Create `src/knowledge/direct-pro/select.test.ts`:
 
@@ -483,7 +523,7 @@ describe("selectDirectProCards", () => {
 });
 ```
 
-- [ ] **Step 2: Add selector implementation**
+- [x] **Step 2: Add selector implementation**
 
 Create `src/knowledge/direct-pro/select.ts`:
 
@@ -510,7 +550,7 @@ export function selectDirectProCards(epicText: string): DirectProKnowledgeCard[]
 - Create: `src/lib/product-challenger-schema.ts`
 - Modify: `src/lib/types.ts`
 
-- [ ] **Step 1: Add types**
+- [x] **Step 1: Add types**
 
 Modify `src/lib/types.ts`:
 
@@ -535,7 +575,7 @@ export interface EvaluationResult {
 }
 ```
 
-- [ ] **Step 2: Add Zod and JSON Schema**
+- [x] **Step 2: Add Zod and JSON Schema**
 
 Create `src/lib/product-challenger-schema.ts`:
 
@@ -612,7 +652,7 @@ export const productChallengerJsonSchema = {
 **Files:**
 - Create: `src/prompts/product-challenger-prompt.ts`
 
-- [ ] **Step 1: Add prompt builder**
+- [x] **Step 1: Add prompt builder**
 
 Create `src/prompts/product-challenger-prompt.ts`:
 
@@ -671,7 +711,7 @@ ${cardBlock}`;
 - Modify: `src/app/api/evaluate/route.ts`
 - Modify: `src/lib/types.ts`
 
-- [ ] **Step 1: Add `runProductChallenger` after the current group evaluations**
+- [x] **Step 1: Add `runProductChallenger` after the current group evaluations**
 
 Implementation shape:
 
@@ -688,7 +728,7 @@ async function runProductChallenger(
   const systemPrompt = buildProductChallengerPrompt(preAnalysis, criteria, cards);
 
   const response = await client.chat.completions.create({
-    model: "gpt-5.4",
+    model: EVALUATION_MODEL, // EVALUATION_MODEL = "gpt-5.5" — см. src/lib/openai.ts
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: `Прочитай эпик и сформулируй продуктовые челленджи:\n\n---\n${epicText}\n---` },
@@ -709,7 +749,7 @@ async function runProductChallenger(
 }
 ```
 
-- [ ] **Step 2: Return challenges without changing `total_score`**
+- [x] **Step 2: Return challenges without changing `total_score`**
 
 Add to the JSON response:
 
@@ -729,11 +769,11 @@ return NextResponse.json({
 - Modify: `src/components/evaluation-result.tsx`
 - Modify: `src/lib/export-markdown.ts`
 
-- [ ] **Step 1: Add a compact challenge section**
+- [x] **Step 1: Add a compact challenge section**
 
 Render product challenges below the score summary and above criterion groups. Use severity labels and related criteria badges. Do not imply that challenges reduce score.
 
-- [ ] **Step 2: Add Markdown export**
+- [x] **Step 2: Add Markdown export**
 
 Append:
 
@@ -757,7 +797,7 @@ Append:
 - Create later: `tools/direct-pro-knowledge/prompts/extract-card.md`
 - Create later: `docs/knowledge/source-packs/README.md`
 
-- [ ] **Step 1: Document source rules**
+- [x] **Step 1: Document source rules**
 
 The tool README must state:
 
@@ -767,7 +807,9 @@ User-provided PDFs/texts may be committed as source material only when explicitl
 Railway must use only approved sanitized cards from src/knowledge/direct-pro/cards.
 ```
 
-- [ ] **Step 2: Implement source adapters only after source access is settled**
+- [x] **Step 2: Implement source adapters only after source access is settled**
+
+(No adapters implemented yet — by design. The README in `tools/direct-pro-knowledge/` lists the candidate adapters and the conditions for picking one when Task 10 needs it.)
 
 Candidate adapters:
 
@@ -775,7 +817,7 @@ Candidate adapters:
 - `ya tool cs` only for locating references, not for crawling Arcadia;
 - manual PDF/text drop into a tracked source folder when the user explicitly approves committing those files; otherwise use ignored local paths.
 
-- [ ] **Step 3: Document source pack manifests**
+- [x] **Step 3: Document source pack manifests**
 
 Create `docs/knowledge/source-packs/README.md`:
 
@@ -911,7 +953,7 @@ Do not start `Product Challenger` runtime integration until at least the first f
 **Files:**
 - Create later: `docs/knowledge/card-review-process.md`
 
-- [ ] **Step 1: Define card states**
+- [x] **Step 1: Define card states**
 
 Use:
 
@@ -919,7 +961,7 @@ Use:
 draft -> review_needed -> approved -> deprecated
 ```
 
-- [ ] **Step 2: Define approval criteria**
+- [x] **Step 2: Define approval criteria**
 
 A card can be `approved` only when:
 
@@ -931,11 +973,18 @@ A card can be `approved` only when:
 
 ## Open Questions
 
-- Which approved/sanitized facts are allowed to be sent to OpenAI from Railway?
-- Should sourceRefs contain only generic labels, or can they include internal page names without raw content?
-- Should the first runtime UI call these items "Product Challenges", "Вопросы к идее", or merge them into the existing questions UI?
-- Which source adapter is easiest first: PDF/manual upload, Wiki API, or intrasearch?
-- Do we add a test runner now, or keep the first implementation limited to typecheck/lint until tests are introduced?
+### Resolved during implementation
+
+- **Test runner.** Vitest added in Task 2 (commit `fb55907`). `vitest.config.ts` resolves the `@/*` alias from tsconfig.
+- **UI label for the new block.** Rendered as "Продуктовые челленджи" with an explicit "Не влияют на оценку" caption (Task 8, commit `30bf5b1`).
+- **Source adapter to start with.** None implemented yet. The current consensus is to start with **manual PDF/text drop** (cheapest, no auth, the file can be reviewed before commit). Wiki API / `ya tool cs` lookups deferred until access and the next batch's scope are settled. See `tools/direct-pro-knowledge/README.md`.
+- **`sourceRefs` discipline.** Resolved in `docs/knowledge/card-review-process.md`: `label` is a human-readable hint, `location` is a non-secret pointer (`"sanitized"` or an in-repo path under `docs/knowledge/source-packs/<pack-id>/inputs/<file>`), `reviewedBy` is the reviewer handle/role. No raw source text in any field.
+- **GPT model.** Centralized in `EVALUATION_MODEL = "gpt-5.5"` (commit `6930b05`); same model is used by all four LLM calls.
+
+### Still open (defer to Task 10 batches)
+
+- **Which approved/sanitized facts are allowed to be sent to OpenAI from Railway?** The card schema treats every `approved` card as safe to send, but the rule for `review_needed` cards is "best-effort: still goes to runtime, but phrased as a question". Reconfirm during each domain batch in case some domains (e.g. legal, billing) need a stricter gate.
+- **Selector breadth.** Three core entity cards mean Challenger fires only on epics that mention campaigns / groups / ads. After the first 2-3 Task 10 batches the alias coverage will broaden naturally; revisit whether the substring matcher needs to grow into something more structured (e.g. token-level matcher, lemmatizer) only when we see real false negatives.
 
 ## Verification
 

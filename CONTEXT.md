@@ -2,9 +2,9 @@
 
 ## Суть проекта
 
-Инструмент автоматической оценки эпиков Яндекс Директа по 14 продуктовым критериям. PM вставляет текст эпика → система оценивает через GPT-5.4 → выдаёт баллы, вопросы, черновики для доработки.
+Инструмент автоматической оценки эпиков Яндекс Директа по 14 продуктовым критериям. PM вставляет текст эпика → система делает Pre-Analysis → параллельно оценивает 3 группы критериев через `gpt-5.5` → дополнительно гоняет Direct.Pro Product Challenger → выдаёт баллы, вопросы, черновики и продуктовые челленджи к самой идее.
 
-**Стек**: Next.js 16, TypeScript, Tailwind + shadcn/ui, OpenAI GPT-5.4, Zod 4.
+**Стек**: Next.js 16, TypeScript, Tailwind + shadcn/ui, OpenAI `gpt-5.5` (один константный `EVALUATION_MODEL` в `src/lib/openai.ts`), Zod 4, Vitest.
 **Деплой**: Railway, автодеплой из `main`.
 **Репо**: https://github.com/ArtemiyShisha/direct-pm-tickets
 
@@ -66,11 +66,15 @@
 
 ### Что задеплоено и работает
 
-- 14 критериев в 3 группах, 3 параллельных вызова GPT-5.4
-- Веса: x1.5 (problem, solution, metrics, scenarios, ready_for_dev), x1.0 (potential, analytics, design, corner_cases, launch), x0.7 (onboarding, interfaces, international, logging)
-- N/A-поддержка в типах, схемах, UI, экспорте
-- Контекстный кредит и явные N/A-триггеры в промпте
-- Продуктово-ориентированная шкала (6-7 = достаточно для работы)
+- 14 критериев в 3 группах, 3 параллельных вызова `gpt-5.5` (унифицирован через `EVALUATION_MODEL`).
+- Step 0: Pre-Analysis (`runPreAnalysis`) с автоопределением типа эпика, продуктов и N/A-критериев.
+- Step 4: Direct.Pro Product Challenger (`runProductChallenger`) — отдельный LLM-вызов с structured output, до 12 челленджей, не пересчитывает score. Запускается, только если селектор нашёл релевантные карточки знания; иначе скипается.
+- Веса: x1.5 (problem, solution, metrics, scenarios, ready_for_dev), x1.0 (potential, analytics, design, corner_cases, launch), x0.7 (onboarding, interfaces, international, logging).
+- N/A-поддержка в типах, схемах, UI, экспорте.
+- Контекстный кредит и явные N/A-триггеры в промпте.
+- Продуктово-ориентированная шкала (6-7 = достаточно для работы).
+- UI отдельной секцией показывает "Продуктовые челленджи" с пометкой "Не влияют на оценку"; markdown-экспорт включает ту же секцию.
+- Vitest c `npm test` / `npm run test:watch`; на момент написания зелёные 20/20.
 
 ### Раунд 4: Pre-Analysis Pipeline
 
@@ -88,29 +92,73 @@
 - `src/prompts/pre-analysis-prompt.ts` — промпт для Step 0
 - `src/lib/pre-analysis-schema.ts` — Zod + JSON Schema для Pre-Analysis
 
-**Результат**: собрано, ожидает тестирования и деплоя.
+**Результат**: задеплоено.
+
+### Раунд 5: Direct.Pro Product Challenger
+
+Добавлен Step 4 — отдельный LLM-вызов, который ищет вопросы, риски и противоречия к продуктовой идее в контексте Direct.Pro. Не пересчитывает score и не заменяет существующий блок "Вопросы к PM" по 14 критериям — это **отдельный слой** продуктовых челленджей.
+
+Архитектура спроектирована безопасно для Railway:
+
+- Raw Arcadia/Wiki-выгрузки и приватные пути остаются локально (см. `.gitignore` под `/knowledge/...` и `/work/direct-pro-knowledge/`). В рантайм идут только sanitized карточки из `src/knowledge/direct-pro/cards/`.
+- Селектор `selectDirectProCards` детерминированно матчит aliases карточек к тексту эпика. Если совпадений нет — LLM-вызов Challenger **скипается**, в API возвращается `product_challenges: []`. На существующий блок "Вопросы к PM" это никак не влияет (он генерится отдельными вызовами Pre-Analysis + 3 групп).
+- В прод-промпт Challenger'у передаются только релевантные карточки. Сам промпт явно запрещает выдумывать факты о Direct.Pro сверх этих карточек: если знаний не хватает, модель формулирует вопрос как проверку допущения.
+- Любая ошибка Challenger'а ловится и логируется; основной ответ оценки уходит как обычно.
+
+Карточки знания пока минимальные — три entity (`entity.campaign`, `entity.ad_group`, `entity.ad`) с `confidence: "review_needed"`. Этого достаточно, чтобы Challenger срабатывал на эпиках про эти сущности, но реальная польза начинается с **Task 10** из плана `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` — там карточки заполняются по доменным батчам (campaign-types → hierarchy → settings → surfaces → targeting → moderation → billing → stats → legal → adjacent), каждый батч проходит human review.
+
+**Новые файлы:**
+
+- `src/knowledge/direct-pro/schema.ts` — Zod-схема одобренной карточки знания + типы (kind, severity, confidence, entity level, challenge rule, source ref).
+- `src/knowledge/direct-pro/cards/core.ts` + `cards/index.ts` — три entity-карточки и общий barrel `DIRECT_PRO_KNOWLEDGE_CARDS`.
+- `src/knowledge/direct-pro/select.ts` — детерминированный селектор по aliases (`toLocaleLowerCase("ru-RU")` + `String.includes`).
+- `src/lib/product-challenger-schema.ts` — Zod + OpenAI strict `json_schema` (`productChallengerJsonSchema`).
+- `src/prompts/product-challenger-prompt.ts` — билдер промпта для Challenger из pre-analysis + criteria summary + выбранных карточек.
+- `src/app/api/evaluate/route.ts` — функция `runProductChallenger` после `forceNaCriteria` + totalScore; обёрнута в try/catch.
+- `src/components/evaluation-result.tsx` — секция "Продуктовые челленджи" над группами критериев, явно помеченная "Не влияют на оценку".
+- `src/lib/export-markdown.ts` — секция `## Продуктовые челленджи` в md-экспорте.
+- `vitest.config.ts` + `npm test` / `npm run test:watch`.
+- `docs/knowledge/direct-pro-knowledge-skeleton.md` — санитизированный скелетон 20 доменов Direct.Pro.
+- `docs/knowledge/source-packs/README.md` — формат source-pack манифестов и порядок 10 батчей.
+- `docs/knowledge/card-review-process.md` — переходы `draft → review_needed → approved → deprecated` и критерии каждого.
+- `tools/direct-pro-knowledge/README.md` — правила локальных raw-источников и кандидаты на адаптеры (пока ни одного не реализовано).
+
+**Результат**: Tasks 1-9 и 11 закрыты, Task 10 (заполнение карточек по батчам) ждёт первый source pack от пользователя. Подробнее см. секцию "Implementation Status" в плане.
 
 ### Что нужно проверить
 
-- Прогнать 3 эталонных эпика (`epic1.md`, `epic2.md`, `epic3.md`) после деплоя Pre-Analysis
-- Сравнить оценки с предыдущими раундами (до Pre-Analysis)
-- Убедиться, что N/A реально ставится через Pre-Analysis (а не 0-3)
-- Проверить, что критерий "Решение" оценивает саммари, а не весь эпик
-- Проверить корректность автоопределения продукта и типа эпика
+- Прогнать 3 эталонных эпика (`epic1.md`, `epic2.md`, `epic3.md`) после деплоя Challenger.
+- Сравнить оценки с предыдущими раундами (до Pre-Analysis и до Challenger).
+- Убедиться, что N/A реально ставится через Pre-Analysis (а не 0-3).
+- Проверить, что критерий "Решение" оценивает саммари, а не весь эпик.
+- Проверить, что Challenger срабатывает на эпиках про campaign / ad group / ad и не падает на эпиках без триггерных слов.
+- Глянуть, что секция "Продуктовые челленджи" в UI и в .md-экспорте выглядит читаемо и не выглядит как часть скора.
 
 ### Ключевые файлы
 
 | Файл | Что содержит |
 |------|-------------|
-| `src/knowledge/direct-context.ts` | Карта продуктов Директа, интерфейсы, роли, интеграции, утилиты контекста |
-| `src/prompts/pre-analysis-prompt.ts` | Промпт Pre-Analysis (Step 0) |
-| `src/lib/pre-analysis-schema.ts` | Zod + JSON Schema для ответа Pre-Analysis |
-| `src/prompts/system-prompt.ts` | BASE_PROMPT, CRITERIA_DESCRIPTIONS, GROUP_EXAMPLES, buildGroupPrompt(groupId, preAnalysis?) |
-| `src/lib/types.ts` | CRITERIA, CRITERIA_GROUPS, PreAnalysisResult, scoreToStatus(), calculateTotalScore() |
-| `src/lib/evaluation-schema.ts` | Zod + JSON Schema для валидации ответов LLM |
-| `src/components/evaluation-result.tsx` | UI результатов: карточки, бейджи, группы |
-| `src/lib/export-markdown.ts` | Экспорт результата в .md |
-| `src/app/api/evaluate/route.ts` | API endpoint: Step 0 (Pre-Analysis) + 3 параллельных вызова GPT + форсирование N/A |
+| `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` | **Главный план Challenger'а.** Implementation status, ответы на open questions, как продолжить Task 10. |
+| `docs/knowledge/direct-pro-knowledge-skeleton.md` | Скелетон 20 доменов Direct.Pro (campaign types, hierarchy, settings, surfaces, targeting, moderation, billing, stats, legal, adjacent, ...). |
+| `docs/knowledge/source-packs/README.md` | Манифесты source pack'ов, порядок 10 батчей. |
+| `docs/knowledge/card-review-process.md` | Жизненный цикл карточек, критерии promotion и demotion. |
+| `tools/direct-pro-knowledge/README.md` | Правила raw-источников, кандидаты адаптеров. |
+| `src/lib/openai.ts` | `EVALUATION_MODEL = "gpt-5.5"` + клиент OpenAI. |
+| `src/lib/types.ts` | CRITERIA, CRITERIA_GROUPS, PreAnalysisResult, **ProductChallenge**, scoreToStatus(), calculateTotalScore(). |
+| `src/lib/evaluation-schema.ts` | Zod + JSON Schema для валидации ответов LLM по группам критериев. |
+| `src/lib/pre-analysis-schema.ts` | Zod + JSON Schema для Pre-Analysis. |
+| `src/lib/product-challenger-schema.ts` | Zod + OpenAI strict JSON Schema для Product Challenger. |
+| `src/lib/export-markdown.ts` | Экспорт результата в .md (включая секцию челленджей). |
+| `src/prompts/system-prompt.ts` | BASE_PROMPT, CRITERIA_DESCRIPTIONS, GROUP_EXAMPLES, `buildGroupPrompt(groupId, preAnalysis?)`. |
+| `src/prompts/pre-analysis-prompt.ts` | Промпт Pre-Analysis (Step 0). |
+| `src/prompts/product-challenger-prompt.ts` | Промпт Product Challenger (Step 4). |
+| `src/knowledge/direct-context.ts` | Карта продуктов Директа для Pre-Analysis. |
+| `src/knowledge/direct-pro/schema.ts` | Schema одобренной карточки знания. |
+| `src/knowledge/direct-pro/cards/{core,index}.ts` | Затравочные карточки entity.campaign / ad_group / ad. |
+| `src/knowledge/direct-pro/select.ts` | Селектор карточек по aliases. |
+| `src/components/evaluation-result.tsx` | UI результата: карточки, бейджи, группы + секция "Продуктовые челленджи". |
+| `src/app/api/evaluate/route.ts` | API endpoint: Pre-Analysis → 3 параллельных group eval → force N/A → totalScore → Product Challenger (best-effort) → JSON. |
+| `vitest.config.ts` | Конфиг vitest с `@/*` алиасом. |
 
 ### Эталонные эпики для тестирования
 
@@ -135,9 +183,30 @@
 
 ## Возможные следующие шаги
 
-- Тестирование Pre-Analysis на 3 эталонных эпиках (требуется `.env.local` с `OPENAI_API_KEY`)
-- Калибровка на ground truth от экспертов
-- Self-consistency (несколько прогонов, медиана score)
-- Конституция команды (настраиваемый контекст)
-- Интеграция в Tracker/Jira
-- Итеративный flow (оценил → доработал → оценил повторно)
+### Прямо сейчас на повестке (Task 10 из плана)
+
+Заполнение знаниевых карточек по доменным батчам. Делается **итеративно**, по одному source pack за раз, с human review между батчами. Подробный how-to — в `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` (секция "How to resume Task 10 in a fresh session").
+
+Очередь батчей (порядок зафиксирован в `docs/knowledge/source-packs/README.md`):
+
+1. `campaign-types-v1` — EPK, Master of Campaigns, Simple Start, mobile app promotion, Telegram, product, reach, archived types.
+2. `campaign-hierarchy-lifecycle-v1`.
+3. `campaign-group-settings-v1`.
+4. `bulk-professional-surfaces-v1`.
+5. `targeting-semantics-v1`.
+6. `moderation-ad-materials-v1`.
+7. `billing-agency-legal-entities-v1`.
+8. `reports-statistics-optimization-v1`.
+9. `legal-marking-compliance-v1`.
+10. `support-adjacent-services-v1`.
+
+Каждый батч ждёт от пользователя одобренный source pack (PDF / sanitized текст / approved Wiki выгрузка).
+
+### Другое
+
+- Прогнать 3 эталонных эпика после деплоя Challenger и сравнить со старыми оценками.
+- Калибровка на ground truth от экспертов.
+- Self-consistency (несколько прогонов, медиана score).
+- Конституция команды (настраиваемый контекст).
+- Интеграция в Tracker/Jira.
+- Итеративный flow (оценил → доработал → оценил повторно).

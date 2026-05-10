@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Epic Reviewer — Оценка эпиков и PRD",
   description:
-    "Автоматическая оценка эпиков и PRD по 14 критериям качества с помощью GPT-5.4",
+    "Автоматическая оценка эпиков и PRD по 14 критериям качества с помощью GPT-5.5",
 };
 
 export default function RootLayout({
