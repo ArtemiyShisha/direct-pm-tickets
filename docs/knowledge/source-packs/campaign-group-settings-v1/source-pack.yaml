@@ -1,0 +1,49 @@
+id: campaign-group-settings-v1
+domain: campaign_group_settings
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/settings/. The PDFs themselves are gitignored (see
+  # .gitignore: /baza_znaniy/ and /knowledge/drafts/) and never committed.
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Стратегии-v1-5_10_2026, 11_27_43 PM.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Геотаргетинг-v1-5_10_2026, 11_22_26 PM.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Временной таргетинг-v1-5_10_2026, 11_.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Корректировки ставок-v1-5_10_2026, 1.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Запрещенные площадки-v1-5_10_2026, 1.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Запрещенные IP-адреса-v1-5_10_2026, 11.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Параметры URL-v1-5_10_2026, 11_26_28 PM.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Счётчик Метрики, yclid-метки-v1-5_10.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Целевые действия-v1-5_10_2026, 11_27_00 .pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Уведомления-v1-5_10_2026, 11_27_10 PM.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Дата начала и окончания кампа.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Мониторинг сайта-v1-5_10_2026, 11_24_51 .pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Отслеживание звонков с сайта-v.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Автоматическое применение ре.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Совместное продвижение вендо.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Изменения в геодереве (ЛДХЗ, Л.pdf
+  - knowledge/drafts/campaign-group-settings-v1/inputs/Аукцион-v1-5_10_2026, 11_29_45 PM.pdf
+expected_card_kinds:
+  - setting
+  - concept  # для механизмов, которые не настройка в чистом виде (например, аукцион)
+out_of_scope:
+  # Topics that surface in these PDFs but belong to later batches.
+  - подробности типов кампаний (ЕПК, МК, Простой старт, товарная, охватная, контекстный баннер и т.д.) — covered by campaign-types-v1
+  - иерархия аккаунт/кампания/группа/объявление и статусы — covered by campaign-hierarchy-lifecycle-v1
+  - массовые операции, сетки, копирование, Excel, Commander, API, change history — covered by bulk-professional-surfaces-v1
+  - ключевые фразы, минус-фразы, аудитории, ретаргетинг, интересы, условия показа, автотаргетинг как таргетинговый механизм — covered by targeting-semantics-v1
+  - модерация и креативы объявления — covered by moderation-ad-materials-v1
+  - оплата, плательщики, агентские отношения — covered by billing-agency-legal-entities-v1
+  - отчёты и статистика как продуктовая поверхность — covered by reports-statistics-optimization-v1
+  - юр.маркировка, ОРД, токены, санкции — covered by legal-marking-compliance-v1
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/campaign-group-settings-v1/
+
+# Notes:
+# - PDFs total ~50 MB and live under /baza_znaniy/settings/ (gitignored). Symlinks
+#   under knowledge/drafts/<pack-id>/inputs/ are the runtime path.
+# - Extract text into knowledge/drafts/<pack-id>/extracted/<basename>.txt with
+#   `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py campaign-group-settings-v1`.
+#   The extracted text is also gitignored.
+# - Do not commit the PDFs or extracted text.
