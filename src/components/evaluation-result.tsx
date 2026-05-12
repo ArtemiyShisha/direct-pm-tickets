@@ -128,7 +128,7 @@ function FoundMissingLists({ criterion }: { criterion: CriterionResult }) {
     <div className="grid gap-3 sm:grid-cols-2">
       {hasFound && (
         <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
             <CircleCheck className="h-3 w-3" />
             Найдено в эпике
           </div>
@@ -144,7 +144,7 @@ function FoundMissingLists({ criterion }: { criterion: CriterionResult }) {
       )}
       {hasMissing && (
         <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-red-700">
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-red-700">
             <CircleX className="h-3 w-3" />
             Не хватает
           </div>
@@ -213,55 +213,63 @@ function CriterionCard({
 
       {hasDetails && (
         <CollapsibleContent
-          className={`rounded-b-lg border border-t-0 border-l-4 bg-white px-4 pb-4 pt-3 space-y-4 ${config.border}`}
+          className={`rounded-b-lg border border-t-0 border-l-4 bg-white px-4 pb-4 pt-3 ${config.border}`}
         >
-          {criterion.analysis && (
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-black/60">
-                <Search className="h-3 w-3" />
-                Анализ
-              </div>
-              <p className="text-sm text-black leading-relaxed">
-                {criterion.analysis}
-              </p>
-            </div>
-          )}
-
-          <FoundMissingLists criterion={criterion} />
-
-          {hasQuestions && (
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-black/60">
-                <MessageCircleQuestion className="h-3 w-3" />
-                Вопросы к PM
-              </div>
-              <ol className="space-y-1 pl-1">
-                {criterion.questions.map((q, i) => (
-                  <li key={i} className="flex gap-2 text-sm">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold tabular-nums text-black">
-                      {i + 1}
-                    </span>
-                    <span className="pt-0.5 text-black">{q}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-
-          {hasSuggestion && (
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-medium text-black/60">
-                  <Lightbulb className="h-3 w-3" />
-                  Черновик для вставки
+          <div className="divide-y divide-border">
+            {criterion.analysis && (
+              <div className="space-y-1 pb-3 first:pt-0 pt-3">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <Search className="h-3 w-3 text-muted-foreground" />
+                  Анализ
                 </div>
-                <CopyButton text={criterion.suggestion!} />
+                <p className="text-sm text-black leading-relaxed">
+                  {criterion.analysis}
+                </p>
               </div>
-              <div className="rounded-md bg-muted/60 px-3 py-2 text-sm text-black leading-relaxed whitespace-pre-wrap border">
-                {criterion.suggestion}
+            )}
+
+            {(criterion.found_items?.length ?? 0) +
+              (criterion.missing_items?.length ?? 0) >
+              0 && (
+              <div className="pb-3 pt-3 first:pt-0">
+                <FoundMissingLists criterion={criterion} />
               </div>
-            </div>
-          )}
+            )}
+
+            {hasQuestions && (
+              <div className="space-y-1.5 pb-3 pt-3 first:pt-0">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <MessageCircleQuestion className="h-3 w-3 text-muted-foreground" />
+                  Вопросы к PM
+                </div>
+                <ol className="space-y-1 pl-1">
+                  {criterion.questions.map((q, i) => (
+                    <li key={i} className="flex gap-2 text-sm">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-semibold tabular-nums text-black">
+                        {i + 1}
+                      </span>
+                      <span className="pt-0.5 text-black">{q}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
+            {hasSuggestion && (
+              <div className="space-y-1.5 pt-3 first:pt-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                    <Lightbulb className="h-3 w-3 text-muted-foreground" />
+                    Черновик для вставки
+                  </div>
+                  <CopyButton text={criterion.suggestion!} />
+                </div>
+                <div className="rounded-md bg-muted/60 px-3 py-2 text-sm text-black leading-relaxed whitespace-pre-wrap border">
+                  {criterion.suggestion}
+                </div>
+              </div>
+            )}
+          </div>
         </CollapsibleContent>
       )}
     </Collapsible>
