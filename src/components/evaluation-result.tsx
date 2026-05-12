@@ -270,8 +270,12 @@ function CriterionCard({
 
 function ProductChallengeCard({
   challenge,
+  isOpen,
+  onOpenChange,
 }: {
   challenge: ProductChallenge;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
 }) {
   const severity = challengeSeverityConfig[challenge.severity];
   const typeMeta = challengeTypeConfig[challenge.type];
@@ -281,96 +285,139 @@ function ProductChallengeCard({
     .map((id) => CRITERIA.find((c) => c.id === id)?.label ?? id)
     .filter(Boolean);
 
+  const preview = challenge.question ?? challenge.observation ?? "";
+  const hasBody =
+    Boolean(challenge.observation) ||
+    Boolean(challenge.direct_context) ||
+    Boolean(challenge.why_it_matters) ||
+    Boolean(challenge.question) ||
+    Boolean(challenge.good_answer) ||
+    relatedLabels.length > 0 ||
+    challenge.knowledge_card_ids.length > 0;
+
   return (
-    <div
-      className={`rounded-lg border border-l-4 bg-white px-4 py-3 ${severity.border}`}
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant={severity.badgeVariant} className="text-xs">
-          {severity.label}
-        </Badge>
-        <Badge variant="outline" className="text-xs">
-          <TypeIcon className="h-3 w-3" />
-          {typeMeta.label}
-        </Badge>
-        {challenge.target && (
-          <span className="text-sm font-medium text-foreground">
-            {challenge.target}
-          </span>
-        )}
-      </div>
-
-      <div className="mt-3 space-y-3 text-sm text-black leading-relaxed">
-        {challenge.observation && (
-          <div>
-            <div className="text-xs font-medium text-black/60 mb-0.5">
-              Что заметили
-            </div>
-            <p>{challenge.observation}</p>
-          </div>
-        )}
-
-        {challenge.direct_context && (
-          <div>
-            <div className="text-xs font-medium text-black/60 mb-0.5">
-              Контекст Директ Про
-            </div>
-            <p>{challenge.direct_context}</p>
-          </div>
-        )}
-
-        {challenge.why_it_matters && (
-          <div>
-            <div className="text-xs font-medium text-black/60 mb-0.5">
-              Почему это важно
-            </div>
-            <p>{challenge.why_it_matters}</p>
-          </div>
-        )}
-
-        {challenge.question && (
-          <div>
-            <div className="flex items-center gap-1.5 text-xs font-medium text-black/60 mb-0.5">
-              <MessageCircleQuestion className="h-3 w-3" />
-              Вопрос к PM
-            </div>
-            <p className="font-medium">{challenge.question}</p>
-          </div>
-        )}
-
-        {challenge.good_answer && (
-          <div>
-            <div className="flex items-center gap-1.5 text-xs font-medium text-black/60 mb-0.5">
-              <ClipboardCheck className="h-3 w-3" />
-              Хороший ответ выглядит так
-            </div>
-            <p className="text-black/80">{challenge.good_answer}</p>
-          </div>
-        )}
-      </div>
-
-      {(relatedLabels.length > 0 || challenge.knowledge_card_ids.length > 0) && (
-        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t pt-3">
-          {relatedLabels.map((label) => (
-            <Badge key={`crit-${label}`} variant="secondary" className="text-xs">
-              {label}
-            </Badge>
-          ))}
-          {challenge.knowledge_card_ids.map((id) => (
-            <Badge key={`card-${id}`} variant="ghost" className="text-xs font-mono">
-              {id}
-            </Badge>
-          ))}
+    <Collapsible open={isOpen} onOpenChange={onOpenChange}>
+      <CollapsibleTrigger
+        className={`flex w-full flex-col gap-1 rounded-lg border border-l-4 bg-white px-4 py-3 text-left transition-colors hover:bg-muted/50 data-[open]:rounded-b-none data-[open]:border-b-0 ${severity.border}`}
+      >
+        <div className="flex w-full items-center gap-2">
+          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform [[data-open]>&]:rotate-90" />
+          <Badge variant={severity.badgeVariant} className="text-xs shrink-0">
+            {severity.label}
+          </Badge>
+          <Badge variant="outline" className="text-xs shrink-0">
+            <TypeIcon className="h-3 w-3" />
+            {typeMeta.label}
+          </Badge>
+          {challenge.target && (
+            <span className="text-sm font-medium text-foreground shrink-0">
+              {challenge.target}
+            </span>
+          )}
         </div>
+
+        {preview && (
+          <p className="ml-7 text-xs text-black/70 leading-relaxed line-clamp-2">
+            {preview}
+          </p>
+        )}
+      </CollapsibleTrigger>
+
+      {hasBody && (
+        <CollapsibleContent
+          className={`rounded-b-lg border border-t-0 border-l-4 bg-white px-4 pb-4 pt-3 ${severity.border}`}
+        >
+          <div className="divide-y divide-border space-y-0">
+            {challenge.observation && (
+              <div className="space-y-1 pb-3 first:pt-0 pt-3">
+                <div className="text-sm font-semibold text-foreground">
+                  Что заметили
+                </div>
+                <p className="text-sm text-black leading-relaxed">
+                  {challenge.observation}
+                </p>
+              </div>
+            )}
+            {challenge.direct_context && (
+              <div className="space-y-1 pb-3 pt-3 first:pt-0">
+                <div className="text-sm font-semibold text-foreground">
+                  Контекст Директ Про
+                </div>
+                <p className="text-sm text-black leading-relaxed">
+                  {challenge.direct_context}
+                </p>
+              </div>
+            )}
+            {challenge.why_it_matters && (
+              <div className="space-y-1 pb-3 pt-3 first:pt-0">
+                <div className="text-sm font-semibold text-foreground">
+                  Почему это важно
+                </div>
+                <p className="text-sm text-black leading-relaxed">
+                  {challenge.why_it_matters}
+                </p>
+              </div>
+            )}
+            {challenge.question && (
+              <div className="space-y-1 pb-3 pt-3 first:pt-0">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <MessageCircleQuestion className="h-3 w-3 text-muted-foreground" />
+                  Вопрос к PM
+                </div>
+                <p className="text-sm font-medium text-black leading-relaxed">
+                  {challenge.question}
+                </p>
+              </div>
+            )}
+            {challenge.good_answer && (
+              <div className="space-y-1 pb-3 pt-3 first:pt-0">
+                <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <ClipboardCheck className="h-3 w-3 text-muted-foreground" />
+                  Хороший ответ выглядит так
+                </div>
+                <p className="text-sm text-black/80 leading-relaxed">
+                  {challenge.good_answer}
+                </p>
+              </div>
+            )}
+            {(relatedLabels.length > 0 ||
+              challenge.knowledge_card_ids.length > 0) && (
+              <div className="flex flex-wrap items-center gap-1.5 pt-3">
+                {relatedLabels.map((label) => (
+                  <Badge
+                    key={`crit-${label}`}
+                    variant="secondary"
+                    className="text-xs"
+                  >
+                    {label}
+                  </Badge>
+                ))}
+                {challenge.knowledge_card_ids.map((id) => (
+                  <Badge
+                    key={`card-${id}`}
+                    variant="ghost"
+                    className="text-xs font-mono"
+                  >
+                    {id}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
       )}
-    </div>
+    </Collapsible>
   );
 }
 
 function ProductChallengesSection({
   challenges,
+  isOpen,
+  onItemOpenChange,
 }: {
   challenges: ProductChallenge[];
+  isOpen: (id: string) => boolean;
+  onItemOpenChange: (id: string, open: boolean) => void;
 }) {
   const sorted = [...challenges].sort((a, b) => {
     const order: Record<ProductChallenge["severity"], number> = {
@@ -402,12 +449,17 @@ function ProductChallengesSection({
         даже когда формальные критерии зелёные.
       </p>
       <div className="space-y-2">
-        {sorted.map((challenge, i) => (
-          <ProductChallengeCard
-            key={`${challenge.type}-${i}`}
-            challenge={challenge}
-          />
-        ))}
+        {sorted.map((challenge, i) => {
+          const id = `chal-${i}`;
+          return (
+            <ProductChallengeCard
+              key={id}
+              challenge={challenge}
+              isOpen={isOpen(id)}
+              onOpenChange={(open) => onItemOpenChange(id, open)}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -415,15 +467,19 @@ function ProductChallengesSection({
 
 export function EvaluationResultView({ result }: EvaluationResultViewProps) {
   const criteriaMap = new Map(result.criteria.map((c) => [c.id, c]));
-  const allIds = result.criteria.map((c) => c.id);
+  const criteriaIds = result.criteria.map((c) => `crit-${c.id}`);
+  const challengeIds = (result.product_challenges ?? []).map(
+    (_, i) => `chal-${i}`,
+  );
+  const allIds = [...criteriaIds, ...challengeIds];
 
   const [openSet, setOpenSet] = useState<Set<string>>(() => new Set());
 
-  const allExpanded = openSet.size === allIds.length;
+  const allExpanded = openSet.size === allIds.length && allIds.length > 0;
 
   const toggleAll = useCallback(() => {
     setOpenSet((prev) =>
-      prev.size === allIds.length ? new Set() : new Set(allIds)
+      prev.size === allIds.length ? new Set() : new Set(allIds),
     );
   }, [allIds]);
 
@@ -435,6 +491,8 @@ export function EvaluationResultView({ result }: EvaluationResultViewProps) {
       return next;
     });
   }, []);
+
+  const isOpen = useCallback((id: string) => openSet.has(id), [openSet]);
 
   return (
     <div className="space-y-8">
@@ -460,7 +518,11 @@ export function EvaluationResultView({ result }: EvaluationResultViewProps) {
       </div>
 
       {result.product_challenges && result.product_challenges.length > 0 && (
-        <ProductChallengesSection challenges={result.product_challenges} />
+        <ProductChallengesSection
+          challenges={result.product_challenges}
+          isOpen={isOpen}
+          onItemOpenChange={setOne}
+        />
       )}
 
       <div className="flex justify-end">
@@ -497,14 +559,17 @@ export function EvaluationResultView({ result }: EvaluationResultViewProps) {
               </span>
             </div>
             <div className="space-y-1.5">
-              {groupCriteria.map((criterion) => (
-                <CriterionCard
-                  key={criterion.id}
-                  criterion={criterion}
-                  isOpen={openSet.has(criterion.id)}
-                  onOpenChange={(open) => setOne(criterion.id, open)}
-                />
-              ))}
+              {groupCriteria.map((criterion) => {
+                const id = `crit-${criterion.id}`;
+                return (
+                  <CriterionCard
+                    key={criterion.id}
+                    criterion={criterion}
+                    isOpen={isOpen(id)}
+                    onOpenChange={(open) => setOne(id, open)}
+                  />
+                );
+              })}
             </div>
           </div>
         );
