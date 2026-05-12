@@ -16,6 +16,7 @@ import {
   type ProductChallenge,
 } from "@/lib/types";
 import { downloadMarkdown } from "@/lib/export-markdown";
+import { sanitizeChallengeQuestion } from "@/lib/sanitize-challenge";
 import { ScoreBadge } from "./score-badge";
 import {
   Download,
@@ -293,7 +294,10 @@ function ProductChallengeCard({
     .map((id) => CRITERIA.find((c) => c.id === id)?.label ?? id)
     .filter(Boolean);
 
-  const preview = challenge.question ?? challenge.observation ?? "";
+  const cleanQuestion = challenge.question
+    ? sanitizeChallengeQuestion(challenge.question, challenge.target)
+    : "";
+  const preview = cleanQuestion || challenge.observation || "";
   const hasBody =
     Boolean(challenge.observation) ||
     Boolean(challenge.direct_context) ||
@@ -366,14 +370,14 @@ function ProductChallengeCard({
                 </p>
               </div>
             )}
-            {challenge.question && (
+            {cleanQuestion && (
               <div className="space-y-1 pb-3 pt-3 first:pt-0">
                 <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
                   <MessageCircleQuestion className="h-3 w-3 text-muted-foreground" />
                   Вопрос к PM
                 </div>
                 <p className="text-sm font-medium text-black leading-relaxed">
-                  {challenge.question}
+                  {cleanQuestion}
                 </p>
               </div>
             )}

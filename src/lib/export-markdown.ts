@@ -4,6 +4,7 @@ import {
   type EvaluationResult,
   type ProductChallenge,
 } from "./types";
+import { sanitizeChallengeQuestion } from "./sanitize-challenge";
 
 const STATUS_EMOJI = { ok: "🟢", partial: "🟡", fail: "🔴", na: "⚪" } as const;
 
@@ -55,7 +56,11 @@ function appendChallengesSection(
       lines.push(`**Почему это важно:** ${challenge.why_it_matters}`);
     }
     if (challenge.question) {
-      lines.push(`**Вопрос к PM:** ${challenge.question}`);
+      const cleaned = sanitizeChallengeQuestion(
+        challenge.question,
+        challenge.target,
+      );
+      lines.push(`**Вопрос к PM:** ${cleaned}`);
     }
     if (challenge.good_answer) {
       lines.push(`**Хороший ответ:** ${challenge.good_answer}`);
