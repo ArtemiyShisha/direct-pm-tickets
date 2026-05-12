@@ -42,7 +42,7 @@ const card: DirectProKnowledgeCard = {
   label: "Campaign",
   aliases: ["campaign", "кампани"],
   summary:
-    "A campaign is a central Direct.Pro object. Product changes touching campaigns should consider lifecycle, copying, moderation, statistics, and related ad groups.",
+    "A campaign is a central Директ Про object. Product changes touching campaigns should consider lifecycle, copying, moderation, statistics, and related ad groups.",
   entityLevel: "campaign",
   appliesToCampaignTypes: [],
   surfaces: ["surface.campaign_edit"],
@@ -71,7 +71,7 @@ describe("buildProductChallengerPrompt", () => {
   it("includes pre-analysis, criteria summary and card block", () => {
     const prompt = buildProductChallengerPrompt(preAnalysis, criteria, [card]);
 
-    expect(prompt).toContain("Direct.Pro Product Challenger");
+    expect(prompt).toContain("Директ Про Product Challenger");
     expect(prompt).toContain("epic_type: product_feature");
     expect(prompt).toContain("- scenarios: score=8");
     expect(prompt).toContain(
@@ -93,5 +93,13 @@ describe("buildProductChallengerPrompt", () => {
 
     expect(prompt).toContain("CARD entity.example");
     expect(prompt).not.toMatch(/CARD entity\.example[\s\S]*challenge rules:/);
+  });
+
+  it("uses «Директ Про» (Cyrillic) in the system prompt header", () => {
+    const prompt = buildProductChallengerPrompt(preAnalysis, criteria, [card]);
+    expect(prompt).toContain("Директ Про Product Challenger");
+    expect(prompt).toContain("в контексте Директ Про");
+    expect(prompt).toContain("APPROVED ДИРЕКТ ПРО CARDS:");
+    expect(prompt).not.toContain("Direct.Pro");
   });
 });

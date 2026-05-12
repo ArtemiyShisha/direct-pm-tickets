@@ -35,7 +35,7 @@ function appendChallengesSection(
 
   lines.push(`## Продуктовые челленджи`, ``);
   lines.push(
-    `_Не влияют на оценку. Вопросы и риски к продуктовой идее в контексте Direct.Pro._`,
+    `_Не влияют на оценку. Вопросы и риски к продуктовой идее в контексте Директ Про._`,
     ``,
   );
 
@@ -49,7 +49,7 @@ function appendChallengesSection(
       lines.push(`**Что заметили:** ${challenge.observation}`);
     }
     if (challenge.direct_context) {
-      lines.push(`**Контекст Direct.Pro:** ${challenge.direct_context}`);
+      lines.push(`**Контекст Директ Про:** ${challenge.direct_context}`);
     }
     if (challenge.why_it_matters) {
       lines.push(`**Почему это важно:** ${challenge.why_it_matters}`);

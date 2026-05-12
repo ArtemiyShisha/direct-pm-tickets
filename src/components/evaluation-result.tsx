@@ -313,7 +313,7 @@ function ProductChallengeCard({
         {challenge.direct_context && (
           <div>
             <div className="text-xs font-medium text-black/60 mb-0.5">
-              Контекст Direct.Pro
+              Контекст Директ Про
             </div>
             <p>{challenge.direct_context}</p>
           </div>
@@ -398,7 +398,7 @@ function ProductChallengesSection({
         </span>
       </div>
       <p className="px-1 text-xs text-muted-foreground">
-        Вопросы и риски к продуктовой идее в контексте Direct.Pro. Появляются
+        Вопросы и риски к продуктовой идее в контексте Директ Про. Появляются
         даже когда формальные критерии зелёные.
       </p>
       <div className="space-y-2">

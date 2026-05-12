@@ -81,4 +81,23 @@ describe("exportToMarkdown", () => {
     expect(highIdx).toBeGreaterThanOrEqual(0);
     expect(lowIdx).toBeGreaterThan(highIdx);
   });
+
+  it("uses «Директ Про» (Cyrillic) in the challenges section header and field labels", () => {
+    const challenge: ProductChallenge = {
+      type: "question",
+      severity: "high",
+      target: "Сценарий копирования",
+      observation: "Не описан flow для скопированных кампаний.",
+      direct_context: "В Директ Про копирование сохраняет ID.",
+      why_it_matters: "Иначе сломаются отчёты.",
+      question: "Что происходит со связями?",
+      good_answer: "Сохранять явный маппинг.",
+      related_criteria: [],
+      knowledge_card_ids: [],
+    };
+    const md = exportToMarkdown(makeResult([challenge]));
+    expect(md).toContain("в контексте Директ Про");
+    expect(md).toContain("**Контекст Директ Про:**");
+    expect(md).not.toContain("Direct.Pro");
+  });
 });
