@@ -1,0 +1,35 @@
+id: campaign-hierarchy-lifecycle-v1
+domain: campaign_hierarchy_lifecycle
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/interface/. The PDFs themselves are gitignored.
+  - knowledge/drafts/campaign-hierarchy-lifecycle-v1/inputs/Действия с кампаниями-v1-5_12_2026, .pdf
+  - knowledge/drafts/campaign-hierarchy-lifecycle-v1/inputs/Действия с группами объявлени.pdf
+  - knowledge/drafts/campaign-hierarchy-lifecycle-v1/inputs/Действия с объявлениями-v1-5_12_20.pdf
+expected_card_kinds:
+  - entity   # account/campaign/ad_group/ad — глубокие версии core-карточек
+  - state    # статусы кампании, группы, объявления
+  - action   # старт/стоп/архив/удаление/копирование/отправка на модерацию
+out_of_scope:
+  # Topics that surface in these PDFs but belong to later batches.
+  - типы кампаний (ЕПК, МК, Простой старт и т.д.) — covered by campaign-types-v1
+  - детальные настройки кампании/группы — covered by campaign-group-settings-v1
+  - массовые операции, сетки, Excel, Commander, API, change history — covered by bulk-professional-surfaces-v1
+  - модерация и креативы объявления — covered by moderation-ad-materials-v1
+  - оплата, плательщики, агентские отношения — covered by billing-agency-legal-entities-v1
+  - юр.маркировка, ОРД, токены, санкции — covered by legal-marking-compliance-v1
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/campaign-hierarchy-lifecycle-v1/
+
+# Notes:
+# - PDFs lie in /baza_znaniy/interface/ (gitignored). Symlinks under
+#   knowledge/drafts/<pack-id>/inputs/ are the runtime path.
+# - Extract with `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py campaign-hierarchy-lifecycle-v1`.
+# - Do not commit the PDFs or the extracted text.
+# - Promotion of this pack will supersede the placeholder entity.campaign /
+#   entity.ad_group / entity.ad cards from src/knowledge/direct-pro/cards/core.ts:
+#   the deeper versions move into src/knowledge/direct-pro/cards/campaign-hierarchy.ts
+#   and the placeholders are removed from core.ts to keep id uniqueness.
