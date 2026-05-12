@@ -141,9 +141,23 @@ function forceNaCriteria(
 }
 
 export async function POST(request: NextRequest) {
+  const t0 = Date.now();
+  const reqId = Math.random().toString(36).slice(2, 8);
+  const stamp = (label: string, extra?: Record<string, unknown>) => {
+    const ms = Date.now() - t0;
+    console.log(
+      `[evaluate ${reqId}] ${label} t+${ms}ms${
+        extra ? " " + JSON.stringify(extra) : ""
+      }`,
+    );
+  };
+
   try {
     const body = await request.json();
     const epicText: string | undefined = body.text;
+    stamp("request received", {
+      epicLen: epicText?.length ?? 0,
+    });
 
     if (!epicText || epicText.trim().length === 0) {
       return NextResponse.json(
@@ -160,14 +174,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 0: Pre-Analysis
+    stamp("pre_analysis start");
     const preAnalysis = await runPreAnalysis(epicText);
+    stamp("pre_analysis ok", {
+      epic_type: preAnalysis.epic_type,
+      product_ids: preAnalysis.product_ids.length,
+      na: preAnalysis.na_criteria.length,
+    });
 
     // Steps 1-3: Evaluate groups in parallel with Pre-Analysis context
+    stamp("groups start", { n: GROUP_SCHEMAS.length });
     const groupResults = await Promise.all(
       GROUP_SCHEMAS.map((group) =>
         evaluateGroup(epicText, group, preAnalysis)
       )
     );
+    stamp("groups ok");
 
     const criteriaOrder = CRITERIA.map((c) => c.id);
 
@@ -182,12 +204,12 @@ export async function POST(request: NextRequest) {
           criteriaOrder.indexOf(a.id) - criteriaOrder.indexOf(b.id)
       );
 
-    // Force N/A from Pre-Analysis (safety net if LLM ignored instructions)
     forceNaCriteria(allCriteria, preAnalysis);
 
     const totalScore = calculateTotalScore(allCriteria);
 
     // Step 4: Product Challenger (best-effort: never fails the whole evaluation)
+    stamp("challenger start");
     let productChallenges: ProductChallenge[] = [];
     try {
       productChallenges = await runProductChallenger(
@@ -195,17 +217,23 @@ export async function POST(request: NextRequest) {
         preAnalysis,
         allCriteria,
       );
+      stamp("challenger ok", { challenges: productChallenges.length });
     } catch (challengerError) {
-      console.error("Product Challenger error:", challengerError);
+      console.error(`[evaluate ${reqId}] Product Challenger error:`, challengerError);
+      stamp("challenger fail (non-fatal)");
     }
 
+    stamp("returning response", { totalScore });
     return NextResponse.json({
       criteria: allCriteria,
       total_score: totalScore,
       product_challenges: productChallenges,
     });
   } catch (error) {
-    console.error("Evaluation error:", error);
+    stamp("FATAL", {
+      err: error instanceof Error ? error.message : String(error),
+    });
+    console.error(`[evaluate ${reqId}] Evaluation error:`, error);
 
     if (error instanceof SyntaxError) {
       return NextResponse.json(
