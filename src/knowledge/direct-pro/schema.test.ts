@@ -9,7 +9,7 @@ describe("directProKnowledgeCardSchema", () => {
       label: "Autotargeting",
       aliases: ["autotargeting", "autotargeting setting"],
       summary:
-        "Autotargeting is represented as an approved Direct.Pro setting card.",
+        "Autotargeting is represented as an approved Директ Про setting card.",
       entityLevel: "ad_group",
       appliesToCampaignTypes: ["campaign_type.epk"],
       surfaces: ["surface.group_edit", "tool.api"],
@@ -42,7 +42,7 @@ describe("directProKnowledgeCardSchema", () => {
       kind: "entity",
       label: "Account",
       aliases: ["account"],
-      summary: "Top-level Direct.Pro account container.",
+      summary: "Top-level Директ Про account container.",
       sourceRefs: [
         {
           label: "approved skeleton",
