@@ -1,0 +1,43 @@
+id: interface-surfaces-v1
+domain: interface_surfaces
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/interface/. The PDFs themselves are gitignored.
+  - knowledge/drafts/interface-surfaces-v1/inputs/Директ Про для вендоров-v1-5_12_202.pdf
+  - knowledge/drafts/interface-surfaces-v1/inputs/Инструменты и ошибки в интерф.pdf
+  - knowledge/drafts/interface-surfaces-v1/inputs/Интерфейс Директа для клиента.pdf
+  - knowledge/drafts/interface-surfaces-v1/inputs/Интерфейсы Директ и Директ Пр.pdf
+  - knowledge/drafts/interface-surfaces-v1/inputs/Регистрация в Директе-v1-5_12_2026, .pdf
+  - knowledge/drafts/interface-surfaces-v1/inputs/Рекомендации-v1-5_12_2026, 3_23_20 PM.pdf
+expected_card_kinds:
+  - surface  # клиентский интерфейс, экспертный режим, кабинет вендора, Простой старт wizard, Мастер кампаний wizard
+  - concept  # Direct vs Direct.Pro, регистрация-онбординг, рекомендации (домен)
+  - process  # регистрация / онбординг / переключение между Direct и Direct.Pro
+  - tool     # инструменты левого меню «Инструменты», поиск, история изменений
+  - failure  # типичные ошибки в интерфейсе
+out_of_scope:
+  # Topics that surface in these PDFs but belong to other batches.
+  - типы кампаний и их отдельные wizards (covered by campaign-types-v1)
+  - детальные настройки кампании / группы (covered by campaign-group-settings-v1)
+  - lifecycle и actions (covered by campaign-hierarchy-lifecycle-v1)
+  - модерация и креативы объявлений (covered by moderation-ad-materials-v1)
+  - оплата, плательщики, агентские отношения (covered by billing-agency-legal-entities-v1)
+  - юр.маркировка, ОРД, токены (covered by legal-marking-compliance-v1)
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/interface-surfaces-v1/
+
+# Notes:
+# - Pack is OFF the documented 10-batch order (cf.
+#   docs/knowledge/source-packs/README.md). It exists because the user dropped
+#   nine interface PDFs in /baza_znaniy/interface/ in a single review session
+#   and explicitly asked to land all of them in one go. The remaining batches
+#   (#5-10) keep their original order.
+# - The "Директ Про для вендоров" PDF here intentionally pairs with the
+#   broader interface-surfaces domain; once `support-adjacent-services-v1`
+#   eventually lands (batch 9 in the original plan), `surface.vendor_office`
+#   should be cross-linked from there.
+# - Extract with `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py interface-surfaces-v1`.
+# - Do not commit the PDFs or the extracted text.
