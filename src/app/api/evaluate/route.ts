@@ -39,7 +39,6 @@ async function runPreAnalysis(epicText: string): Promise<PreAnalysisResult> {
       type: "json_schema",
       json_schema: preAnalysisJsonSchema,
     },
-    temperature: 0.1,
   });
 
   const content = response.choices[0]?.message?.content;
@@ -72,7 +71,6 @@ async function evaluateGroup(
       type: "json_schema",
       json_schema: group.jsonSchema,
     },
-    temperature: 0.2,
   });
 
   const content = response.choices[0]?.message?.content;
@@ -112,7 +110,6 @@ async function runProductChallenger(
       type: "json_schema",
       json_schema: productChallengerJsonSchema,
     },
-    temperature: 0.2,
   });
 
   const content = response.choices[0]?.message?.content;
