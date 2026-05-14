@@ -1,5 +1,6 @@
 import { CRITERIA, CRITERIA_GROUPS, type PreAnalysisResult } from "@/lib/types";
 import { TEMPLATE_BOILERPLATE_INSTRUCTION } from "@/knowledge/epic-template";
+import type { DirectProKnowledgeCard } from "@/knowledge/direct-pro/schema";
 
 const BASE_PROMPT = `Ты проводишь ревью эпика перед приёмкой в бэклог Яндекс Директа. Твоя задача — найти пробелы, из-за которых разработка может застопориться, и помочь улучшить описание.
 
@@ -29,7 +30,7 @@ ${TEMPLATE_BOILERPLATE_INSTRUCTION}
 3. missing_items — Массив коротких фраз: чего НЕ ХВАТАЕТ по этому критерию (например: "Нет данных о масштабе проблемы", "Отсутствует план отката"). Пустой массив если всё покрыто.
 4. score — Оценка от -1 до 10 строго на основе analysis.
 5. comment — Краткий вывод: что не хватило (или почему оценка высокая).
-6. questions — Конкретные вопросы к PM по пробелам этого критерия. Если пробелов нет — пустой массив.
+6. questions — Конкретные вопросы к PM по пробелам этого критерия. Если пробелов нет — пустой массив. Если в системном промпте присутствует блок с фактическими знаниями о Директ Про — опирай вопросы на эти знания, формулируя их так, чтобы они проверяли конкретные продуктовые допущения.
 7. suggestion — Если score < 10 и есть missing_items: предложи черновик текста, который PM может вставить в эпик для улучшения. Если score = 10: null.`;
 
 const CRITERIA_DESCRIPTIONS: Record<string, string> = {
@@ -124,9 +125,41 @@ const GROUP_EXAMPLES: Record<string, string> = {
   suggestion: "Логирование:\\n- [Действие 1]: [описание события]\\n- [Действие 2]: [описание события]\\n- ..."`,
 };
 
+function buildKnowledgeCardsBlock(cards: DirectProKnowledgeCard[]): string {
+  if (cards.length === 0) return "";
+
+  const cardsBlock = cards
+    .map((card) => {
+      const rules = card.challengeRules
+        .map((rule) => `- ${rule.id} (${rule.severity}): ${rule.challenge}`)
+        .join("\n");
+      const rulesSection =
+        card.challengeRules.length > 0 ? `\nchallenge rules:\n${rules}` : "";
+      return `CARD ${card.id}
+kind: ${card.kind}
+label: ${card.label}
+summary: ${card.summary}${rulesSection}`;
+    })
+    .join("\n\n");
+
+  return `
+КОНТЕКСТ ДИРЕКТ ПРО (knowledge cards):
+
+Ниже — фактические правила и устройство Директ Про, которые могут быть релевантны эпику. Используй их, чтобы:
+1. Учитывать продуктовый контекст при оценке (например: критерий "interfaces" — какие каналы реально есть у продукта; "scenarios" — какие надстройки/места показа упомянуты).
+2. Формировать конкретные, директо-aware вопросы в поле questions. Если в challenge rules карточки описан триггер, который сработал по тексту эпика, преврати соответствующий challenge в один из вопросов к PM.
+3. НЕ выдумывать факты о Директ Про сверх этих карточек. Если знания не хватает — формулируй вопрос как проверку допущения.
+
+Один вопрос — одна формулировка, плоская строка из 1-2 предложений, без префиксов вроде «Для X:».
+
+${cardsBlock}
+`;
+}
+
 export function buildGroupPrompt(
   groupId: string,
-  preAnalysis?: PreAnalysisResult
+  preAnalysis?: PreAnalysisResult,
+  cards: DirectProKnowledgeCard[] = []
 ): string {
   const group = CRITERIA_GROUPS.find((g) => g.id === groupId);
   if (!group) throw new Error(`Unknown group: ${groupId}`);
@@ -176,8 +209,10 @@ export function buildGroupPrompt(
     contextBlock = `\n${lines.join("\n")}\n`;
   }
 
+  const knowledgeBlock = buildKnowledgeCardsBlock(cards);
+
   return `${BASE_PROMPT}
-${contextBlock}
+${contextBlock}${knowledgeBlock}
 ТВОЯ ГРУППА КРИТЕРИЕВ: ${group.label}
 
 Оцени ТОЛЬКО следующие критерии:

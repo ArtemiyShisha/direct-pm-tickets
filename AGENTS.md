@@ -6,9 +6,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Active plan
 
-The current product workstream is the **Direct.Pro Product Challenger knowledge map**, Task 10 — filling knowledge cards by domain batch. **Right now the pack `campaign-types-v1` is drafted in `knowledge/drafts/campaign-types-v1/` (gitignored) and waiting for human review before promotion into `src/knowledge/direct-pro/cards/campaign-types.ts`.** Do not start a new pack until that one lands.
+The current product workstream is the **Direct.Pro knowledge map**, Task 10 — filling knowledge cards by domain batch. **Right now the pack `campaign-types-v1` is drafted in `knowledge/drafts/campaign-types-v1/` (gitignored) and waiting for human review before promotion into `src/knowledge/direct-pro/cards/campaign-types.ts`.** Do not start a new pack until that one lands.
 
-Before touching `src/knowledge/direct-pro/`, `src/app/api/evaluate/route.ts`, the Challenger prompt, or any source intake / source pack docs / extractor tooling, read:
+> **Architecture note (May 2026):** The standalone Product Challenger LLM stage is **OFF by default**. Approved Direct.Pro knowledge cards are now folded into the three group-evaluator prompts (`buildGroupPrompt`), so per-criterion `questions` are themselves Direct.Pro-aware. The legacy Challenger code path still exists and runs only when `PRODUCT_CHALLENGER_ENABLED=true` is set in the environment — kept for A/B comparisons and easy rollback. Task 10 work continues unchanged: the same approved cards now feed group evaluators instead of (or in addition to) the legacy Challenger.
+
+Before touching `src/knowledge/direct-pro/`, `src/app/api/evaluate/route.ts`, the group-evaluator prompt, the Challenger prompt, or any source intake / source pack docs / extractor tooling, read:
 
 - `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` — the plan. Start with "Implementation Status" (incl. "Pack `campaign-types-v1` — current state") and "How to resume Task 10 in a fresh session" — that section has two distinct paths (A: pack already drafted, awaiting promotion; B: starting a fresh pack). Pick the right one.
 - `docs/knowledge/source-packs/README.md` — source pack manifest format and the fixed 10-batch order.
@@ -28,5 +30,6 @@ Both `baza_znaniy/` and `.venv-pdf/` are gitignored. The PDFs themselves should 
 
 ## Model + tests
 
-- All four LLM calls (Pre-Analysis, three group evaluators, Product Challenger) share the constant `EVALUATION_MODEL` in `src/lib/openai.ts`. Change the model there, not inline.
+- All LLM calls (Pre-Analysis, three group evaluators, and the legacy Product Challenger when enabled) share the constant `EVALUATION_MODEL` in `src/lib/openai.ts`. Change the model there, not inline.
+- The flag `isProductChallengerEnabled()` (also in `src/lib/openai.ts`) reads `PRODUCT_CHALLENGER_ENABLED`. Default is `false` — Direct.Pro context lives inside the group evaluators, the standalone Challenger is skipped.
 - Tests run with `npx vitest run` (or `npm test`). `npm run build` runs typecheck + Next.js production build. Keep both green before commits that touch runtime code.

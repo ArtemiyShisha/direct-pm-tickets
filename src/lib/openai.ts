@@ -12,3 +12,13 @@ export function getOpenAIClient(): OpenAI {
   }
   return client;
 }
+
+/**
+ * Legacy Product Challenger stage is OFF by default. Direct-Pro knowledge
+ * cards are now folded into the group evaluator prompts (`buildGroupPrompt`),
+ * so the standalone Challenger LLM call is redundant. Set
+ * `PRODUCT_CHALLENGER_ENABLED=true` to keep the old behaviour for comparison.
+ */
+export function isProductChallengerEnabled(): boolean {
+  return process.env.PRODUCT_CHALLENGER_ENABLED === "true";
+}

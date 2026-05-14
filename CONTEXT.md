@@ -2,7 +2,7 @@
 
 ## Суть проекта
 
-Инструмент автоматической оценки эпиков Яндекс Директа по 14 продуктовым критериям. PM вставляет текст эпика → система делает Pre-Analysis → параллельно оценивает 3 группы критериев через `gpt-5.5` → дополнительно гоняет Direct.Pro Product Challenger → выдаёт баллы, вопросы, черновики и продуктовые челленджи к самой идее.
+Инструмент автоматической оценки эпиков Яндекс Директа по 14 продуктовым критериям. PM вставляет текст эпика → система делает Pre-Analysis → параллельно оценивает 3 группы критериев через `gpt-5.5` (с подмешанным контекстом Direct.Pro из knowledge cards) → выдаёт баллы, директо-aware вопросы и черновики. Отдельный шаг Direct.Pro Product Challenger остался как опциональный legacy-путь под флагом `PRODUCT_CHALLENGER_ENABLED=true`; по умолчанию выключен, потому что директо-знания теперь питают сами оценщики через `buildGroupPrompt`.
 
 **Стек**: Next.js 16, TypeScript, Tailwind + shadcn/ui, OpenAI `gpt-5.5` (один константный `EVALUATION_MODEL` в `src/lib/openai.ts`), Zod 4, Vitest.
 **Деплой**: Railway, автодеплой из `main`.
@@ -68,7 +68,8 @@
 
 - 14 критериев в 3 группах, 3 параллельных вызова `gpt-5.5` (унифицирован через `EVALUATION_MODEL`).
 - Step 0: Pre-Analysis (`runPreAnalysis`) с автоопределением типа эпика, продуктов и N/A-критериев.
-- Step 4: Direct.Pro Product Challenger (`runProductChallenger`) — отдельный LLM-вызов с structured output, до 12 челленджей, не пересчитывает score. Запускается, только если селектор нашёл релевантные карточки знания; иначе скипается.
+- Knowledge cards: `selectDirectProCards(epicText)` поднят на уровень роута. Отобранные карточки прокидываются в каждую из 3 групп через `buildGroupPrompt(groupId, preAnalysis, cards)` — секция «КОНТЕКСТ ДИРЕКТ ПРО» (id+kind+label+summary + challenge rules) добавляется в системный промпт и инструктирует модель формулировать `criterion.questions` с опорой на эти знания.
+- Step 4 (legacy, OFF by default): Direct.Pro Product Challenger (`runProductChallenger`) — отдельный LLM-вызов под флагом `PRODUCT_CHALLENGER_ENABLED=true`. Когда выключен, в API возвращается `product_challenges: []`, UI/markdown-секция автоматически скрывается. Когда включён — работает как раньше: structured output, до 12 челленджей, не пересчитывает score, скипается при пустом наборе карточек.
 - Веса: x1.5 (problem, solution, metrics, scenarios, ready_for_dev), x1.0 (potential, analytics, design, corner_cases, launch), x0.7 (onboarding, interfaces, international, logging).
 - N/A-поддержка в типах, схемах, UI, экспорте.
 - Контекстный кредит и явные N/A-триггеры в промпте.
@@ -165,13 +166,13 @@
 | `tools/direct-pro-knowledge/README.md` | Правила raw-источников, runbook манул-PDF-адаптера, end-to-end workflow для пака. |
 | `tools/direct-pro-knowledge/extract_pdf_text.py` | PDF→text extractor (PyMuPDF). Запуск: `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py <pack-id>`. |
 | `tools/direct-pro-knowledge/validate-candidates.ts` | Валидатор `candidate-cards.json` против Zod-схемы. Запуск: `npx tsx tools/direct-pro-knowledge/validate-candidates.ts <pack-id>`. |
-| `src/lib/openai.ts` | `EVALUATION_MODEL = "gpt-5.5"` + клиент OpenAI. |
+| `src/lib/openai.ts` | `EVALUATION_MODEL = "gpt-5.5"` + клиент OpenAI + `isProductChallengerEnabled()` (default false). |
 | `src/lib/types.ts` | CRITERIA, CRITERIA_GROUPS, PreAnalysisResult, **ProductChallenge**, scoreToStatus(), calculateTotalScore(). |
 | `src/lib/evaluation-schema.ts` | Zod + JSON Schema для валидации ответов LLM по группам критериев. |
 | `src/lib/pre-analysis-schema.ts` | Zod + JSON Schema для Pre-Analysis. |
 | `src/lib/product-challenger-schema.ts` | Zod + OpenAI strict JSON Schema для Product Challenger. |
 | `src/lib/export-markdown.ts` | Экспорт результата в .md (включая секцию челленджей). |
-| `src/prompts/system-prompt.ts` | BASE_PROMPT, CRITERIA_DESCRIPTIONS, GROUP_EXAMPLES, `buildGroupPrompt(groupId, preAnalysis?)`. |
+| `src/prompts/system-prompt.ts` | BASE_PROMPT, CRITERIA_DESCRIPTIONS, GROUP_EXAMPLES, `buildGroupPrompt(groupId, preAnalysis?, cards?)` — третий аргумент рендерит блок «КОНТЕКСТ ДИРЕКТ ПРО». |
 | `src/prompts/pre-analysis-prompt.ts` | Промпт Pre-Analysis (Step 0). |
 | `src/prompts/product-challenger-prompt.ts` | Промпт Product Challenger (Step 4). |
 | `src/knowledge/direct-context.ts` | Карта продуктов Директа для Pre-Analysis. |
@@ -179,7 +180,7 @@
 | `src/knowledge/direct-pro/cards/{core,index}.ts` | Затравочные карточки entity.campaign / ad_group / ad. |
 | `src/knowledge/direct-pro/select.ts` | Селектор карточек по aliases. |
 | `src/components/evaluation-result.tsx` | UI результата: карточки, бейджи, группы + секция "Продуктовые челленджи". |
-| `src/app/api/evaluate/route.ts` | API endpoint: Pre-Analysis → 3 параллельных group eval → force N/A → totalScore → Product Challenger (best-effort) → JSON. |
+| `src/app/api/evaluate/route.ts` | API endpoint: Pre-Analysis → `selectDirectProCards` → 3 параллельных group eval (с карточками) → force N/A → totalScore → опционально Product Challenger под флагом → JSON. |
 | `vitest.config.ts` | Конфиг vitest с `@/*` алиасом. |
 
 ### Эталонные эпики для тестирования

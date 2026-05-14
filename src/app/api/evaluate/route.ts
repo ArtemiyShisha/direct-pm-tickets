@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOpenAIClient, EVALUATION_MODEL } from "@/lib/openai";
+import {
+  getOpenAIClient,
+  EVALUATION_MODEL,
+  isProductChallengerEnabled,
+} from "@/lib/openai";
 import { GROUP_SCHEMAS } from "@/lib/evaluation-schema";
 import {
   preAnalysisZodSchema,
@@ -13,6 +17,7 @@ import { buildPreAnalysisPrompt } from "@/prompts/pre-analysis-prompt";
 import { buildGroupPrompt } from "@/prompts/system-prompt";
 import { buildProductChallengerPrompt } from "@/prompts/product-challenger-prompt";
 import { selectDirectProCards } from "@/knowledge/direct-pro/select";
+import type { DirectProKnowledgeCard } from "@/knowledge/direct-pro/schema";
 import {
   scoreToStatus,
   calculateTotalScore,
@@ -53,10 +58,11 @@ async function runPreAnalysis(epicText: string): Promise<PreAnalysisResult> {
 async function evaluateGroup(
   epicText: string,
   group: (typeof GROUP_SCHEMAS)[number],
-  preAnalysis: PreAnalysisResult
+  preAnalysis: PreAnalysisResult,
+  cards: DirectProKnowledgeCard[]
 ) {
   const client = getOpenAIClient();
-  const systemPrompt = buildGroupPrompt(group.groupId, preAnalysis);
+  const systemPrompt = buildGroupPrompt(group.groupId, preAnalysis, cards);
 
   const response = await client.chat.completions.create({
     model: EVALUATION_MODEL,
@@ -86,8 +92,8 @@ async function runProductChallenger(
   epicText: string,
   preAnalysis: PreAnalysisResult,
   criteria: CriterionResult[],
+  cards: DirectProKnowledgeCard[],
 ): Promise<ProductChallenge[]> {
-  const cards = selectDirectProCards(epicText);
   if (cards.length === 0) return [];
 
   const client = getOpenAIClient();
@@ -182,11 +188,16 @@ export async function POST(request: NextRequest) {
       na: preAnalysis.na_criteria.length,
     });
 
-    // Steps 1-3: Evaluate groups in parallel with Pre-Analysis context
+    // Knowledge cards are selected once and shared by group evaluators
+    // and the legacy Product Challenger (when enabled via env flag).
+    const cards = selectDirectProCards(epicText);
+    stamp("cards selected", { n: cards.length });
+
+    // Steps 1-3: Evaluate groups in parallel with Pre-Analysis + Direct Pro context
     stamp("groups start", { n: GROUP_SCHEMAS.length });
     const groupResults = await Promise.all(
       GROUP_SCHEMAS.map((group) =>
-        evaluateGroup(epicText, group, preAnalysis)
+        evaluateGroup(epicText, group, preAnalysis, cards)
       )
     );
     stamp("groups ok");
@@ -208,19 +219,29 @@ export async function POST(request: NextRequest) {
 
     const totalScore = calculateTotalScore(allCriteria);
 
-    // Step 4: Product Challenger (best-effort: never fails the whole evaluation)
-    stamp("challenger start");
+    // Step 4: Legacy Product Challenger (OFF by default; enable with
+    // PRODUCT_CHALLENGER_ENABLED=true). Direct-Pro context is now folded into
+    // the group evaluators above, so this stage is redundant in normal runs.
     let productChallenges: ProductChallenge[] = [];
-    try {
-      productChallenges = await runProductChallenger(
-        epicText,
-        preAnalysis,
-        allCriteria,
-      );
-      stamp("challenger ok", { challenges: productChallenges.length });
-    } catch (challengerError) {
-      console.error(`[evaluate ${reqId}] Product Challenger error:`, challengerError);
-      stamp("challenger fail (non-fatal)");
+    if (isProductChallengerEnabled()) {
+      stamp("challenger start");
+      try {
+        productChallenges = await runProductChallenger(
+          epicText,
+          preAnalysis,
+          allCriteria,
+          cards,
+        );
+        stamp("challenger ok", { challenges: productChallenges.length });
+      } catch (challengerError) {
+        console.error(
+          `[evaluate ${reqId}] Product Challenger error:`,
+          challengerError,
+        );
+        stamp("challenger fail (non-fatal)");
+      }
+    } else {
+      stamp("challenger skipped (flag off)");
     }
 
     stamp("returning response", { totalScore });
