@@ -90,3 +90,24 @@ describe("buildGroupPrompt — knowledge cards block", () => {
     expect(prompt).toMatch(/questions/i);
   });
 });
+
+describe("buildGroupPrompt — anti-patterns block", () => {
+  it("renders the question anti-patterns block in every group prompt", () => {
+    for (const groupId of ["business", "ux", "technical"] as const) {
+      const prompt = buildGroupPrompt(groupId, preAnalysis);
+      expect(prompt).toContain("АНТИ-ПАТТЕРНЫ ВОПРОСОВ");
+    }
+  });
+
+  it("lists each registered anti-pattern in the prompt body", async () => {
+    const { QUESTION_ANTI_PATTERNS } = await import(
+      "@/knowledge/question-anti-patterns"
+    );
+    expect(QUESTION_ANTI_PATTERNS.length).toBeGreaterThan(0);
+
+    const prompt = buildGroupPrompt("technical", preAnalysis);
+    for (const item of QUESTION_ANTI_PATTERNS) {
+      expect(prompt).toContain(item.pattern);
+    }
+  });
+});

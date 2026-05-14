@@ -1,6 +1,7 @@
 import { CRITERIA, CRITERIA_GROUPS, type PreAnalysisResult } from "@/lib/types";
 import { TEMPLATE_BOILERPLATE_INSTRUCTION } from "@/knowledge/epic-template";
 import type { DirectProKnowledgeCard } from "@/knowledge/direct-pro/schema";
+import { buildQuestionAntiPatternsBlock } from "@/knowledge/question-anti-patterns";
 
 const BASE_PROMPT = `Ты проводишь ревью эпика перед приёмкой в бэклог Яндекс Директа. Твоя задача — найти пробелы, из-за которых разработка может застопориться, и помочь улучшить описание.
 
@@ -210,9 +211,10 @@ export function buildGroupPrompt(
   }
 
   const knowledgeBlock = buildKnowledgeCardsBlock(cards);
+  const antiPatternsBlock = buildQuestionAntiPatternsBlock();
 
   return `${BASE_PROMPT}
-${contextBlock}${knowledgeBlock}
+${contextBlock}${knowledgeBlock}${antiPatternsBlock}
 ТВОЯ ГРУППА КРИТЕРИЕВ: ${group.label}
 
 Оцени ТОЛЬКО следующие критерии:
