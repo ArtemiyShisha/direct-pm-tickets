@@ -69,13 +69,14 @@
 - 14 критериев в 3 группах, 3 параллельных вызова `gpt-5.5` (унифицирован через `EVALUATION_MODEL`).
 - Step 0: Pre-Analysis (`runPreAnalysis`) с автоопределением типа эпика, продуктов и N/A-критериев.
 - Knowledge cards: `selectDirectProCards(epicText)` поднят на уровень роута. Отобранные карточки прокидываются в каждую из 3 групп через `buildGroupPrompt(groupId, preAnalysis, cards)` — секция «КОНТЕКСТ ДИРЕКТ ПРО» (id+kind+label+summary + challenge rules) добавляется в системный промпт и инструктирует модель формулировать `criterion.questions` с опорой на эти знания.
+- Runtime context now includes 81 Direct.Pro cards: 3 core seed cards plus promoted `review_needed` packs for campaign types (8), campaign hierarchy/lifecycle (13), campaign/group settings (16), interface surfaces (16), and ad formats/elements (25).
 - Step 4 (legacy, OFF by default): Direct.Pro Product Challenger (`runProductChallenger`) — отдельный LLM-вызов под флагом `PRODUCT_CHALLENGER_ENABLED=true`. Когда выключен, в API возвращается `product_challenges: []`, UI/markdown-секция автоматически скрывается. Когда включён — работает как раньше: structured output, до 12 челленджей, не пересчитывает score, скипается при пустом наборе карточек.
 - Веса: x1.5 (problem, solution, metrics, scenarios, ready_for_dev), x1.0 (potential, analytics, design, corner_cases, launch), x0.7 (onboarding, interfaces, international, logging).
 - N/A-поддержка в типах, схемах, UI, экспорте.
 - Контекстный кредит и явные N/A-триггеры в промпте.
 - Продуктово-ориентированная шкала (6-7 = достаточно для работы).
 - UI отдельной секцией показывает "Продуктовые челленджи" с пометкой "Не влияют на оценку"; markdown-экспорт включает ту же секцию.
-- Vitest c `npm test` / `npm run test:watch`; на момент написания зелёные 20/20.
+- Vitest c `npm test` / `npm run test:watch`; на текущей ветке `npx vitest run` зелёный: 48/48 tests.
 
 ### Раунд 4: Pre-Analysis Pipeline
 
@@ -106,7 +107,7 @@
 - В прод-промпт Challenger'у передаются только релевантные карточки. Сам промпт явно запрещает выдумывать факты о Direct.Pro сверх этих карточек: если знаний не хватает, модель формулирует вопрос как проверку допущения.
 - Любая ошибка Challenger'а ловится и логируется; основной ответ оценки уходит как обычно.
 
-Карточки знания пока минимальные — три entity (`entity.campaign`, `entity.ad_group`, `entity.ad`) с `confidence: "review_needed"`. Этого достаточно, чтобы Challenger срабатывал на эпиках про эти сущности, но реальная польза начинается с **Task 10** из плана `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` — там карточки заполняются по доменным батчам (campaign-types → hierarchy → settings → surfaces → targeting → moderation → billing → stats → legal → adjacent), каждый батч проходит human review.
+Карточки знания уже вышли за пределы минимального seed-набора: в runtime подключены core cards и пять доменных packs. Все новые packs пока `confidence: "review_needed"` — это значит, что они прошли human review на пригодность для runtime, но не являются product-owner-approved фактами. Реальная польза теперь приходит через вопросы внутри 14 критериев, потому что карточки подмешиваются в group evaluator prompts.
 
 **Новые файлы:**
 
@@ -124,7 +125,7 @@
 - `docs/knowledge/card-review-process.md` — переходы `draft → review_needed → approved → deprecated` и критерии каждого.
 - `tools/direct-pro-knowledge/README.md` — правила локальных raw-источников и кандидаты на адаптеры (пока ни одного не реализовано).
 
-**Результат**: Tasks 1-9 и 11 закрыты. Task 10 — в процессе: первый source pack `campaign-types-v1` уже **drafted в `knowledge/drafts/campaign-types-v1/` (gitignored)** и ждёт human review перед promote в `src/knowledge/direct-pro/cards/campaign-types.ts`. Подробнее см. секцию "Implementation Status" в плане.
+**Результат**: Tasks 1-9 и 11 закрыты. Task 10 — в процессе: несколько packs уже промоутнуты в runtime как `review_needed`. Актуальный статус см. в `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` → "Implementation Status".
 
 ### Раунд 6: Manual PDF drop tooling + первый knowledge pack `campaign-types-v1`
 
@@ -135,7 +136,7 @@
 
 В `.gitignore` добавлены `/baza_znaniy/` (drop-folder для пользовательских PDF) и `/.venv-pdf/` (локальный venv с pymupdf). Обновлены: `docs/knowledge/source-packs/README.md`, `tools/direct-pro-knowledge/README.md`, план (Implementation Status + "How to resume Task 10").
 
-Подготовлен первый домен-батч `campaign-types-v1`: 8 draft-карточек по основным типам кампаний Direct.Pro (`campaign_type.{epk, master_campaigns, simple_start, product_campaign, reach_campaign, thematic_promotion, content_promotion, context_banner}`). Все валидируются Zod-схемой, лежат в gitignored `knowledge/drafts/campaign-types-v1/candidate-cards.json`. Сопровождаются `unresolved-questions.md` (15 пунктов), `conflicts.md` (5 пунктов), `coverage-note.md`. Источник — 9 PDF в `baza_znaniy/campaigns/`, текст извлечён в `knowledge/drafts/campaign-types-v1/extracted/`.
+На этом раунде был подготовлен первый домен-батч `campaign-types-v1`: 8 draft-карточек по основным типам кампаний Direct.Pro (`campaign_type.{epk, master_campaigns, simple_start, product_campaign, reach_campaign, thematic_promotion, content_promotion, context_banner}`). Драфты валидировались Zod-схемой и остались в gitignored `knowledge/drafts/campaign-types-v1/` как provenance. Источник — 9 PDF в `baza_znaniy/campaigns/`, текст извлечён в `knowledge/drafts/campaign-types-v1/extracted/`.
 
 **Новые файлы:**
 
@@ -144,7 +145,27 @@
 - `docs/knowledge/source-packs/campaign-types-v1/source-pack.yaml`
 - `docs/knowledge/source-packs/campaign-types-v1/notes.md`
 
-**Состояние**: ждёт human review. После одобрения пользователем карточки промотятся в `src/knowledge/direct-pro/cards/campaign-types.ts`, добавляются в barrel `cards/index.ts`, прогоняются `npx vitest run` + `npm run build`, после чего `selectDirectProCards` начинает ловить эпики про ЕПК, МК, Простой старт, Товарную, Охватные, тематические разделы, Продвижение контента, Баннер на Поиске.
+**Состояние**: промоутнуто в runtime как `src/knowledge/direct-pro/cards/campaign-types.{json,ts}` и подключено в `cards/index.ts`.
+
+### Раунд 7: Knowledge packs promoted to runtime
+
+После human review были промоутнуты следующие packs:
+
+- `campaign-types-v1` → `campaign-types.{json,ts}`: 8 cards.
+- `campaign-hierarchy-lifecycle-v1` → `campaign-hierarchy.{json,ts}`: 13 cards.
+- `campaign-group-settings-v1` → `campaign-group-settings.{json,ts}`: 16 cards.
+- off-order `interface-surfaces-v1` → `interface-surfaces.{json,ts}`: 16 cards. Этот pack был сделан вне исходного 10-batch порядка, потому что пользователь отдельно загрузил сфокусированные PDF про интерфейсы.
+
+### Раунд 8: Ad formats / ad elements pack
+
+Пользователь добавил новую папку `baza_znaniy/banners/` с PDF про материалы и элементы объявлений. Для неё создан off-order source pack `ad-formats-elements-v1`:
+
+- committed docs: `docs/knowledge/source-packs/ad-formats-elements-v1/source-pack.yaml` и `notes.md`;
+- ignored drafts: `knowledge/drafts/ad-formats-elements-v1/{candidate-cards.json,coverage-note.md,conflicts.md,unresolved-questions.md}`;
+- runtime: `src/knowledge/direct-pro/cards/ad-formats-elements.{json,ts}` — 25 cards;
+- `Продвижение приложений-v1-5_17_202.pdf` классифицирован как app-promotion campaign/product-mode source, не как ad-materials source; его надо взять позже как top-up для campaign types или отдельный app-promotion pack.
+
+Проверки на момент промоушена: `npx tsx tools/direct-pro-knowledge/validate-candidates.ts ad-formats-elements-v1` passed, `npx vitest run` passed (48/48), `npm run build` passed.
 
 ### Что нужно проверить
 
@@ -177,7 +198,8 @@
 | `src/prompts/product-challenger-prompt.ts` | Промпт Product Challenger (Step 4). |
 | `src/knowledge/direct-context.ts` | Карта продуктов Директа для Pre-Analysis. |
 | `src/knowledge/direct-pro/schema.ts` | Schema одобренной карточки знания. |
-| `src/knowledge/direct-pro/cards/{core,index}.ts` | Затравочные карточки entity.campaign / ad_group / ad. |
+| `src/knowledge/direct-pro/cards/{core,index}.ts` | Core seed cards and barrel export for all runtime knowledge cards. |
+| `src/knowledge/direct-pro/cards/*.json` + `*.ts` wrappers | Promoted domain packs (`campaign-types`, `campaign-hierarchy`, `campaign-group-settings`, `interface-surfaces`, `ad-formats-elements`). |
 | `src/knowledge/direct-pro/select.ts` | Селектор карточек по aliases. |
 | `src/components/evaluation-result.tsx` | UI результата: карточки, бейджи, группы + секция "Продуктовые челленджи". |
 | `src/app/api/evaluate/route.ts` | API endpoint: Pre-Analysis → `selectDirectProCards` → 3 параллельных group eval (с карточками) → force N/A → totalScore → опционально Product Challenger под флагом → JSON. |
@@ -208,22 +230,24 @@
 
 ### Прямо сейчас на повестке (Task 10 из плана)
 
-Заполнение знаниевых карточек по доменным батчам. Делается **итеративно**, по одному source pack за раз, с human review между батчами. Подробный how-to — в `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` (секция "How to resume Task 10 in a fresh session" — там два пути: A для пакетов в состоянии «drafted, ждёт promotion», B для старта нового пакета).
+Заполнение знаниевых карточек по доменным батчам. Делается **итеративно**, по одному source pack за раз, с human review между батчами. Подробный how-to — в `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` (секция "How to resume Task 10 in a fresh session" — там варианты для drafted, already promoted и fresh pack).
 
-**Текущий статус — путь A:** `campaign-types-v1` drafted, ждёт ревью пользователя. Следующий шаг — после approve промотить approved карточки в `src/knowledge/direct-pro/cards/campaign-types.ts`.
+**Текущий статус:** в runtime уже подключены packs `campaign-types-v1`, `campaign-hierarchy-lifecycle-v1`, `campaign-group-settings-v1`, off-order `interface-surfaces-v1` и off-order `ad-formats-elements-v1`. Нет известного draft pack, который прямо сейчас ждёт промоушена.
 
 Очередь батчей (порядок зафиксирован в `docs/knowledge/source-packs/README.md`):
 
-1. `campaign-types-v1` — **drafted, awaiting review** (8 cards: ЕПК, МК, Простой старт, Товарная, Охватные, тематические разделы, Продвижение контента, Контекстный баннер).
-2. `campaign-hierarchy-lifecycle-v1` — pending.
-3. `campaign-group-settings-v1` — pending.
-4. `bulk-professional-surfaces-v1` — pending.
-5. `targeting-semantics-v1` — pending.
-6. `moderation-ad-materials-v1` — pending.
-7. `billing-agency-legal-entities-v1` — pending.
-8. `reports-statistics-optimization-v1` — pending.
-9. `legal-marking-compliance-v1` — pending.
-10. `support-adjacent-services-v1` — pending.
+1. `campaign-types-v1` — promoted (8 cards).
+2. `campaign-hierarchy-lifecycle-v1` — promoted (13 cards).
+3. `campaign-group-settings-v1` — promoted (16 cards).
+4. `interface-surfaces-v1` — promoted off-order (16 cards).
+5. `ad-formats-elements-v1` — promoted off-order (25 cards).
+6. `bulk-professional-surfaces-v1` — pending; grids, mass edit, Commander, Excel, API, mobile app, change history. Не путать с off-order `interface-surfaces-v1`.
+7. `targeting-semantics-v1` — pending.
+8. moderation-focused pack — pending; do not duplicate ad formats/materials already covered by `ad-formats-elements-v1`.
+9. `billing-agency-legal-entities-v1` — pending.
+10. `reports-statistics-optimization-v1` — pending.
+11. `legal-marking-compliance-v1` — pending.
+12. `support-adjacent-services-v1` — pending.
 
 Каждый батч ждёт от пользователя одобренный source pack (PDF / sanitized текст / approved Wiki выгрузка).
 

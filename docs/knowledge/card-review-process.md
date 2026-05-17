@@ -11,8 +11,8 @@ draft -> review_needed -> approved -> deprecated
 | State | Where it lives | What it means |
 |-------|-----------------|---------------|
 | `draft` | `knowledge/drafts/<pack-id>/candidate-cards.json` (gitignored) | Auto-generated from a source pack, not yet seen by a human reviewer. |
-| `review_needed` | `src/knowledge/direct-pro/cards/<domain>.ts` with `confidence: "review_needed"` | A reviewer has read the card and decided it is good enough to ship to runtime as best-effort, but it has not been signed off as a verified product fact. |
-| `approved` | `src/knowledge/direct-pro/cards/<domain>.ts` with `confidence: "approved"` | Verified by a product owner / domain expert. Safe to surface in product challenges as a stated fact (still phrased as a check, not as ground truth). |
+| `review_needed` | `src/knowledge/direct-pro/cards/<domain>.json` exported via `<domain>.ts`, with `confidence: "review_needed"` | A reviewer has read the card and decided it is good enough to ship to runtime as best-effort, but it has not been signed off as a verified product fact. |
+| `approved` | `src/knowledge/direct-pro/cards/<domain>.json` exported via `<domain>.ts`, with `confidence: "approved"` | Verified by a product owner / domain expert. Safe to surface in product challenges as a stated fact (still phrased as a check, not as ground truth). |
 | `deprecated` | Removed from the cards array, or kept with a clear deprecation tag (TBD) | The fact no longer holds; replaced or no longer relevant. |
 
 `draft` cards never reach runtime. The selector and the prompt builder only see what's exported from `src/knowledge/direct-pro/cards/index.ts`, which only contains files that have already cleared at least the `review_needed` bar.
@@ -31,7 +31,7 @@ A draft can be promoted to `review_needed` only when:
 - `entityLevel` and `appliesToCampaignTypes` are accurate or empty (do not invent applicability).
 - The card adds value relative to existing cards in the same domain (no near-duplicates).
 
-When promoted, the card is added to the appropriate file under `src/knowledge/direct-pro/cards/<domain>.ts` and exported through `index.ts`. Tests for unique ids and schema conformance must still pass.
+When promoted, the card is added to the appropriate file under `src/knowledge/direct-pro/cards/<domain>.json`, exported through a typed `<domain>.ts` wrapper, and included in `index.ts`. Tests for unique ids and schema conformance must still pass.
 
 ## Promotion: `review_needed` → `approved`
 

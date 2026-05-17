@@ -6,13 +6,21 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Active plan
 
-The current product workstream is the **Direct.Pro knowledge map**, Task 10 — filling knowledge cards by domain batch. **Right now the pack `campaign-types-v1` is drafted in `knowledge/drafts/campaign-types-v1/` (gitignored) and waiting for human review before promotion into `src/knowledge/direct-pro/cards/campaign-types.ts`.** Do not start a new pack until that one lands.
+The current product workstream is the **Direct.Pro knowledge map**, Task 10 — filling knowledge cards by domain batch. Runtime already includes these `review_needed` packs:
+
+- `campaign-types-v1` → `src/knowledge/direct-pro/cards/campaign-types.{json,ts}` (8 cards)
+- `campaign-hierarchy-lifecycle-v1` → `src/knowledge/direct-pro/cards/campaign-hierarchy.{json,ts}` (13 cards)
+- `campaign-group-settings-v1` → `src/knowledge/direct-pro/cards/campaign-group-settings.{json,ts}` (16 cards)
+- off-order `interface-surfaces-v1` → `src/knowledge/direct-pro/cards/interface-surfaces.{json,ts}` (16 cards)
+- off-order `ad-formats-elements-v1` → `src/knowledge/direct-pro/cards/ad-formats-elements.{json,ts}` (25 cards)
+
+The `ad-formats-elements-v1` pack was created from `baza_znaniy/banners/` because the user explicitly dropped a focused source folder. It covers ad formats, creative assets, and ad elements; moderation workflows remain out of scope for that pack. Future Task 10 work should continue one focused source pack at a time with human review before runtime promotion.
 
 > **Architecture note (May 2026):** The standalone Product Challenger LLM stage is **OFF by default**. Approved Direct.Pro knowledge cards are now folded into the three group-evaluator prompts (`buildGroupPrompt`), so per-criterion `questions` are themselves Direct.Pro-aware. The legacy Challenger code path still exists and runs only when `PRODUCT_CHALLENGER_ENABLED=true` is set in the environment — kept for A/B comparisons and easy rollback. Task 10 work continues unchanged: the same approved cards now feed group evaluators instead of (or in addition to) the legacy Challenger.
 
 Before touching `src/knowledge/direct-pro/`, `src/app/api/evaluate/route.ts`, the group-evaluator prompt, the Challenger prompt, or any source intake / source pack docs / extractor tooling, read:
 
-- `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` — the plan. Start with "Implementation Status" (incl. "Pack `campaign-types-v1` — current state") and "How to resume Task 10 in a fresh session" — that section has two distinct paths (A: pack already drafted, awaiting promotion; B: starting a fresh pack). Pick the right one.
+- `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` — the plan. Start with "Implementation Status" and "How to resume Task 10 in a fresh session" to determine whether a pack is already drafted, already promoted, or the next pack should be started.
 - `docs/knowledge/source-packs/README.md` — source pack manifest format and the fixed 10-batch order.
 - `docs/knowledge/card-review-process.md` — card lifecycle (`draft → review_needed → approved → deprecated`) and the promotion criteria.
 - `tools/direct-pro-knowledge/README.md` — hard rule about what may be committed (sanitized cards, manifests, extractor scripts) and what stays gitignored (`knowledge/raw-*`, `knowledge/drafts/`, `work/direct-pro-knowledge/`, `baza_znaniy/`, `.venv-pdf/`). Contains the end-to-end runbook for the manual PDF drop adapter and the validator.

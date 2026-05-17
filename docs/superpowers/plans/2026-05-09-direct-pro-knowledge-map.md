@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a safe, reviewable Direct.Pro knowledge map that lets Epic Reviewer raise product-level challenges grounded in Direct.Pro context without shipping raw Arcadia/Wiki dumps or private source paths.
+**Goal:** Build a safe, reviewable Direct.Pro knowledge map that lets Epic Reviewer ask sharper Direct.Pro-aware product questions without shipping raw Arcadia/Wiki dumps or private source paths.
 
 **Architecture:** Separate source intake from runtime knowledge. User-provided PDFs/texts can be committed when explicitly approved, while raw Arcadia/Wiki dumps and local source paths stay local and ignored. A local extraction flow produces candidate cards; humans approve sanitized cards; Railway uses only approved static cards and never reads Arcadia or raw dumps.
 
@@ -12,10 +12,10 @@
 
 ## Implementation Status
 
-> Status as of `ab0bc1a` for Tasks 1-9, 11. Task 10 is iterative (one source pack at a time, human review between batches). Pack `campaign-types-v1` is currently **drafted in `knowledge/drafts/campaign-types-v1/` (gitignored)** and waiting for human review before being promoted into `src/knowledge/direct-pro/cards/campaign-types.ts`.
+> Status as of the `knowledge/ad-formats-elements-v1` branch. Tasks 1-9 and 11 are done. Task 10 remains iterative: one source pack at a time, with human review before runtime promotion. Runtime currently uses only sanitized cards exported from `src/knowledge/direct-pro/cards/`.
 
-| Task | Status | Commit |
-|------|--------|--------|
+| Task | Status | Commit / branch |
+|------|--------|-----------------|
 | 1. Lock down local knowledge artifact policy | Done | `92277d0` |
 | 2. Define the approved knowledge card schema | Done | `fb55907` |
 | 3. Add a minimal approved card set (campaign / ad_group / ad) | Done | `e20fe2d` |
@@ -25,9 +25,27 @@
 | 6. Build the challenger prompt | Done | `e4f7fa5` |
 | 7. Wire challenger into evaluation API | Done | `54f1954` |
 | 8. Render challenges in the UI + Markdown export | Done | `30bf5b1` |
-| 9. Source intake docs (no adapters yet) | Done | `ab0bc1a` |
-| 10. Fill knowledge cards by domain batch | **In progress** — `campaign-types-v1` drafted, awaiting human review (see "How to resume Task 10" below) |
+| 9. Source intake docs + manual PDF drop tooling | Done | `ab0bc1a` + later tooling commits |
+| 10. Fill knowledge cards by domain batch | **In progress** — 5 packs promoted to runtime as `review_needed` cards | current branch includes latest ad formats/elements pack |
 | 11. Human review loop for cards (`card-review-process.md`) | Done | `ab0bc1a` |
+
+### Runtime knowledge packs currently exported
+
+`src/knowledge/direct-pro/cards/index.ts` currently exports:
+
+| Source pack | Runtime files | Cards | Status |
+|-------------|---------------|-------|--------|
+| Core seed cards | `core.ts` | 3 | `review_needed` |
+| `campaign-types-v1` | `campaign-types.{json,ts}` | 8 | `review_needed` |
+| `campaign-hierarchy-lifecycle-v1` | `campaign-hierarchy.{json,ts}` | 13 | `review_needed` |
+| `campaign-group-settings-v1` | `campaign-group-settings.{json,ts}` | 16 | `review_needed` |
+| off-order `interface-surfaces-v1` | `interface-surfaces.{json,ts}` | 16 | `review_needed` |
+| off-order `ad-formats-elements-v1` | `ad-formats-elements.{json,ts}` | 25 | `review_needed` |
+
+The off-order packs exist because the user explicitly dropped focused PDF folders and asked to process them:
+
+- `interface-surfaces-v1` covers Direct / Direct.Pro surfaces from `baza_znaniy/interface/`.
+- `ad-formats-elements-v1` covers ad formats, creative assets, and ad elements from `baza_znaniy/banners/`; moderation workflows remain out of scope.
 
 ### Tooling that exists for Task 10 batches
 
@@ -36,31 +54,35 @@
 - `.venv-pdf/` — local Python venv with `pymupdf` (gitignored). Recreate with `python3 -m venv .venv-pdf && .venv-pdf/bin/pip install --quiet pymupdf`.
 - `baza_znaniy/` — gitignored drop folder for user-provided PDFs. Symlinked from `knowledge/drafts/<pack-id>/inputs/` so the manifest path remains stable.
 
-### Pack `campaign-types-v1` — current state
+### Current Task 10 state
 
-- Manifest: `docs/knowledge/source-packs/campaign-types-v1/source-pack.yaml` (committed).
-- Authoring rules for this batch: `docs/knowledge/source-packs/campaign-types-v1/notes.md` (committed).
-- Inputs (gitignored, as symlinks): `knowledge/drafts/campaign-types-v1/inputs/*.pdf` → `baza_znaniy/campaigns/`.
-- Extracted text (gitignored): `knowledge/drafts/campaign-types-v1/extracted/*.txt`.
-- Drafts (gitignored, validated against `directProKnowledgeCardSchema`):
-  - `candidate-cards.json` — 8 cards: `campaign_type.{epk, master_campaigns, simple_start, product_campaign, reach_campaign, thematic_promotion, content_promotion, context_banner}`.
-  - `unresolved-questions.md`, `conflicts.md`, `coverage-note.md`.
+There is no known draft pack currently waiting for promotion after `ad-formats-elements-v1` on this branch. Before starting new work, always check both runtime files in `src/knowledge/direct-pro/cards/` and ignored drafts under `knowledge/drafts/<pack-id>/`.
 
-The next agent in this workstream should **start by reading `coverage-note.md`, `unresolved-questions.md`, `conflicts.md`, and `candidate-cards.json` for `campaign-types-v1` together with the user's review feedback**, then promote whatever the user approves (see "How to resume Task 10" below). Do not author a new pack until `campaign-types-v1` lands in `src/knowledge/direct-pro/cards/`.
+The next planned ordered packs are still:
+
+1. `bulk-professional-surfaces-v1` — grids, mass edit, Commander, Excel, API, mobile app, change history. Do not confuse it with off-order `interface-surfaces-v1`, which covered client-facing surfaces and concepts.
+2. `targeting-semantics-v1`
+3. moderation-focused pack (old placeholder name `moderation-ad-materials-v1`; do not duplicate ad formats/materials already covered by `ad-formats-elements-v1`)
+4. `billing-agency-legal-entities-v1`
+5. `reports-statistics-optimization-v1`
+6. `legal-marking-compliance-v1`
+7. `support-adjacent-services-v1`
+
+`Продвижение приложений-v1-5_17_202.pdf` from `baza_znaniy/banners/` was classified as primarily an app-promotion campaign/product-mode source, not an ad-materials source. It should be handled later as a campaign-types top-up or a dedicated app-promotion pack.
 
 ### Decisions baked into the implementation
 
 - **LLM model:** all four GPT calls (Pre-Analysis, 3 group evaluators, Product Challenger) share the constant `EVALUATION_MODEL = "gpt-5.5"` in `src/lib/openai.ts`. Bump it in one place if needed.
-- **Challenger when no cards match:** if `selectDirectProCards(epicText)` returns `[]`, the Product Challenger LLM call is skipped and `product_challenges: []` is returned. The base per-criterion "Вопросы к PM" still come from the existing pipeline, so a Direct.Pro-irrelevant epic is not left silent — see `src/app/api/evaluate/route.ts`.
+- **Direct.Pro context in group evaluators:** `selectDirectProCards(epicText)` runs before the three group evaluators. Matching cards are folded into `buildGroupPrompt`, so per-criterion `questions` can be Direct.Pro-aware. The standalone Product Challenger is legacy and runs only when `PRODUCT_CHALLENGER_ENABLED=true`.
 - **Test runner:** Vitest is set up with `npm test` / `npm run test:watch`. `vitest.config.ts` mirrors the `@/*` tsconfig path alias.
-- **Card confidence floor for runtime:** the three core cards ship with `confidence: "review_needed"`. They are good enough to keep the Challenger from being mute, but they are not "approved" facts. Promotion rules live in `docs/knowledge/card-review-process.md`.
-- **Selector aliases:** intentionally narrow ("кампани", "групп", "объявлен", "ad group", " ad ") to avoid false positives on words like "additional". Adding broader aliases speculatively is discouraged — add them with the card that needs them.
+- **Card confidence floor for runtime:** runtime cards may ship with `confidence: "review_needed"` after human review. They are best-effort context, not product-owner-approved facts. Promotion rules live in `docs/knowledge/card-review-process.md`.
+- **Selector aliases:** aliases live on cards and should stay realistic words a PM would use. Do not broaden aliases speculatively; add them with the card that needs them.
 
 ### How to resume Task 10 in a fresh session
 
-There are two distinct entry states. Always check first which one you are in.
+There are three distinct entry states. Always check first which one you are in.
 
-#### A) A pack is already drafted, waiting for human review (current state for `campaign-types-v1`)
+#### A) A pack is already drafted, waiting for human review
 
 This is the **default situation when you open a fresh session and `knowledge/drafts/<pack-id>/candidate-cards.json` already exists**.
 
@@ -71,7 +93,8 @@ This is the **default situation when you open a fresh session and `knowledge/dra
    ```bash
    npx tsx tools/direct-pro-knowledge/validate-candidates.ts <pack-id>
    ```
-5. **Promote** approved cards into a typed file `src/knowledge/direct-pro/cards/<domain>.ts`. Use the convention `<domain>.ts` matching the pack's domain (e.g. `campaign-types.ts` for `campaign-types-v1`). Steps:
+5. **Promote** approved cards into `src/knowledge/direct-pro/cards/<domain>.json` plus a typed wrapper `src/knowledge/direct-pro/cards/<domain>.ts`. Use the convention `<domain>` matching the pack's domain (e.g. `campaign-types` for `campaign-types-v1`). Steps:
+   - Copy approved cards into `src/knowledge/direct-pro/cards/<domain>.json`.
    - Create `src/knowledge/direct-pro/cards/<domain>.ts` exporting a const array typed as `DirectProKnowledgeCard[]`.
    - Add it to `src/knowledge/direct-pro/cards/index.ts` so it joins `DIRECT_PRO_KNOWLEDGE_CARDS`.
    - Aliases must be realistic — keep the ones the draft already chose unless the user said otherwise. Do not broaden the selector speculatively.
@@ -82,11 +105,19 @@ This is the **default situation when you open a fresh session and `knowledge/dra
    npm run build      # typecheck + Next.js build
    ```
 7. Commit with a message like `feat(knowledge): promote <pack-id> cards`. Optionally push.
-8. Only then start the next pack (see B).
+8. Only then start the next pack (see C).
 
 The drafts (`candidate-cards.json`, `*.md`, `inputs/`, `extracted/`) stay gitignored after promotion. Do not delete them — they are useful for re-derivation if a card needs to be reverted.
 
-#### B) Starting a fresh pack (no drafts yet)
+#### B) A pack is already promoted
+
+If `src/knowledge/direct-pro/cards/<domain>.json` and `<domain>.ts` already exist and are exported from `cards/index.ts`, do not re-promote it. Instead:
+
+1. Confirm the promoted cards still parse and are unique with `npx vitest run`.
+2. If the user asks for edits, change the runtime JSON directly, keep `confidence: "review_needed"` unless product-owner approval is explicit, and run `npx vitest run` + `npm run build`.
+3. Leave ignored drafts in place; they are useful provenance, not commit material.
+
+#### C) Starting a fresh pack (no drafts yet)
 
 1. Read this plan, `docs/knowledge/source-packs/README.md`, `docs/knowledge/card-review-process.md`, `tools/direct-pro-knowledge/README.md`.
 2. Confirm the next source pack from the batch order in `docs/knowledge/source-packs/README.md`. Ask the user which pack and which input files (usually sanitized PDFs or approved Wiki/text exports).
@@ -129,7 +160,7 @@ Do not attempt multiple packs in one session; the plan's "Context Management Rul
 
 ## Target Runtime Behavior
 
-Epic Reviewer should keep its existing 14-criteria score. In addition, it should produce product challenges that can appear even when formal criteria are green.
+Epic Reviewer should keep its existing 14-criteria score. Direct.Pro knowledge cards now primarily feed the three group-evaluator prompts so `criterion.questions` become product-aware. The standalone `product_challenges` block below is legacy/optional and appears only when `PRODUCT_CHALLENGER_ENABLED=true`.
 
 Example shape:
 
@@ -901,7 +932,7 @@ Suggested batch order:
 3. campaign-group-settings-v1
 4. bulk-professional-surfaces-v1
 5. targeting-semantics-v1
-6. moderation-ad-materials-v1
+6. moderation-focused pack (ad formats/materials split into ad-formats-elements-v1)
 7. billing-agency-legal-entities-v1
 8. reports-statistics-optimization-v1
 9. legal-marking-compliance-v1
@@ -911,10 +942,11 @@ Suggested batch order:
 ## Task 10: Fill Knowledge Cards By Domain Batch
 
 **Files:**
-- Create later: `src/knowledge/direct-pro/cards/campaign-types.ts`
-- Create later: `src/knowledge/direct-pro/cards/campaign-hierarchy.ts`
-- Create later: `src/knowledge/direct-pro/cards/settings.ts`
-- Create later: `src/knowledge/direct-pro/cards/professional-surfaces.ts`
+- Done: `src/knowledge/direct-pro/cards/campaign-types.{json,ts}`
+- Done: `src/knowledge/direct-pro/cards/campaign-hierarchy.{json,ts}`
+- Done: `src/knowledge/direct-pro/cards/campaign-group-settings.{json,ts}`
+- Done, off-order: `src/knowledge/direct-pro/cards/interface-surfaces.{json,ts}`
+- Done, off-order: `src/knowledge/direct-pro/cards/ad-formats-elements.{json,ts}`
 - Create later: `src/knowledge/direct-pro/cards/targeting.ts`
 - Create later: `src/knowledge/direct-pro/cards/moderation.ts`
 - Create later: `src/knowledge/direct-pro/cards/billing-agency.ts`
@@ -922,7 +954,7 @@ Suggested batch order:
 - Create later: `src/knowledge/direct-pro/cards/legal-compliance.ts`
 - Create later: `src/knowledge/direct-pro/cards/support-adjacent.ts`
 
-- [ ] **Step 1: Fill campaign types first**
+- [x] **Step 1: Fill campaign types first**
 
 Input: source pack `campaign-types-v1`.
 
@@ -944,7 +976,7 @@ campaign_type.dynamic_ads
 campaign_type.smart_banners
 ```
 
-- [ ] **Step 2: Fill campaign hierarchy and lifecycle**
+- [x] **Step 2: Fill campaign hierarchy and lifecycle**
 
 Input: source pack `campaign-hierarchy-lifecycle-v1`.
 
@@ -963,7 +995,7 @@ action.campaign_copy
 action.campaign_send_to_moderation
 ```
 
-- [ ] **Step 3: Fill campaign and group settings**
+- [x] **Step 3: Fill campaign and group settings**
 
 Input: source pack `campaign-group-settings-v1`.
 
@@ -982,30 +1014,37 @@ setting.strategy
 setting.average_daily_budget
 ```
 
-- [ ] **Step 4: Fill professional surfaces**
+- [x] **Step 4: Fill interface surfaces (off-order user-requested pack)**
 
-Input: source pack `bulk-professional-surfaces-v1`.
+Input: source pack `interface-surfaces-v1`.
 
-Expected initial card ids:
+Output cards cover Direct / Direct.Pro surfaces and adjacent interface concepts:
 
 ```text
-surface.campaign_grid
-surface.group_grid
-surface.ad_grid
-action.bulk_edit
-action.copy
-tool.api
-tool.commander
-tool.excel
+concept.direct_vs_direct_pro
+surface.client_interface
+surface.direct_pro_interface
+surface.expert_mode
+surface.master_campaigns_wizard
+surface.simple_start_wizard
+surface.recommendations
+surface.vendor_office
 tool.change_history
-tool.mobile_app
+tool.left_menu
+process.registration_onboarding
 ```
 
-- [ ] **Step 5: Continue one domain batch at a time**
+- [x] **Step 5: Fill ad formats and elements (off-order user-requested pack)**
+
+Input: source pack `ad-formats-elements-v1`.
+
+Output cards cover ad text fields, links/tracking, quick links, templates, preview, clarifications, CTA/price, images, video, graphical ads, carousel, organization card, Turbo pages, personalization, and combinatorial EPK ads. Moderation workflows stay out of scope.
+
+- [ ] **Step 6: Continue one domain batch at a time**
 
 Continue in the documented batch order. Each batch must be reviewed before starting the next one.
 
-Do not start `Product Challenger` runtime integration until at least the first four batches have review-needed or approved cards.
+Direct.Pro cards already feed the group evaluator prompts. Continue filling one reviewed pack at a time; use the standalone Product Challenger only for legacy A/B runs under `PRODUCT_CHALLENGER_ENABLED=true`.
 
 ## Task 11: Human Review Loop For Cards
 

@@ -1,0 +1,1104 @@
+[
+  {
+    "id": "element.ad_language",
+    "kind": "element",
+    "label": "Язык объявления",
+    "aliases": [
+      "язык объявления",
+      "язык в объявлении",
+      "настройка языка объявления",
+      "локализация объявления"
+    ],
+    "summary": "Язык объявления определяется по его тексту и должен соответствовать языку страны таргетинга; для иного языка нужен понятный перевод, а брендовые исключения требуют отдельной проверки. Для нероссийского гео в источнике описана групповая настройка, помогающая корректно определить язык показа.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.ad_title",
+      "element.ad_body"
+    ],
+    "challengeRules": [
+      {
+        "id": "ad-language-non-ru-geo",
+        "trigger": "Эпик меняет текст объявления или гео вне РФ, но не упоминает язык объявления.",
+        "challenge": "Спросить, как будет определяться язык объявления, нужен ли перевод для таргетируемой страны и что происходит при ошибочном автоопределении.",
+        "severity": "medium"
+      },
+      {
+        "id": "ad-language-brand-exception",
+        "trigger": "Эпик допускает иностранные слова, бренды или торговые марки в объявлении.",
+        "challenge": "Проверить, не требуется ли отдельный сценарий для брендов/товарных знаков и понятного перевода остального текста.",
+        "severity": "low"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Текст в объявлении_ текст, заг.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Текст в объявлении_ текст, заг.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.ad_title",
+    "kind": "element",
+    "label": "Заголовок объявления",
+    "aliases": [
+      "заголовок объявления",
+      "основной заголовок",
+      "заголовок",
+      "лимит заголовка"
+    ],
+    "summary": "Заголовок — отдельное текстовое поле объявления с собственными ограничениями длины и отображения. На разных устройствах и поверхностях заголовок может обрезаться, особенно при нехватке места для дополнительных частей заголовочного блока.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.ad_body",
+      "element.additional_headline",
+      "element.ad_template"
+    ],
+    "challengeRules": [
+      {
+        "id": "ad-title-limits-missing",
+        "trigger": "Эпик меняет генерацию или редактирование заголовков без лимитов.",
+        "challenge": "Уточнить ограничения длины, поведение длинных слов и то, что видит пользователь при обрезке на разных устройствах.",
+        "severity": "medium"
+      },
+      {
+        "id": "ad-title-template-overflow",
+        "trigger": "Эпик использует шаблоны или подстановки в заголовке.",
+        "challenge": "Проверить fallback при превышении лимитов после подстановки и как это отображается в превью.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Текст в объявлении_ текст, заг.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Текст в объявлении_ текст, заг.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.ad_body",
+    "kind": "element",
+    "label": "Текст объявления",
+    "aliases": [
+      "текст объявления",
+      "описание объявления",
+      "тело объявления",
+      "ad text"
+    ],
+    "summary": "Текст объявления — основное описание в рекламном материале. Для него действуют отдельные ограничения относительно заголовков, а при шаблонах и персонализации важно проверять результат после подстановок, а не только исходный текст.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.ad_title",
+      "element.ad_template",
+      "concept.ad_personalization"
+    ],
+    "challengeRules": [
+      {
+        "id": "ad-body-generated-text-limits",
+        "trigger": "Эпик меняет автогенерацию или массовое редактирование текста объявления.",
+        "challenge": "Спросить, где проверяются ограничения для итогового текста: при вводе, после подстановок, в превью или на модерации.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Текст в объявлении_ текст, заг.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Текст в объявлении_ текст, заг.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.additional_headline",
+    "kind": "element",
+    "label": "Дополнительный заголовок и подстановки",
+    "aliases": [
+      "дополнительный заголовок",
+      "второй заголовок",
+      "подстановка региона",
+      "подстановка уточнений",
+      "доп заголовок"
+    ],
+    "summary": "Дополнительный заголовок необязателен и конкурирует за место с другими подстановками: уточнениями, регионом или городом. При переполнении блок может скрываться или заменяться другим элементом, поэтому эпики про заголовки должны описывать порядок подстановок и fallback.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.ad_title",
+      "element.clarifications",
+      "element.display_domain"
+    ],
+    "challengeRules": [
+      {
+        "id": "additional-headline-fallback",
+        "trigger": "Эпик добавляет новые подстановки в заголовочный блок.",
+        "challenge": "Зафиксировать приоритет элементов, поведение при переполнении и отличия поиска, сетей и динамических объявлений.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Текст в объявлении_ текст, заг.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Текст в объявлении_ текст, заг.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.site_link",
+    "kind": "element",
+    "label": "Ссылка на сайт и целевой URL",
+    "aliases": [
+      "ссылка на сайт",
+      "целевая ссылка",
+      "целевой url",
+      "ссылка в объявлении",
+      "проверка ссылки"
+    ],
+    "summary": "Целевая ссылка объявления проходит автоматическую проверку доступности, редиректов и ответа сайта. Даже если ссылка открывается у пользователя вручную, рекламный робот может отклонить её при таймауте, некорректном ответе, длинной цепочке редиректов или проблемах кодировки/серверной конфигурации.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.display_domain",
+      "element.url_tracking",
+      "element.quick_links"
+    ],
+    "challengeRules": [
+      {
+        "id": "site-link-validation-missing",
+        "trigger": "Эпик меняет ввод или проверку URL, но не описывает валидатор ссылок.",
+        "challenge": "Спросить про таймауты, лимит редиректов, серверные ошибки, кодировку и диагностику отличий между браузером пользователя и рекламным роботом.",
+        "severity": "high"
+      },
+      {
+        "id": "site-link-auto-click-label",
+        "trigger": "Эпик меняет параметры URL или трекинг кликов.",
+        "challenge": "Проверить, как автоматическая служебная метка клика склеивается с существующими query-параметрами и можно ли её отключать.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Ссылка на сайт_ отображаемый д.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Ссылка на сайт_ отображаемый д.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.display_domain",
+    "kind": "element",
+    "label": "Отображаемый домен",
+    "aliases": [
+      "отображаемый домен",
+      "домен в объявлении",
+      "видимый домен",
+      "домен после редиректа"
+    ],
+    "summary": "Отображаемый домен выводится из целевой ссылки с учётом редиректов и известных счётчиков. При неизвестном промежуточном счётчике или межсайтовом редиректе пользователь может увидеть не тот домен, который PM ожидает из исходного URL; обновление домена зависит от повторной проверки цепочки и активности кампании.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.site_link",
+      "element.display_url"
+    ],
+    "challengeRules": [
+      {
+        "id": "display-domain-redirects",
+        "trigger": "Эпик показывает или меняет домен объявления при редиректах/счётчиках.",
+        "challenge": "Уточнить правило выбора домена, поведение неизвестных счётчиков, кириллических доменов и обновление кэша после изменения сайта.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Ссылка на сайт_ отображаемый д.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Ссылка на сайт_ отображаемый д.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.display_url",
+    "kind": "element",
+    "label": "Отображаемая ссылка",
+    "aliases": [
+      "отображаемая ссылка",
+      "видимый url",
+      "видимая ссылка",
+      "slug в объявлении"
+    ],
+    "summary": "Отображаемая ссылка — подпись к переходу в объявлении, которая не обязана полностью совпадать с фактическим целевым URL. Для неё важны шаблоны, fallback и превью, особенно в ЕПК, где при пустом значении может использоваться поведение по умолчанию.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.display_domain",
+      "element.ad_template",
+      "element.site_link"
+    ],
+    "challengeRules": [
+      {
+        "id": "display-url-fallback",
+        "trigger": "Эпик меняет видимую ссылку, но не описывает пустое значение или шаблоны.",
+        "challenge": "Проверить fallback, массовое редактирование, превью и отличие видимой ссылки от фактического URL перехода.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Ссылка на сайт_ отображаемый д.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Ссылка на сайт_ отображаемый д.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.url_tracking",
+    "kind": "element",
+    "label": "UTM и динамические параметры URL",
+    "aliases": [
+      "utm",
+      "utm-метки",
+      "параметры url",
+      "динамические параметры",
+      "matched keyword",
+      "метки в ссылке"
+    ],
+    "summary": "Параметры URL и UTM могут задаваться в специальных блоках и подстановках, а в ЕПК встречаются на разных уровнях: кампания, группа и объявление. Важно различать наследование параметров, пустые значения и случаи, когда редирект или сайт отбрасывает метки уже вне Директа.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.site_link",
+      "element.quick_links",
+      "asset.turbo_page"
+    ],
+    "challengeRules": [
+      {
+        "id": "url-tracking-levels",
+        "trigger": "Эпик меняет UTM или параметры URL в ЕПК.",
+        "challenge": "Спросить, на каком уровне применяются параметры, как они наследуются и что происходит при пустых или конфликтующих значениях.",
+        "severity": "high"
+      },
+      {
+        "id": "url-tracking-redirect-loss",
+        "trigger": "Эпик обещает сохранность меток после перехода.",
+        "challenge": "Проверить, не отбрасывает ли метки сайт или редирект, и как это диагностируется пользователю.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Ссылка на сайт_ отображаемый д.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Ссылка на сайт_ отображаемый д.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.quick_links",
+    "kind": "element",
+    "label": "Быстрые ссылки",
+    "aliases": [
+      "быстрые ссылки",
+      "быстрая ссылка",
+      "описание быстрой ссылки",
+      "саджест быстрых ссылок"
+    ],
+    "summary": "Быстрые ссылки — дополнительные ссылки в объявлении с собственными лимитами, описаниями и правилами домена. Их показ зависит от поверхности и формата: описания видны не везде, порядок показа не должен считаться гарантированным во всех сценариях, а шаблонная подстановка ключевой фразы в быстрые ссылки не поддерживается.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.site_link",
+      "asset.turbo_page",
+      "element.ad_template"
+    ],
+    "challengeRules": [
+      {
+        "id": "quick-links-domain-rules",
+        "trigger": "Эпик меняет быстрые ссылки или их генерацию.",
+        "challenge": "Проверить правила совпадения домена, исключения для внешних сервисов, лимиты символов и различия UI/Excel/массового редактирования.",
+        "severity": "high"
+      },
+      {
+        "id": "quick-links-display-guarantees",
+        "trigger": "Эпик обещает показ описаний быстрых ссылок.",
+        "challenge": "Уточнить поверхности и форматы, где описания быстрых ссылок действительно могут появляться, и где показ не гарантирован.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Ссылка на сайт_ отображаемый д.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Ссылка на сайт_ отображаемый д.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.ad_template",
+    "kind": "element",
+    "label": "Шаблоны объявлений",
+    "aliases": [
+      "шаблон объявления",
+      "шаблоны объявлений",
+      "оператор #",
+      "подстановка ключевой фразы",
+      "однотипные объявления"
+    ],
+    "summary": "Шаблоны позволяют подставлять ключевую фразу в заголовки, текст, основную или отображаемую ссылку. После подстановки применяются лимиты итогового поля; при превышении используется фраза по умолчанию, а поведение в фидах и UI различается.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.ad_title",
+      "element.ad_body",
+      "element.site_link",
+      "element.display_url",
+      "element.quick_links"
+    ],
+    "challengeRules": [
+      {
+        "id": "ad-template-fallback",
+        "trigger": "Эпик использует шаблоны, но не описывает fallback.",
+        "challenge": "Проверить фразу по умолчанию, лимиты после подстановки, кодирование кириллицы в URL и отличие шаблонов UI от операторов в фиде.",
+        "severity": "high"
+      },
+      {
+        "id": "ad-template-stats-expectation",
+        "trigger": "Эпик ожидает видеть все сгенерированные варианты в статистике.",
+        "challenge": "Спросить, нужно ли отображать фактические сгенерированные варианты или достаточно исходных строк настроек.",
+        "severity": "low"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Элементы объявления_ шаблоны, .pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Элементы объявления_ шаблоны, .pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.ad_preview",
+    "kind": "element",
+    "label": "Превью объявления",
+    "aliases": [
+      "превью объявления",
+      "предпросмотр объявления",
+      "предпросмотр",
+      "пример объявления"
+    ],
+    "summary": "Превью объявления иллюстрирует возможный вид, но не является контрактом на финальный показ: робот и площадки могут выбрать другой размер, обрезать элементы или не показать часть расширений. Пустое или некорректное превью может быть связано как с продуктовой логикой, так и с клиентскими блокировщиками.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.quick_links",
+      "element.ad_template",
+      "concept.ad_personalization"
+    ],
+    "challengeRules": [
+      {
+        "id": "ad-preview-not-contract",
+        "trigger": "Эпик меняет предпросмотр или обещает точное соответствие реальному показу.",
+        "challenge": "Уточнить, какие элементы превью являются примером, какие зависят от площадки/размера, и как объясняется расхождение пользователю.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Элементы объявления_ шаблоны, .pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Элементы объявления_ шаблоны, .pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.clarifications",
+    "kind": "element",
+    "label": "Уточнения",
+    "aliases": [
+      "уточнения",
+      "уточнения к объявлению",
+      "callouts",
+      "короткие преимущества"
+    ],
+    "summary": "Уточнения — короткие дополнительные тексты под объявлением с лимитами на элемент и суммарный блок. Они могут задаваться на разных уровнях, порядок показа не должен считаться фиксированным, а добавление или изменение может потребовать повторной проверки материала.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.additional_headline",
+      "element.ad_body"
+    ],
+    "challengeRules": [
+      {
+        "id": "clarifications-order-and-limits",
+        "trigger": "Эпик меняет уточнения или переносит их между уровнями.",
+        "challenge": "Спросить про лимиты, наследование, отсутствие гарантированного порядка и влияние на другие текстовые элементы объявления.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Элементы объявления_ шаблоны, .pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Элементы объявления_ шаблоны, .pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.ad_price",
+    "kind": "element",
+    "label": "Цена в объявлении",
+    "aliases": [
+      "цена в объявлении",
+      "цена",
+      "отображение цены",
+      "цена товара в объявлении"
+    ],
+    "summary": "Цена может быть отдельным элементом объявления и показываться не на всех поверхностях. Она не должна автоматически считаться синхронизированной с сайтом; для массового добавления и предпросмотра нужны отдельные сценарии.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.ad_preview"
+    ],
+    "challengeRules": [
+      {
+        "id": "ad-price-manual-sync",
+        "trigger": "Эпик меняет цену в объявлении или обещает её актуальность.",
+        "challenge": "Уточнить источник цены, ручное или автоматическое обновление, поверхности показа и поведение в превью.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Элементы объявления_ шаблоны, .pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Элементы объявления_ шаблоны, .pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.cta_button",
+    "kind": "element",
+    "label": "Кнопка действия",
+    "aliases": [
+      "кнопка действия",
+      "кнопка в объявлении",
+      "cta",
+      "call to action",
+      "кнопка в тго"
+    ],
+    "summary": "Кнопка действия может быть отдельным элементом объявления рядом с медиа и собственной ссылкой. Доступность, дефолтный текст, связь с целями кампании и отчётность по кликам зависят от формата, поверхности и типа кампании.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.site_link",
+      "element.url_tracking",
+      "asset.image",
+      "asset.video"
+    ],
+    "challengeRules": [
+      {
+        "id": "cta-button-surface-and-defaults",
+        "trigger": "Эпик добавляет или меняет CTA-кнопку в объявлениях.",
+        "challenge": "Проверить доступные поверхности, дефолтный текст, отдельную ссылку, связь со стратегией/целью и отчётность по месту клика.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Элементы объявления_ шаблоны, .pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Элементы объявления_ шаблоны, .pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.ad_personalization",
+    "kind": "concept",
+    "label": "Персонализация объявлений",
+    "aliases": [
+      "персонализация объявлений",
+      "персонализация",
+      "оптимизация текста под запрос",
+      "neuro ads",
+      "yandex neuro ads"
+    ],
+    "summary": "Персонализация адаптирует заголовок и текст объявления под запрос, контекст, устройство и другие сигналы, используя исходный материал и посадочную страницу. Для оценки эпика важны предусловия включения, отличие отображаемого текста от редактора, исключающие фразы, массовые переключатели, автозапуск и измерение эффекта.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "element.ad_title",
+      "element.ad_body",
+      "element.ad_template",
+      "element.ad_preview"
+    ],
+    "challengeRules": [
+      {
+        "id": "ad-personalization-visible-text",
+        "trigger": "Эпик включает персонализацию, но не описывает отличие редакторского текста от показанного пользователю.",
+        "challenge": "Спросить, как PM объясняет пользователю адаптированный текст, что попадает в превью/статистику и как отрабатывают исключения.",
+        "severity": "high"
+      },
+      {
+        "id": "ad-personalization-rollout-controls",
+        "trigger": "Эпик меняет автозапуск или массовое включение персонализации.",
+        "challenge": "Проверить коммуникации, opt-out, пакетные лимиты, массовые действия и безопасное выключение.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Персонализация объявлений-v1-5_.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Персонализация объявлений-v1-5_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.personalization_exclusion_phrases",
+    "kind": "concept",
+    "label": "Фразы-исключения для персонализации",
+    "aliases": [
+      "фразы-исключения",
+      "исключения персонализации",
+      "бренд-фильтр",
+      "минус слова для персонализации"
+    ],
+    "summary": "Фразы-исключения ограничивают нежелательные слова и словосочетания в персонализированных текстах. Это не минус-фразы семантики: настройка применяется к контуру персонализации, имеет собственные операторы, лимиты и задержку применения.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "concept.ad_personalization"
+    ],
+    "challengeRules": [
+      {
+        "id": "personalization-exclusions-not-keyword-negatives",
+        "trigger": "Эпик добавляет исключения для персонализации, но описывает их как минус-фразы.",
+        "challenge": "Разделить семантические минус-фразы и брендовые/лексические исключения персонализации, включая уровень применения и задержку вступления в силу.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Персонализация объявлений-v1-5_.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Персонализация объявлений-v1-5_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "asset.image",
+    "kind": "asset",
+    "label": "Изображение в объявлении",
+    "aliases": [
+      "изображение",
+      "картинка в объявлении",
+      "изображение в объявлении",
+      "широкоформатное изображение",
+      "загрузка изображения"
+    ],
+    "summary": "Изображение — творческий материал объявления с требованиями к файлу, сторонам, кадрированию и вариантам формата. Разные типы кампаний и интерфейсы могут отличаться каналами добавления, галереей, массовым редактированием, смарт-центрами и поведением превью/обрезки.",
+    "entityLevel": "asset",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "asset.video",
+      "format.graphic_ad",
+      "element.carousel",
+      "element.ad_preview"
+    ],
+    "challengeRules": [
+      {
+        "id": "image-format-and-crop",
+        "trigger": "Эпик меняет загрузку, кадрирование или автоматическую обработку изображений.",
+        "challenge": "Уточнить требования к форматам, сторонам, весу, смарт-центрам, fallback при ошибке и отличие стандартного/широкоформатного изображения.",
+        "severity": "high"
+      },
+      {
+        "id": "image-bulk-surface-coverage",
+        "trigger": "Эпик обещает массовую замену изображений.",
+        "challenge": "Проверить, какие каналы реально покрыты: UI, массовое редактирование, Excel, Commander, API и мобильный клиент.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Изображения-v1-5_17_2026, 2_01_12 PM.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Изображения-v1-5_17_2026, 2_01_12 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "asset.video",
+    "kind": "asset",
+    "label": "Видео в объявлении",
+    "aliases": [
+      "видео в объявлении",
+      "видеодополнение",
+      "видео",
+      "загрузить видео",
+      "видео по умолчанию"
+    ],
+    "summary": "Видео может использоваться как материал или дополнение к объявлению. Нужно различать собственный ролик, галерею, дефолтное видео из изображения, ограничения форматов/кодеков/аудиодорожек и различие метрик ТГО-видеодополнений от отдельных медийных видеоформатов.",
+    "entityLevel": "asset",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "asset.image",
+      "format.graphic_ad",
+      "format.combinatorial_epk_ad"
+    ],
+    "challengeRules": [
+      {
+        "id": "video-upload-technical-limits",
+        "trigger": "Эпик меняет загрузку или конвертацию видео.",
+        "challenge": "Проверить контейнеры, кодеки, длительность, пропорции, одну аудиодорожку, обработку ошибок и недопустимые рекомендации сторонних конвертеров.",
+        "severity": "high"
+      },
+      {
+        "id": "video-metrics-misclassification",
+        "trigger": "Эпик про отчёты или показы видео смешивает ТГО-дополнение и медийное видео.",
+        "challenge": "Разделить метрики и продуктовую модель видеодополнения, графического/медийного формата и охватных кампаний.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Видео в объявлениях-v1-5_17_2026, 2_00.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Видео в объявлениях-v1-5_17_2026, 2_00.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "format.graphic_ad",
+    "kind": "format",
+    "label": "Графическое объявление",
+    "aliases": [
+      "графическое объявление",
+      "графические объявления",
+      "го",
+      "баннер го",
+      "креатив графического объявления"
+    ],
+    "summary": "Графическое объявление — отдельный формат с кликом на сайт и размещением в сетях. Для него важны источник креатива, адаптивность, фиксированные размеры, правила замены креатива, безопасные зоны, RTB-отбор и ограничения старых/новых инструментов массового управления.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "asset.image",
+      "asset.video"
+    ],
+    "challengeRules": [
+      {
+        "id": "graphic-ad-size-and-source",
+        "trigger": "Эпик меняет загрузку или замену графического креатива.",
+        "challenge": "Проверить список размеров, адаптивность, безопасные зоны, ограничение замены тем же размером и тем же источником креатива.",
+        "severity": "high"
+      },
+      {
+        "id": "graphic-ad-network-only",
+        "trigger": "Эпик предполагает показ графического объявления на поиске.",
+        "challenge": "Уточнить места показа и аукционную модель, чтобы не перепутать сетевой графический формат с другими баннерными форматами.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Графические объявления-v1-5_17_202.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Графические объявления-v1-5_17_202.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.carousel",
+    "kind": "element",
+    "label": "Карусель в объявлении",
+    "aliases": [
+      "карусель",
+      "карусель изображений",
+      "слайды объявления",
+      "галерея в объявлении"
+    ],
+    "summary": "Карусель — элемент объявления с несколькими изображениями и листанием. Для неё важны единая посадочная, условия показа, ограничения набора изображений, частичный отказ отдельных слайдов и текущая доступность массового управления.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "asset.image",
+      "format.combinatorial_epk_ad"
+    ],
+    "challengeRules": [
+      {
+        "id": "carousel-single-landing",
+        "trigger": "Эпик предлагает разные URL для разных слайдов карусели.",
+        "challenge": "Проверить, поддерживается ли единая или разная посадочная для слайдов в целевом формате, и что будет в статистике кликов.",
+        "severity": "high"
+      },
+      {
+        "id": "carousel-partial-rejection",
+        "trigger": "Эпик меняет модерационный или UX-сценарий карусели.",
+        "challenge": "Уточнить поведение при отклонении одного изображения: скрывается ли карусель, объявление или только конкретный слайд.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Карусель-v1-5_17_2026, 2_01_35 PM.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Карусель-v1-5_17_2026, 2_01_35 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "element.organization_card",
+    "kind": "element",
+    "label": "Карточка организации в объявлении",
+    "aliases": [
+      "карточка организации",
+      "организация в объявлении",
+      "контакты организации",
+      "яндекс бизнес в объявлении",
+      "карточка на картах"
+    ],
+    "summary": "Карточка организации подтягивает в объявление данные из Яндекс Бизнеса: контакты, телефоны, фото, рейтинг, отзывы и организационные признаки. Эпики должны учитывать права на организацию, синхронизацию с Бизнесом, маскирование телефонов, мультифилиалы, различие превью и реального показа, а также влияние статуса организации на копирование и отображение контактов.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk",
+      "campaign_type.master_campaigns"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.master_campaigns_wizard",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "surface.vendor_office",
+      "element.cta_button"
+    ],
+    "challengeRules": [
+      {
+        "id": "organization-card-rights",
+        "trigger": "Эпик меняет выбор или отображение организации в объявлении.",
+        "challenge": "Спросить про роли владельца/представителя, read-only сценарии, основной номер и источник правки данных в Яндекс Бизнесе.",
+        "severity": "high"
+      },
+      {
+        "id": "organization-card-multiple-branches",
+        "trigger": "Эпик работает с сетью или несколькими филиалами.",
+        "challenge": "Уточнить, какие поля пропадают или агрегируются при выборе всей сети/набора филиалов и как считается статистика.",
+        "severity": "high"
+      },
+      {
+        "id": "organization-card-preview-staleness",
+        "trigger": "Эпик полагается на превью карточки организации.",
+        "challenge": "Проверить задержку синхронизации и различие между превью в интерфейсе и живой выдачей.",
+        "severity": "low"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Карточка организации-v1-5_17_2026, 2.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Карточка организации-v1-5_17_2026, 2.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "asset.turbo_page",
+    "kind": "asset",
+    "label": "Турбо-страница как посадочная",
+    "aliases": [
+      "турбо-страница",
+      "турбо сайт",
+      "турбо-сайт",
+      "конструктор турбо",
+      "посадочная турбо",
+      "ускоренная посадочная"
+    ],
+    "summary": "Турбо-страница в контексте Директа — быстрый конструкторский посадочный актив, который важно не путать с Турбо-страницами Вебмастера. Источник описывает высокую чувствительность к актуальности продукта: часть сценариев переводится на лендинги Директа, поэтому любой новый эпик про Турбо должен явно проверять свежесть и миграционную модель.",
+    "entityLevel": "asset",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface",
+      "surface.master_campaigns_wizard"
+    ],
+    "relatedCards": [
+      "element.site_link",
+      "element.url_tracking"
+    ],
+    "challengeRules": [
+      {
+        "id": "turbo-page-freshness",
+        "trigger": "Эпик строит новую функциональность вокруг турбо-страниц.",
+        "challenge": "Проверить актуальность инструмента на дату релиза, отличие от лендингов Директа и то, что будет с уже существующими объявлениями.",
+        "severity": "high"
+      },
+      {
+        "id": "turbo-page-product-confusion",
+        "trigger": "Эпик говорит про Турбо без уточнения продукта.",
+        "challenge": "Разделить турбо-конструктор в Директе и Турбо-страницы Вебмастера, включая поддержку и пользовательские ожидания.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Турбо-страницы-v1-5_17_2026, 2_04_43 PM.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Турбо-страницы-v1-5_17_2026, 2_04_43 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.turbo_url_and_query_params",
+    "kind": "concept",
+    "label": "URL турбо-страниц и параметры перехода",
+    "aliases": [
+      "turbo.site",
+      "yandex.ru/turbo",
+      "параметры турбо",
+      "utm на турбо",
+      "турбо url"
+    ],
+    "summary": "Адрес турбо-страницы и фактический URL открытия могут различаться визуально, оставаясь одной страницей с точки зрения продукта. Параметры URL могут доклеиваться к турбо-ссылкам объявления и быстрым ссылкам, но зависят от того, где именно турбо используется; это создаёт риски для атрибуции и фильтров Метрики.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "asset.turbo_page",
+      "element.url_tracking",
+      "element.quick_links"
+    ],
+    "challengeRules": [
+      {
+        "id": "turbo-url-attribution",
+        "trigger": "Эпик меняет UTM или аналитику для турбо-посадочных.",
+        "challenge": "Уточнить фактический URL открытия, применение параметров к быстрым ссылкам и риск фильтров аналитики по домену.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Турбо-страницы-v1-5_17_2026, 2_04_43 PM.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Турбо-страницы-v1-5_17_2026, 2_04_43 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "format.combinatorial_epk_ad",
+    "kind": "format",
+    "label": "Комбинаторное объявление в ЕПК",
+    "aliases": [
+      "комбинаторное объявление",
+      "комбинаторика",
+      "комбинаторное в епк",
+      "епк комбинаторное",
+      "комбинирование объявлений"
+    ],
+    "summary": "Комбинаторное объявление в ЕПК собирает показываемые варианты из заданных рекламодателем элементов: заголовков, текстов, медиа, контактных данных, уточнений, быстрых ссылок, цены, промоакций, карусели и кнопок. Важно разделять комбинаторное ядро и дополнительные элементы, а также описывать превью сочетаний, площадки и способ избежать нежелательных пар.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "campaign_type.epk",
+      "asset.image",
+      "asset.video",
+      "element.carousel",
+      "element.quick_links",
+      "element.cta_button"
+    ],
+    "challengeRules": [
+      {
+        "id": "combinatorial-core-vs-extensions",
+        "trigger": "Эпик меняет комбинаторное объявление, но не разделяет комбинируемые и некомбинируемые элементы.",
+        "challenge": "Уточнить, какие элементы участвуют в комбинаторике, какие просто дополняют объявление, и как это показывается в превью.",
+        "severity": "high"
+      },
+      {
+        "id": "combinatorial-undesired-pairs",
+        "trigger": "Эпик добавляет автоматическую сборку вариантов без контроля сочетаний.",
+        "challenge": "Спросить, как рекламодатель предотвращает нежелательные пары заголовков, текстов и медиа: правила, превью или разбиение на несколько объявлений.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Комбинаторное объявление в Ед.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Комбинаторное объявление в Ед.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "format.combinatorial_epk_limits",
+    "kind": "format",
+    "label": "Лимиты комбинаторного объявления ЕПК",
+    "aliases": [
+      "лимиты комбинаторного объявления",
+      "сколько заголовков в комбинаторике",
+      "архив комбинаторных",
+      "лимит видео в комбинаторике"
+    ],
+    "summary": "Комбинаторное объявление имеет отдельные квоты на число заголовков, текстов, изображений, видео и активных/архивных объявлений в группе. Массовая загрузка через API и табличные шаблоны использует собственные поля комбинаторики, поэтому нельзя переносить ожидания старых текстовых объявлений без проверки.",
+    "entityLevel": "ad",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "surface.expert_mode",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "format.combinatorial_epk_ad"
+    ],
+    "challengeRules": [
+      {
+        "id": "combinatorial-limits-boundaries",
+        "trigger": "Эпик меняет лимиты или импорт комбинаторных объявлений.",
+        "challenge": "Проверить граничные значения для заголовков, текстов, изображений, видео, активных/архивных объявлений и массовых шаблонов.",
+        "severity": "high"
+      },
+      {
+        "id": "combinatorial-bulk-template-columns",
+        "trigger": "Эпик меняет Excel/API импорт комбинаторики.",
+        "challenge": "Уточнить, какие поля относятся к блоку комбинаторики, а какие являются устаревшими или неприменимыми для этого формата.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Комбинаторное объявление в Ед.pdf» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/ad-formats-elements-v1/inputs/Комбинаторное объявление в Ед.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  }
+]

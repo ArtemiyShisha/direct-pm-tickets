@@ -57,7 +57,7 @@ For each source pack, an extractor must produce, under an ignored path (e.g. `kn
 - `conflicts.md` — places where two sources disagree.
 - `coverage-note.md` — which parts of the skeleton were covered and which were skipped.
 
-Only the candidate cards (after human review) are then promoted into a typed file in `src/knowledge/direct-pro/cards/<domain>.ts`. The drafts and raw inputs stay local.
+Only the candidate cards (after human review) are then promoted into `src/knowledge/direct-pro/cards/<domain>.json` plus a typed wrapper `src/knowledge/direct-pro/cards/<domain>.ts`. The drafts and raw inputs stay local.
 
 ## Workflow Summary
 
@@ -83,7 +83,7 @@ The end-to-end flow for a single source pack:
    ```
    Fix anything it complains about — do not ship a pack that fails validation.
 6. **Stop for human review.** The user reads `candidate-cards.json` together with `notes.md`, `unresolved-questions.md`, `conflicts.md`, `coverage-note.md` and either edits cards inline or rejects them. See `docs/knowledge/card-review-process.md` for promotion criteria.
-7. **Promote.** After approval, copy the approved cards into a typed file `src/knowledge/direct-pro/cards/<domain>.ts`, export them via `src/knowledge/direct-pro/cards/index.ts`, then re-run:
+7. **Promote.** After approval, copy the approved cards into `src/knowledge/direct-pro/cards/<domain>.json`, add a typed wrapper `src/knowledge/direct-pro/cards/<domain>.ts`, export them via `src/knowledge/direct-pro/cards/index.ts`, then re-run:
    ```bash
    npx vitest run
    npm run build

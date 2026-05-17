@@ -1,0 +1,41 @@
+id: ad-formats-elements-v1
+domain: ad_formats_elements
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/banners/. The PDFs themselves are gitignored.
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Видео в объявлениях-v1-5_17_2026, 2_00.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Графические объявления-v1-5_17_202.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Изображения-v1-5_17_2026, 2_01_12 PM.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Карточка организации-v1-5_17_2026, 2.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Карусель-v1-5_17_2026, 2_01_35 PM.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Комбинаторное объявление в Ед.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Персонализация объявлений-v1-5_.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Продвижение приложений-v1-5_17_202.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Ссылка на сайт_ отображаемый д.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Текст в объявлении_ текст, заг.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Турбо-страницы-v1-5_17_2026, 2_04_43 PM.pdf
+  - knowledge/drafts/ad-formats-elements-v1/inputs/Элементы объявления_ шаблоны, .pdf
+expected_card_kinds:
+  - format
+  - asset
+  - element
+  - concept
+out_of_scope:
+  # Topics that may surface in these PDFs but belong to other batches.
+  - moderation workflow and moderation statuses — covered by a future moderation-focused batch
+  - campaign-level settings and strategies — covered by campaign-group-settings-v1
+  - campaign lifecycle actions — covered by campaign-hierarchy-lifecycle-v1
+  - interface surfaces and navigation — covered by interface-surfaces-v1
+  - billing, payers, agency relations — covered by billing-agency-legal-entities-v1
+  - legal marking, ORD, tokens, sanctions — covered by legal-marking-compliance-v1
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/ad-formats-elements-v1/
+
+# Notes:
+# - PDFs live under /baza_znaniy/banners/ (gitignored). Symlinks under
+#   knowledge/drafts/<pack-id>/inputs/ are the stable input paths.
+# - Extract with `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py ad-formats-elements-v1`.
+# - Do not commit the PDFs or the extracted text.

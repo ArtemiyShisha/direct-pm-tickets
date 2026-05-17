@@ -20,7 +20,7 @@ expected_card_kinds:
   - campaign_type
 out_of_scope:
   - detailed settings (covered by campaign-group-settings-v1)
-  - moderation flow (covered by moderation-ad-materials-v1)
+  - moderation flow (covered by a future moderation-focused pack)
 review_owner: <product owner / domain expert handle>
 forbidden_inputs:
   - raw Arcadia paths
@@ -39,11 +39,16 @@ Run packs in this order. Each pack must finish review before the next one starts
 3. `campaign-group-settings-v1` — autotargeting, geo, time targeting, bid adjustments, goals, Metrica, URLs, recommendations, notifications.
 4. `bulk-professional-surfaces-v1` — grids, mass edit, copy, Excel, Commander, API, mobile app, change history.
 5. `targeting-semantics-v1` — keywords, negative phrases, audience segments, retargeting, interests, display conditions, semantic matching.
-6. `moderation-ad-materials-v1` — ad fields, creative assets, preview, moderation statuses, remoderation, rejection reasons.
+6. `moderation-ad-materials-v1` — moderation statuses, remoderation, rejection reasons, and review workflows. Ad formats/materials/elements are now covered by off-order `ad-formats-elements-v1`, so do not duplicate them here.
 7. `billing-agency-legal-entities-v1` — payers, shared account, VAT, non-residents, agency/subclient relations, legal entity and country constraints.
 8. `reports-statistics-optimization-v1` — reports, statistics discrepancies, Metrica goals, invalid clicks, optimization flows, post-launch analytics.
 9. `legal-marking-compliance-v1` — ad marking, ERIR, ORD, tokens, documents, sanctions, personal data, legal restrictions.
 10. `support-adjacent-services-v1` — support processes, Yandex Business, advertising subscription, partner office, other Yandex services.
+
+Off-order packs may exist only when the user explicitly drops a focused source folder and asks to process it. Existing off-order packs:
+
+- `interface-surfaces-v1` — client-facing Direct / Direct.Pro surfaces from `baza_znaniy/interface/`.
+- `ad-formats-elements-v1` — ad formats, ad materials, and ad elements from `baza_znaniy/banners/`; moderation workflows remain out of scope.
 
 ## Per-Batch Output Contract
 
