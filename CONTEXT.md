@@ -69,7 +69,7 @@
 - 14 критериев в 3 группах, 3 параллельных вызова `gpt-5.5` (унифицирован через `EVALUATION_MODEL`).
 - Step 0: Pre-Analysis (`runPreAnalysis`) с автоопределением типа эпика, продуктов и N/A-критериев.
 - Knowledge cards: `selectDirectProCards(epicText)` поднят на уровень роута. Отобранные карточки прокидываются в каждую из 3 групп через `buildGroupPrompt(groupId, preAnalysis, cards)` — секция «КОНТЕКСТ ДИРЕКТ ПРО» (id+kind+label+summary + challenge rules) добавляется в системный промпт и инструктирует модель формулировать `criterion.questions` с опорой на эти знания.
-- Runtime context now includes 116 Direct.Pro cards: 3 core seed cards plus promoted `review_needed` packs for campaign types (8), campaign hierarchy/lifecycle (13), campaign/group settings (16), interface surfaces (16), ad formats/elements (25), formats/shows (17), and targeting/semantics (18).
+- Runtime context now includes 144 Direct.Pro cards: 3 core seed cards plus promoted `review_needed` packs for campaign types (8), campaign hierarchy/lifecycle (13), campaign/group settings (16), interface surfaces (16), ad formats/elements (25), formats/shows (17), targeting/semantics (18), and billing/agency/legal entities (28).
 - Step 4 (legacy, OFF by default): Direct.Pro Product Challenger (`runProductChallenger`) — отдельный LLM-вызов под флагом `PRODUCT_CHALLENGER_ENABLED=true`. Когда выключен, в API возвращается `product_challenges: []`, UI/markdown-секция автоматически скрывается. Когда включён — работает как раньше: structured output, до 12 челленджей, не пересчитывает score, скипается при пустом наборе карточек.
 - Веса: x1.5 (problem, solution, metrics, scenarios, ready_for_dev), x1.0 (potential, analytics, design, corner_cases, launch), x0.7 (onboarding, interfaces, international, logging).
 - N/A-поддержка в типах, схемах, UI, экспорте.
@@ -107,7 +107,7 @@
 - В прод-промпт Challenger'у передаются только релевантные карточки. Сам промпт явно запрещает выдумывать факты о Direct.Pro сверх этих карточек: если знаний не хватает, модель формулирует вопрос как проверку допущения.
 - Любая ошибка Challenger'а ловится и логируется; основной ответ оценки уходит как обычно.
 
-Карточки знания уже вышли за пределы минимального seed-набора: в runtime подключены core cards и семь доменных packs. Все новые packs пока `confidence: "review_needed"` — это значит, что они прошли human review на пригодность для runtime, но не являются product-owner-approved фактами. Реальная польза теперь приходит через вопросы внутри 14 критериев, потому что карточки подмешиваются в group evaluator prompts.
+Карточки знания уже вышли за пределы минимального seed-набора: в runtime подключены core cards и восемь доменных packs. Все новые packs пока `confidence: "review_needed"` — это значит, что они прошли human review на пригодность для runtime, но не являются product-owner-approved фактами. Реальная польза теперь приходит через вопросы внутри 14 критериев, потому что карточки подмешиваются в group evaluator prompts.
 
 **Новые файлы:**
 
@@ -189,6 +189,16 @@
 
 Пак покрывает автотаргетинг, категории автотаргетинга, упоминания брендов, автоставку автотаргетинга, интересы и привычки, ключевые фразы, операторы, стоп-слова, минус-фразы, кросс-минусовку, библиотеку минус-фраз, семантическое соответствие, приоритизацию объявлений, сегменты аудитории, Search vs РСЯ логику сегментов, двойное отрицание, ограничения тематик и сохранение/обнуление CTR фраз.
 
+### Раунд 11: Billing / money pack
+
+Пользователь добавил новую папку `baza_znaniy/money/` с PDF про оплату, зачисления, возвраты, переносы, плательщиков, общий счёт, НДС, промокоды, овердрафт, мошеннические списания и электронные чеки. Для неё создан source pack `billing-agency-legal-entities-v1`:
+
+- committed docs: `docs/knowledge/source-packs/billing-agency-legal-entities-v1/source-pack.yaml` и `notes.md`;
+- ignored drafts: `knowledge/drafts/billing-agency-legal-entities-v1/{candidate-cards.json,coverage-note.md,conflicts.md,unresolved-questions.md}`;
+- runtime: `src/knowledge/direct-pro/cards/billing-agency-legal-entities.{json,ts}` — 28 cards.
+
+Пак покрывает invoice/payment, payment crediting, ELS bank-transfer reconciliation, autopayment, payment failures, PayPal, donations, refunds, blocked-account refund edge cases, money transfers, agency/cross-login transfer constraints, missing funds, fraudulent-charge boundaries, shared account, shared-account daily budget, overdraft, payer constraints, promo codes, VAT, electronic receipts, and non-resident payment restrictions.
+
 ### Что нужно проверить
 
 - Прогнать 3 эталонных эпика (`epic1.md`, `epic2.md`, `epic3.md`) после деплоя Challenger.
@@ -258,7 +268,7 @@
 
 Заполнение знаниевых карточек по доменным батчам. Делается **итеративно**, по одному source pack за раз, с human review между батчами. Подробный how-to — в `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` (секция "How to resume Task 10 in a fresh session" — там варианты для drafted, already promoted и fresh pack).
 
-**Текущий статус:** в runtime уже подключены packs `campaign-types-v1`, `campaign-hierarchy-lifecycle-v1`, `campaign-group-settings-v1`, off-order `interface-surfaces-v1`, off-order `ad-formats-elements-v1`, off-order `formats-shows-v1` и `targeting-semantics-v1`. Нет известного draft pack, который прямо сейчас ждёт промоушена.
+**Текущий статус:** в runtime уже подключены packs `campaign-types-v1`, `campaign-hierarchy-lifecycle-v1`, `campaign-group-settings-v1`, off-order `interface-surfaces-v1`, off-order `ad-formats-elements-v1`, off-order `formats-shows-v1`, `targeting-semantics-v1` и `billing-agency-legal-entities-v1`. Нет известного draft pack, который прямо сейчас ждёт промоушена.
 
 Очередь батчей (порядок зафиксирован в `docs/knowledge/source-packs/README.md`):
 
@@ -269,9 +279,9 @@
 5. `ad-formats-elements-v1` — promoted off-order (25 cards).
 6. `formats-shows-v1` — promoted off-order (17 cards).
 7. `targeting-semantics-v1` — promoted (18 cards).
-8. `bulk-professional-surfaces-v1` — pending; grids, mass edit, Commander, Excel, API, mobile app, change history. Не путать с off-order `interface-surfaces-v1`.
-9. moderation-focused pack — pending; do not duplicate ad formats/materials already covered by `ad-formats-elements-v1`.
-10. `billing-agency-legal-entities-v1` — pending.
+8. `billing-agency-legal-entities-v1` — promoted (28 cards).
+9. `bulk-professional-surfaces-v1` — pending; grids, mass edit, Commander, Excel, API, mobile app, change history. Не путать с off-order `interface-surfaces-v1`.
+10. moderation-focused pack — pending; do not duplicate ad formats/materials already covered by `ad-formats-elements-v1`.
 11. `reports-statistics-optimization-v1` — pending.
 12. `legal-marking-compliance-v1` — pending.
 13. `support-adjacent-services-v1` — pending.

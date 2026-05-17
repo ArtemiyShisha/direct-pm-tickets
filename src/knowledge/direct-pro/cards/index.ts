@@ -6,6 +6,7 @@ import { INTERFACE_SURFACES_DIRECT_PRO_CARDS } from "./interface-surfaces";
 import { AD_FORMATS_ELEMENTS_DIRECT_PRO_CARDS } from "./ad-formats-elements";
 import { FORMATS_SHOWS_DIRECT_PRO_CARDS } from "./formats-shows";
 import { TARGETING_SEMANTICS_DIRECT_PRO_CARDS } from "./targeting-semantics";
+import { BILLING_AGENCY_LEGAL_ENTITIES_DIRECT_PRO_CARDS } from "./billing-agency-legal-entities";
 
 export const DIRECT_PRO_KNOWLEDGE_CARDS = [
   ...CORE_DIRECT_PRO_CARDS,
@@ -16,4 +17,5 @@ export const DIRECT_PRO_KNOWLEDGE_CARDS = [
   ...AD_FORMATS_ELEMENTS_DIRECT_PRO_CARDS,
   ...FORMATS_SHOWS_DIRECT_PRO_CARDS,
   ...TARGETING_SEMANTICS_DIRECT_PRO_CARDS,
+  ...BILLING_AGENCY_LEGAL_ENTITIES_DIRECT_PRO_CARDS,
 ] as const;

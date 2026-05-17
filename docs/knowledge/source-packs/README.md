@@ -40,7 +40,7 @@ Run packs in this order. Each pack must finish review before the next one starts
 4. `bulk-professional-surfaces-v1` — grids, mass edit, copy, Excel, Commander, API, mobile app, change history.
 5. `targeting-semantics-v1` — keywords, negative phrases, audience segments, retargeting, interests, display conditions, semantic matching.
 6. `moderation-ad-materials-v1` — moderation statuses, remoderation, rejection reasons, and review workflows. Ad formats/materials/elements are now covered by off-order `ad-formats-elements-v1`, so do not duplicate them here.
-7. `billing-agency-legal-entities-v1` — payers, shared account, VAT, non-residents, agency/subclient relations, legal entity and country constraints.
+7. `billing-agency-legal-entities-v1` — payers, shared account, VAT, non-residents, agency/subclient relations, legal entity and country constraints; promoted from `baza_znaniy/money/`.
 8. `reports-statistics-optimization-v1` — reports, statistics discrepancies, Metrica goals, invalid clicks, optimization flows, post-launch analytics.
 9. `legal-marking-compliance-v1` — ad marking, ERIR, ORD, tokens, documents, sanctions, personal data, legal restrictions.
 10. `support-adjacent-services-v1` — support processes, Yandex Business, advertising subscription, partner office, other Yandex services.

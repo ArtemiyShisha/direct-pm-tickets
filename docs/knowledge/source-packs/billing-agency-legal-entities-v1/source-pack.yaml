@@ -1,0 +1,52 @@
+id: billing-agency-legal-entities-v1
+domain: billing_agency_legal_entities
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/money/. The PDFs themselves are gitignored.
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Автоплатёж-v1-5_17_2026, 3_51_19 PM.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Баланс для пользователей Дире.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Возврат-v1-5_17_2026, 3_48_12 PM.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Выставление счёта и оплата-v1-5_.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Выставление счета, оплата от н.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Зачисление-v1-5_17_2026, 3_48_26 PM.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Зачисление_ инструкция для пе.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Зачисление_ инструкция для те.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Куда пропали деньги-v1-5_17_2026, 3_50.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Мошеннические списания-v1-5_17_202.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/НДС_ ставки в разных странах, о.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Общий счет-v1-5_17_2026, 3_51_01 PM.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Овердрафт_ отсрочка платежа и .pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Ошибки оплаты_ не могу оплатит.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Перенос денег-v1-5_17_2026, 3_49_20 PM.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Перенос денег-v1-5_17_2026, 3_49_42 PM.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Плательщик-v1-5_17_2026, 3_51_46 PM.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Пожертвования в Директе-v1-5_17_20.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Промокод-v1-5_17_2026, 3_50_02 PM.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Работа в Балансе для оператор.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Что отвечать про оплату PayPal-v1-5.pdf
+  - knowledge/drafts/billing-agency-legal-entities-v1/inputs/Электронный чек-v1-5_17_2026, 3_53_34 PM.pdf
+expected_card_kinds:
+  - setting
+  - concept
+  - process
+  - failure
+  - legal
+  - role
+out_of_scope:
+  # Topics that may surface in these PDFs but belong to other batches or existing cards.
+  - campaign creation, hierarchy, settings, targeting, formats, and show diagnostics
+  - moderation of ad materials and creative asset workflows
+  - reports/statistics optimization except billing-facing balances and reconciliation signals
+  - legal marking, ORD, tokens, sanctions, and personal-data compliance outside payment/tax facts
+  - support-only operator scripts that do not change PM-visible Direct.Pro behavior
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/billing-agency-legal-entities-v1/
+
+# Notes:
+# - PDFs live under /baza_znaniy/money/ (gitignored). Symlinks under
+#   knowledge/drafts/<pack-id>/inputs/ are the stable input paths.
+# - Extract with `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py billing-agency-legal-entities-v1`.
+# - Do not commit the PDFs, symlinks, extracted text, or draft card outputs.

@@ -1,0 +1,1310 @@
+[
+  {
+    "id": "process.invoice_payment",
+    "kind": "process",
+    "label": "Выставление и оплата счёта",
+    "aliases": [
+      "выставить счёт",
+      "оплатить счёт",
+      "пополнить счёт",
+      "оплата кампании",
+      "счёт на оплату",
+      "предоплата"
+    ],
+    "summary": "Клиент пополняет Директ через выставление счёта в интерфейсе: выбирает сумму, плательщика и способ оплаты. Для части банковских способов доступна печатная форма, а быстрые электронные способы могут не формировать такую форму. Счёт рекомендуется оплачивать в ограниченное банковское окно, но продуктовая логика важнее срока: платёж зачисляется, если реквизиты и идентификаторы платежа остаются корректными. Для ЕЛС банковский перевод требует корректного назначения платежа с нужными идентификаторами.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.direct_pro_interface",
+      "surface.top_up_flow",
+      "surface.payments_documents",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "role.payer",
+      "concept.funds_crediting",
+      "concept.els_bank_crediting",
+      "failure.payment_errors"
+    ],
+    "challengeRules": [
+      {
+        "id": "invoice-payment-payer-and-method",
+        "trigger": "Эпик меняет оплату счёта и не различает плательщика, способ оплаты и форму счёта.",
+        "challenge": "Попросить описать, какие способы оплаты поддержаны, где доступна печатная форма, как выбирается плательщик и что происходит с уже выставленным счётом.",
+        "severity": "high"
+      },
+      {
+        "id": "invoice-payment-els-purpose",
+        "trigger": "Эпик затрагивает банковский перевод на ЕЛС без назначения платежа.",
+        "challenge": "Проверить, что продукт явно валидирует или объясняет назначение платежа и номера ЕЛС/ОПЛ, иначе деньги могут не попасть в ожидаемый заказ.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Выставление счёта и оплата-v1-5_» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Выставление счёта и оплата-v1-5_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.funds_crediting",
+    "kind": "concept",
+    "label": "Зачисление денег после оплаты",
+    "aliases": [
+      "зачисление",
+      "деньги не пришли",
+      "когда придут деньги",
+      "банковский перевод",
+      "моментальная оплата",
+      "платёжное поручение"
+    ],
+    "summary": "Срок и автоматичность зачисления зависят от способа оплаты, страны, первого платежа и корректности реквизитов. Моментальные способы имеют короткое, но не нулевое окно обработки; банковские переводы могут занимать несколько рабочих дней, а для некоторых нерезидентских сценариев первая оплата зависит от проверки документов. Для автозачисления важны совпадение суммы со счётом, корректный номер счёта/назначение, реквизиты и плательщик.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.direct_pro_interface",
+      "surface.payments_documents",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "process.invoice_payment",
+      "concept.els_bank_crediting",
+      "failure.payment_errors",
+      "legal.nonresident_payment_restrictions"
+    ],
+    "challengeRules": [
+      {
+        "id": "crediting-is-not-always-instant",
+        "trigger": "Эпик обещает мгновенное зачисление для всех оплат.",
+        "challenge": "Уточнить SLA по способу оплаты и стране, а также поведение при первом платеже и проверке документов.",
+        "severity": "high"
+      },
+      {
+        "id": "crediting-reconciliation-missing",
+        "trigger": "Эпик не описывает сверку суммы, счёта и плательщика.",
+        "challenge": "Попросить добавить состояния недоплаты, переплаты, неверного назначения платежа и несовпадения плательщика.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Зачисление-v1-5_17_2026, 3_48_26 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Зачисление-v1-5_17_2026, 3_48_26 PM.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Зачисление_ инструкция для пе» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Зачисление_ инструкция для пе.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Зачисление_ инструкция для те» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Зачисление_ инструкция для те.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.els_bank_crediting",
+    "kind": "concept",
+    "label": "Зачисление банковской оплаты на ЕЛС",
+    "aliases": [
+      "ЕЛС",
+      "ОПЛ",
+      "назначение платежа",
+      "свободные средства",
+      "зачислить вручную",
+      "невыясненный платёж"
+    ],
+    "summary": "При банковской оплате на единый лицевой счёт назначение платежа должно содержать нужные идентификаторы. Если сумма не совпала со счётом, платёж может лечь на ЕЛС как свободные средства или создать недоплату/переплату, а дальнейшее распределение зависит от доступности ручного зачисления и ограничений аккаунта. Для агентских, нерезидентских и долговых сценариев ручное распределение может быть ограничено.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.payments_documents",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "process.invoice_payment",
+      "concept.funds_crediting",
+      "process.money_transfer"
+    ],
+    "challengeRules": [
+      {
+        "id": "els-free-funds-manual-allocation",
+        "trigger": "Эпик предполагает, что любые свободные средства автоматически попадут в нужную кампанию.",
+        "challenge": "Проверить правила ручного зачисления, недоплаты/переплаты и ограничения для агентств, нерезидентов и долгов.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Зачисление-v1-5_17_2026, 3_48_26 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Зачисление-v1-5_17_2026, 3_48_26 PM.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Выставление счёта и оплата-v1-5_» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Выставление счёта и оплата-v1-5_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "setting.autopayment",
+    "kind": "setting",
+    "label": "Автоплатёж общего счёта",
+    "aliases": [
+      "автоплатёж",
+      "автопополнение",
+      "порог баланса",
+      "привязанная карта",
+      "автоматическое пополнение"
+    ],
+    "summary": "Автоплатёж пополняет общий счёт при падении остатка ниже заданного порога. Поведение зависит от валюты, страны, типа плательщика и привязанной карты; для юридических плательщиков после автоплатежа формируются платёжные и закрывающие документы. Подключение может быть доступно в вебе и мобильном приложении, а уведомления и суммы в сообщениях требуют аккуратного объяснения из-за округлений и НДС.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.shared_account_settings",
+      "surface.direct_pro_interface",
+      "surface.mobile_app"
+    ],
+    "relatedCards": [
+      "concept.shared_account",
+      "failure.autopayment_errors",
+      "failure.payment_errors"
+    ],
+    "challengeRules": [
+      {
+        "id": "autopayment-eligibility",
+        "trigger": "Эпик включает автоплатёж для всех стран, валют или типов аккаунтов.",
+        "challenge": "Попросить явно описать ограничения по стране, валюте, типу плательщика и карте.",
+        "severity": "high"
+      },
+      {
+        "id": "autopayment-documents",
+        "trigger": "Эпик меняет автоплатёж для юрлиц без документов.",
+        "challenge": "Проверить, какие счета, акты, счета-фактуры или авансовые документы формируются после списания.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Автоплатёж-v1-5_17_2026, 3_51_19 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Автоплатёж-v1-5_17_2026, 3_51_19 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.autopayment_errors",
+    "kind": "failure",
+    "label": "Ошибки и автоотключение автоплатежа",
+    "aliases": [
+      "ошибка автоплатежа",
+      "автоплатёж отключён",
+      "не хватает средств",
+      "истёк срок карты",
+      "техническая ошибка автоплатежа"
+    ],
+    "summary": "Автоплатёж может не сработать из-за недостатка средств, банковских ограничений, срока действия карты, технической ошибки или несовместимости настроек оплаты. В одних состояниях автоплатёж можно восстановить после устранения причины, в других он отключается и требует сменить карту или включить настройку заново. Пользовательский текст должен объяснять действие, не раскрывая внутренние причины блокировок дословно.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.shared_account_settings",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "setting.autopayment",
+      "failure.payment_errors"
+    ],
+    "challengeRules": [
+      {
+        "id": "autopayment-error-state-required",
+        "trigger": "Эпик показывает одну общую ошибку автоплатежа.",
+        "challenge": "Попросить разделить недостаток средств, просроченную карту, технический отказ и отключённый автоплатёж, потому что действия пользователя различаются.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Автоплатёж-v1-5_17_2026, 3_51_19 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Автоплатёж-v1-5_17_2026, 3_51_19 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.payment_errors",
+    "kind": "failure",
+    "label": "Ошибки оплаты и недоступные способы",
+    "aliases": [
+      "ошибка оплаты",
+      "не могу оплатить",
+      "нет кнопки Пополнить",
+      "3D Secure",
+      "карта отклонена",
+      "способ оплаты недоступен"
+    ],
+    "summary": "Типовые причины проблем оплаты включают отклонение банком, 3-D Secure, неверный код, недостаток средств, лимиты банка, лимит привязанных карт и страновые ограничения способов оплаты. Доступность быстрых способов может зависеть от страны первой кампании и модерационного состояния аккаунта. Внутренние запреты и флаги не стоит переносить в пользовательский ответ дословно; продукт должен предложить понятное действие или альтернативный способ оплаты.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.top_up_flow",
+      "surface.direct_pro_interface",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "process.invoice_payment",
+      "concept.funds_crediting",
+      "legal.nonresident_payment_restrictions"
+    ],
+    "challengeRules": [
+      {
+        "id": "payment-method-availability-factors",
+        "trigger": "Эпик трактует отсутствие способа оплаты как единый баг.",
+        "challenge": "Попросить проверить страну, модерацию, лимит карт, банковские отказы и внутренние запреты перед UX/поддержкой.",
+        "severity": "high"
+      },
+      {
+        "id": "payment-error-internal-reason-leak",
+        "trigger": "Эпик предлагает показать клиенту внутреннюю причину блокировки.",
+        "challenge": "Проверить, что пользовательский текст не раскрывает внутренние флаги и предлагает безопасную альтернативу.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Ошибки оплаты_ не могу оплатит» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Ошибки оплаты_ не могу оплатит.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Автоплатёж-v1-5_17_2026, 3_51_19 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Автоплатёж-v1-5_17_2026, 3_51_19 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.paypal_payment",
+    "kind": "process",
+    "label": "Оплата PayPal для нерезидентов",
+    "aliases": [
+      "PayPal",
+      "оплата PayPal",
+      "нерезидент PayPal",
+      "международная оплата",
+      "INT MANAGED",
+      "INT UNMANAGED"
+    ],
+    "summary": "PayPal для нерезидентов доступен не как массовый способ оплаты, а как ограниченный процесс с проверками страны, валюты и клиентского сегмента. Для большинства сценариев нужно предлагать альтернативные способы оплаты и не обещать дату возврата PayPal как универсальной функции. Если эпик затрагивает PayPal, важно отделить публичный UX от внутренних согласований и шаблонов поддержки.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.top_up_flow",
+      "surface.support"
+    ],
+    "relatedCards": [
+      "failure.payment_errors",
+      "legal.nonresident_payment_restrictions"
+    ],
+    "challengeRules": [
+      {
+        "id": "paypal-not-general-payment-method",
+        "trigger": "Эпик добавляет PayPal как обычный способ для всех нерезидентов.",
+        "challenge": "Проверить страну, валюту, клиентский сегмент и fallback-способы оплаты.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Что отвечать про оплату PayPal-v1-5» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Что отвечать про оплату PayPal-v1-5.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.donation_payment",
+    "kind": "process",
+    "label": "Пожертвование при оплате через Яндекс Пэй",
+    "aliases": [
+      "пожертвование",
+      "благотворительность",
+      "Яндекс Пэй",
+      "Помощь рядом",
+      "два списания"
+    ],
+    "summary": "В сценарии оплаты картой через Яндекс Пэй пользователь может добавить пожертвование отдельной транзакцией. Номинал выбирается пользователем и может запоминаться для следующих оплат; в банковской выписке оплата Директа и пожертвование отражаются отдельно. Возврат пожертвования идёт по отдельному процессу, а не как обычный возврат рекламного бюджета.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.top_up_flow",
+      "surface.bank_statement"
+    ],
+    "relatedCards": [
+      "process.invoice_payment",
+      "process.refund"
+    ],
+    "challengeRules": [
+      {
+        "id": "donation-is-separate-transaction",
+        "trigger": "Эпик считает пожертвование частью единого счёта Директа.",
+        "challenge": "Попросить описать две транзакции, отдельную коммуникацию и отдельный возврат пожертвования.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Пожертвования в Директе-v1-5_17_20» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Пожертвования в Директе-v1-5_17_20.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.refund",
+    "kind": "process",
+    "label": "Возврат денег из Директа",
+    "aliases": [
+      "возврат",
+      "вернуть деньги",
+      "вывести деньги",
+      "ошибочная оплата",
+      "двойная оплата",
+      "форма возврата"
+    ],
+    "summary": "Возврат по этому процессу относится к счетам Директа, а не к произвольным сервисам Яндекса. Перед возвратом важно остановить кампании, чтобы остаток не продолжал расходоваться, и учесть активные банковские оспаривания. Возврат обычно ориентируется на исходный платёжный контур и реквизиты, но конкретный путь зависит от типа плательщика, способа оплаты, состояния счёта и внутренней проверки.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.payments_documents",
+      "surface.support",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "failure.missing_funds",
+      "legal.fraudulent_charge",
+      "role.payer"
+    ],
+    "challengeRules": [
+      {
+        "id": "refund-direct-only",
+        "trigger": "Эпик обещает вернуть из Директа оплату любого сервиса Яндекса.",
+        "challenge": "Проверить принадлежность счёта Директу и маршрут в поддержку другого сервиса, если счёт не директовский.",
+        "severity": "high"
+      },
+      {
+        "id": "refund-campaign-spend-race",
+        "trigger": "Эпик не останавливает кампании перед возвратом остатка.",
+        "challenge": "Попросить описать, как предотвращается дальнейший расход бюджета во время возврата.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Возврат-v1-5_17_2026, 3_48_12 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Возврат-v1-5_17_2026, 3_48_12 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "state.refund_blocked_account",
+    "kind": "state",
+    "label": "Возврат при длительной блокировке аккаунта",
+    "aliases": [
+      "заблокированный аккаунт",
+      "возврат при блокировке",
+      "неактивный аккаунт",
+      "давняя блокировка"
+    ],
+    "summary": "Для возврата важен статус и давность блокировки аккаунта. Очень длительная блокировка может исключать возврат по обычному процессу, тогда как более свежие или разблокируемые состояния рассматриваются отдельно. Эпики про возвраты должны явно учитывать блокировки, неактивность и добросовестность клиента.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.support",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "process.refund"
+    ],
+    "challengeRules": [
+      {
+        "id": "refund-blocked-account-state",
+        "trigger": "Эпик обещает возврат любому заблокированному клиенту.",
+        "challenge": "Попросить описать, какие блокировки допускают возврат и какие требуют отказа или отдельного процесса.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Возврат-v1-5_17_2026, 3_48_12 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Возврат-v1-5_17_2026, 3_48_12 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.money_transfer",
+    "kind": "process",
+    "label": "Перенос свободных средств",
+    "aliases": [
+      "перенос денег",
+      "перевести деньги",
+      "перенос средств",
+      "свободные средства",
+      "перенести остаток",
+      "перенос между счетами"
+    ],
+    "summary": "Перенос доступен только для неизрасходованного остатка и обычно выполняется между совместимыми счетами/заказами с учётом плательщика, валюты, сервиса и состояния целевого счёта. В Балансе перенос может выполняться пользователем через карточку счёта, но время доступности зависит от отражения платежа и банковского сценария. Межсервисные, межлогиновые и агентские переносы имеют отдельные ограничения.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.payments_documents",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "concept.money_transfer_constraints",
+      "failure.transfer_compensation_lock",
+      "role.payer"
+    ],
+    "challengeRules": [
+      {
+        "id": "transfer-spent-budget",
+        "trigger": "Эпик обещает перенести уже открученный бюджет.",
+        "challenge": "Проверить, что переносится только неизрасходованный остаток, а потраченные средства не становятся свободными деньгами.",
+        "severity": "high"
+      },
+      {
+        "id": "transfer-cross-product",
+        "trigger": "Эпик описывает перенос между любыми сервисами Яндекса.",
+        "challenge": "Попросить разделить перенос внутри Директа и возврат/новое зачисление для другого сервиса.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Перенос денег-v1-5_17_2026, 3_49_20 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Перенос денег-v1-5_17_2026, 3_49_20 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.money_transfer_constraints",
+    "kind": "concept",
+    "label": "Ограничения переноса между логинами и агентствами",
+    "aliases": [
+      "перенос между логинами",
+      "перенос агентства",
+      "представитель агентства",
+      "перенос между клиентами",
+      "бонусные средства"
+    ],
+    "summary": "Перенос между логинами и в агентском контуре зависит от совпадения юридического плательщика, ИНН/идентификатора, валюты, прав представителя и состояния целевого счёта. Главный представитель или администратор агентства имеет более широкий доступ, чем представитель конкретного клиента. Бонусные, промокодные и сертификатные средства не всегда переносятся как обычные деньги, а ошибки переноса могут быть связаны с кредитной линией или договорными ограничениями.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.agency_interface",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "process.money_transfer",
+      "role.payer",
+      "concept.promocode"
+    ],
+    "challengeRules": [
+      {
+        "id": "agency-representative-transfer-scope",
+        "trigger": "Эпик разрешает любому представителю агентства переносить средства между всеми клиентами.",
+        "challenge": "Проверить права главного представителя, администратора и представителя по клиентам.",
+        "severity": "medium"
+      },
+      {
+        "id": "bonus-money-transferability",
+        "trigger": "Эпик переносит бонусные или промокодные средства как обычный остаток.",
+        "challenge": "Попросить явно описать, какие типы начислений переносятся, аннулируются или остаются на исходном контексте.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Перенос денег-v1-5_17_2026, 3_49_20 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Перенос денег-v1-5_17_2026, 3_49_20 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.transfer_compensation_lock",
+    "kind": "failure",
+    "label": "Блокировка переноса после корректировок и компенсаций",
+    "aliases": [
+      "перенос невозможен",
+      "корректировка статистики",
+      "компенсация",
+      "закрывающие документы",
+      "резерв кампании"
+    ],
+    "summary": "Средства, появившиеся после ручных корректировок статистики или компенсаций, могут быть недоступны для переноса из-за уже сформированных закрывающих документов; такие суммы нужно дотрачивать в исходном контексте. Для обычных средств действуют ограничения активной кампании и минимального резерва; чтобы перенести почти весь остаток, кампанию может потребоваться остановить и дождаться активизации.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.payments_documents",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "process.money_transfer",
+      "concept.money_transfer_constraints"
+    ],
+    "challengeRules": [
+      {
+        "id": "compensation-transfer-not-ordinary-money",
+        "trigger": "Эпик обещает перенести компенсацию статистики через поддержку.",
+        "challenge": "Проверить ограничения по закрывающим документам и необходимость дотратить средства там, где они лежат.",
+        "severity": "high"
+      },
+      {
+        "id": "active-campaign-transfer-reserve",
+        "trigger": "Эпик выводит весь остаток с активной кампании без резерва.",
+        "challenge": "Попросить описать резерв, остановку кампании и задержку активизации перед переносом.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Перенос денег-v1-5_17_2026, 3_49_20 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Перенос денег-v1-5_17_2026, 3_49_20 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.missing_funds",
+    "kind": "failure",
+    "label": "Почему деньги не видны или «пропали»",
+    "aliases": [
+      "пропали деньги",
+      "куда делись деньги",
+      "не вижу оплату",
+      "баланс уменьшился",
+      "переплата",
+      "отозвали промокод"
+    ],
+    "summary": "Диагностика пропавших денег начинается с проверки факта зачисления, счёта и операций. Деньги могли лечь в свободные средства из-за недоплаты/переплаты, быть израсходованы на клики, уйти в процесс возврата, перенос, отзыв промокода или отразиться с задержкой в отчётах. Для оплаты за конверсии расход может визуально относиться к дате исходного клика, а не к дате конверсии.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.direct_pro_interface",
+      "surface.payments_documents",
+      "tool.balance",
+      "surface.reports"
+    ],
+    "relatedCards": [
+      "concept.funds_crediting",
+      "process.refund",
+      "process.money_transfer",
+      "concept.promocode"
+    ],
+    "challengeRules": [
+      {
+        "id": "missing-funds-reporting-lag",
+        "trigger": "Эпик обещает мгновенную синхронизацию баланса и отчётов после остановки или списания.",
+        "challenge": "Попросить учесть задержки остановки, обновления отчётов и дату списания для CPA/конверсий.",
+        "severity": "medium"
+      },
+      {
+        "id": "missing-funds-single-cause",
+        "trigger": "Эпик показывает одну причину пропажи денег.",
+        "challenge": "Проверить дерево причин: зачисление, расход, возврат, перенос, промокод, отчёты и свободные средства.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Куда пропали деньги-v1-5_17_2026, 3_50» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Куда пропали деньги-v1-5_17_2026, 3_50.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "legal.fraudulent_charge",
+    "kind": "legal",
+    "label": "Мошеннические списания и границы ответа",
+    "aliases": [
+      "мошенническое списание",
+      "не мой платёж",
+      "списали с карты",
+      "чарджбек",
+      "MCC",
+      "третьи лица оплатили Директ"
+    ],
+    "summary": "При жалобах на подозрительные списания Директ должен отделять факт банковского списания, зачисление на рекламный счёт и дальнейшее раскрытие информации. Если платёж не был успешным, клиенту обычно нужен банк; если деньги дошли до рекламного счёта, нельзя просто раскрыть логин получателя или вернуть деньги пострадавшему без правового процесса. Корректный путь включает банк, оспаривание операции и официальные запросы, а продуктовые тексты должны быть сочувственными, но не раскрывать чужие данные.",
+    "entityLevel": "unknown",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.bank_statement",
+      "surface.support"
+    ],
+    "relatedCards": [
+      "process.refund",
+      "failure.payment_errors"
+    ],
+    "challengeRules": [
+      {
+        "id": "fraud-disclose-recipient-login",
+        "trigger": "Эпик обещает назвать пострадавшему логин, куда ушли деньги.",
+        "challenge": "Попросить убрать раскрытие чужого логина и описать официальный правовой маршрут.",
+        "severity": "high"
+      },
+      {
+        "id": "fraud-mcc-as-proof",
+        "trigger": "Эпик использует MCC как единственное доказательство списания именно в Директ.",
+        "challenge": "Проверить, что MCC используется осторожно и сверяется с фактическим статусом платежа.",
+        "severity": "low"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Мошеннические списания-v1-5_17_202» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Мошеннические списания-v1-5_17_202.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.shared_account",
+    "kind": "concept",
+    "label": "Общий счёт как единый кошелёк логина",
+    "aliases": [
+      "общий счёт",
+      "общий счет",
+      "общий баланс",
+      "единый счёт",
+      "кошелёк логина"
+    ],
+    "summary": "На логине общий счёт выступает единым источником средств для кампаний; новые клиенты получают его автоматически, а раздельные счета по кампаниям на одном логине не являются штатной моделью. Изоляция бюджетов достигается другими логинами или организацией доступа, но управляющий аккаунт не становится плательщиком и не пополняет общий счёт за клиента.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.direct_pro_interface",
+      "surface.shared_account_settings"
+    ],
+    "relatedCards": [
+      "setting.shared_account_daily_budget",
+      "concept.overdraft",
+      "setting.autopayment"
+    ],
+    "challengeRules": [
+      {
+        "id": "shared-account-no-per-campaign-wallet",
+        "trigger": "Эпик требует отдельный счёт на кампанию внутри одного логина.",
+        "challenge": "Проверить, соответствует ли это текущей модели общего счёта, или нужен отдельный логин/другая модель доступа.",
+        "severity": "high"
+      },
+      {
+        "id": "manager-account-payment-rights",
+        "trigger": "Эпик предполагает, что управляющий аккаунт пополняет общий счёт клиента.",
+        "challenge": "Уточнить границу прав управляющего: управление не равно право платить или видеть платёжные действия.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Общий счет-v1-5_17_2026, 3_51_01 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Общий счет-v1-5_17_2026, 3_51_01 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "state.shared_account_days_remaining",
+    "kind": "state",
+    "label": "Прогноз дней до остановки общего счёта",
+    "aliases": [
+      "денег осталось",
+      "сколько дней хватит денег",
+      "красная плашка баланса",
+      "прогноз расхода",
+      "дней простоя"
+    ],
+    "summary": "Директ может показывать прогноз, на сколько дней хватит денег на общем счёте, и менять оформление в зависимости от близости остановки. Плашка связана с прогнозом расхода и денежной остановкой, а не обязана появляться при любой ручной остановке кампаний. При отрицательном остатке сообщение может отражать период простоя из-за минуса.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "concept.shared_account",
+      "failure.negative_shared_account_balance"
+    ],
+    "challengeRules": [
+      {
+        "id": "days-remaining-not-any-stop",
+        "trigger": "Эпик ожидает плашку при любой остановке кампании.",
+        "challenge": "Попросить различить денежную остановку/минус и ручную остановку кампаний.",
+        "severity": "low"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Общий счет-v1-5_17_2026, 3_51_01 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Общий счет-v1-5_17_2026, 3_51_01 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "setting.shared_account_daily_budget",
+    "kind": "setting",
+    "label": "Средний дневной бюджет общего счёта",
+    "aliases": [
+      "дневной бюджет общего счёта",
+      "средний дневной бюджет",
+      "лимит расхода на логин",
+      "ограничение общего счёта"
+    ],
+    "summary": "Средний дневной бюджет общего счёта ограничивает расход всех кампаний логина по недельной модели и работает вместе с лимитами кампаний. Расчёт, перенос остатков, +30% к среднему расходу, московское время и задержка активизации могут приводить к расхождениям с ожиданием пользователя. Настройку не стоит смешивать с дневным бюджетом ручной стратегии и сценариями оплаты за конверсии без отдельного описания резервов и перерасхода.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.shared_account_settings",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "concept.shared_account",
+      "setting.strategy"
+    ],
+    "challengeRules": [
+      {
+        "id": "shared-budget-timezone-and-week",
+        "trigger": "Эпик рассчитывает дневной бюджет по локальному поясу кампании.",
+        "challenge": "Проверить московское время, недельную модель и влияние выключенных дней/расписания.",
+        "severity": "medium"
+      },
+      {
+        "id": "shared-budget-conversion-reserve",
+        "trigger": "Эпик совмещает дневной бюджет ОС с оплатой за конверсии без резервов.",
+        "challenge": "Попросить описать возможный перерасход/недотрату и невидимое резервирование.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Общий счет-v1-5_17_2026, 3_51_01 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Общий счет-v1-5_17_2026, 3_51_01 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.overdraft",
+    "kind": "concept",
+    "label": "Овердрафт: отсрочка платежа и порог отключения",
+    "aliases": [
+      "овердрафт",
+      "отсрочка платежа",
+      "порог отключения",
+      "кредитная линия",
+      "отложенная оплата"
+    ],
+    "summary": "Овердрафт позволяет продолжать продвижение при нехватке средств через две модели: отсрочку платежа с выставлением счёта на будущую оплату или порог отключения, при котором общий счёт уходит в минус до заданной границы. Порядок подключения моделей в течение месяца влияет на доступность второй модели. На конец расчётного периода отрицательный остаток превращается в долг по отложенному счёту.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.shared_account_settings",
+      "surface.top_up_flow",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "concept.shared_account",
+      "process.overdraft_repayment",
+      "failure.negative_shared_account_balance",
+      "role.payer"
+    ],
+    "challengeRules": [
+      {
+        "id": "overdraft-two-models-order",
+        "trigger": "Эпик описывает овердрафт как одну настройку без порядка включения.",
+        "challenge": "Попросить различить отсрочку и порог отключения, а также ограничения их сочетания в одном месяце.",
+        "severity": "high"
+      },
+      {
+        "id": "overdraft-month-end-debt",
+        "trigger": "Эпик не описывает долг при минусе на конец месяца.",
+        "challenge": "Проверить формирование отложенного счёта и документы по долгу.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Овердрафт_ отсрочка платежа и » (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Овердрафт_ отсрочка платежа и .pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Общий счет-v1-5_17_2026, 3_51_01 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Общий счет-v1-5_17_2026, 3_51_01 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.overdraft_repayment",
+    "kind": "process",
+    "label": "Погашение долга по овердрафту",
+    "aliases": [
+      "погасить овердрафт",
+      "долг по овердрафту",
+      "просрочка",
+      "неустойка",
+      "уже погашено",
+      "заморозка средств"
+    ],
+    "summary": "Долг по овердрафту погашается в ограниченный срок; просрочка может остановить продвижение, заморозить новые поступления и привести к неустойке. Новые пополнения сначала закрывают долг, а управление овердрафтом может быть недоступно до завершения проверки оплаты. Клиентская кнопка подтверждения погашения влияет на уведомления и проверку платежа, поэтому её нельзя заменять операторским действием без явного правила.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.shared_account_settings",
+      "surface.payments_documents",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "concept.overdraft",
+      "failure.negative_shared_account_balance"
+    ],
+    "challengeRules": [
+      {
+        "id": "overdraft-repayment-user-action",
+        "trigger": "Эпик предполагает, что поддержку можно попросить нажать подтверждение погашения за клиента.",
+        "challenge": "Проверить, что действие остаётся клиентским и не скрывает уведомления на всех аккаунтах без согласия.",
+        "severity": "high"
+      },
+      {
+        "id": "overdraft-new-money-closes-debt",
+        "trigger": "Эпик показывает новое пополнение как свободный остаток при долге.",
+        "challenge": "Попросить описать приоритет закрытия долга и заморозку поступлений.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Овердрафт_ отсрочка платежа и » (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Овердрафт_ отсрочка платежа и .pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.negative_shared_account_balance",
+    "kind": "failure",
+    "label": "Отрицательный остаток общего счёта",
+    "aliases": [
+      "минус на общем счёте",
+      "отрицательный баланс",
+      "ушли в минус",
+      "перекрут",
+      "рассинхрон баланса"
+    ],
+    "summary": "Минус на общем счёте может быть ожидаемым при пороге отключения, просрочке овердрафта, синхронизационных задержках между Директом и Балансом, остановке/возврате с задержкой активизации или небольших перерасходах. Часть мелких минусов может закрываться автоматически, а часть требует разборки долга, операций и статуса кампаний.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.direct_pro_interface",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "concept.shared_account",
+      "concept.overdraft",
+      "process.overdraft_repayment"
+    ],
+    "challengeRules": [
+      {
+        "id": "negative-balance-root-cause",
+        "trigger": "Эпик трактует любой минус как ошибку списания.",
+        "challenge": "Попросить разделить овердрафт, задержку синхронизации, возврат/остановку и микро-перерасход.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Общий счет-v1-5_17_2026, 3_51_01 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Общий счет-v1-5_17_2026, 3_51_01 PM.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Овердрафт_ отсрочка платежа и » (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Овердрафт_ отсрочка платежа и .pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "role.payer",
+    "kind": "role",
+    "label": "Плательщик",
+    "aliases": [
+      "плательщик",
+      "карточка плательщика",
+      "реквизиты",
+      "ИНН",
+      "юридическое лицо",
+      "физлицо",
+      "самозанятый"
+    ],
+    "summary": "Плательщик — лицо, на которое выставляются документы и от которого ожидается оплата. Страна, тип плательщика, валюта и юридическое лицо получателя влияют на способы оплаты, документы и налоги. Плательщика обычно выбирают при выставлении нового счёта; после выставления и особенно после зачисления денег нельзя просто заменить плательщика, можно лишь менять ограниченный набор контактных данных или выставлять новый счёт. Архивация плательщика блокируется, если он связан с овердрафтом, маркировкой или непотраченными деньгами.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.payments_documents",
+      "surface.top_up_flow",
+      "tool.balance"
+    ],
+    "relatedCards": [
+      "process.invoice_payment",
+      "concept.overdraft",
+      "legal.vat_jurisdiction_rates",
+      "legal.electronic_receipts"
+    ],
+    "challengeRules": [
+      {
+        "id": "payer-change-after-invoice",
+        "trigger": "Эпик разрешает поменять плательщика на уже выставленном или оплаченном счёте.",
+        "challenge": "Проверить правило нового счёта и ограниченность изменения контактов после зачисления.",
+        "severity": "high"
+      },
+      {
+        "id": "payer-archive-blockers",
+        "trigger": "Эпик не объясняет, почему плательщика нельзя архивировать.",
+        "challenge": "Попросить учесть овердрафт, маркировку, остатки и документы.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Плательщик-v1-5_17_2026, 3_51_46 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Плательщик-v1-5_17_2026, 3_51_46 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.promocode",
+    "kind": "concept",
+    "label": "Промокод",
+    "aliases": [
+      "промокод",
+      "бонус",
+      "бонусные средства",
+      "акция",
+      "код на пополнение"
+    ],
+    "summary": "Промокод активируется для конкретного счёта и даёт бонус к оплате продвижения при выполнении условий акции. Обычно важны разовость кода, минимальная сумма без НДС, связь с предоплатным счётом и условия нового/действующего клиента. Бонусные и промокодные средства нельзя трактовать как обычные деньги для переноса, возврата или межлогинового движения без отдельной проверки условий.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.top_up_flow",
+      "surface.payments_documents"
+    ],
+    "relatedCards": [
+      "process.invoice_payment",
+      "process.money_transfer",
+      "failure.missing_funds"
+    ],
+    "challengeRules": [
+      {
+        "id": "promocode-one-invoice",
+        "trigger": "Эпик переносит промокод между счетами или логинами после активации.",
+        "challenge": "Проверить связь промокода с конкретным счётом и условия акции.",
+        "severity": "high"
+      },
+      {
+        "id": "promocode-as-refundable-money",
+        "trigger": "Эпик учитывает бонус как обычный возвратный остаток.",
+        "challenge": "Попросить отдельно описать судьбу бонуса при возврате, переносе и отзыве промокода.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Промокод-v1-5_17_2026, 3_50_02 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Промокод-v1-5_17_2026, 3_50_02 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "legal.vat_jurisdiction_rates",
+    "kind": "legal",
+    "label": "НДС по странам и типам плательщиков",
+    "aliases": [
+      "НДС",
+      "ставка НДС",
+      "налог",
+      "страна плательщика",
+      "счёт с НДС",
+      "без НДС"
+    ],
+    "summary": "НДС зависит от страны, юридического лица получателя и типа плательщика: в одних юрисдикциях налог добавляется к счёту автоматически, в других клиент сам отвечает за местные налоги. Ставки в интерфейсе и торгах могут отображаться без НДС, а налог проявляется в оплате и закрывающих документах. Для пользовательских ответов не стоит выдавать полный список ставок без запроса конкретной страны.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.top_up_flow",
+      "surface.payments_documents",
+      "surface.tax_documents"
+    ],
+    "relatedCards": [
+      "role.payer",
+      "legal.vat_2026_transition",
+      "legal.electronic_receipts",
+      "legal.nonresident_payment_restrictions"
+    ],
+    "challengeRules": [
+      {
+        "id": "vat-rates-by-jurisdiction",
+        "trigger": "Эпик применяет одну ставку НДС ко всем странам и плательщикам.",
+        "challenge": "Попросить описать страну, юридическое лицо, тип плательщика и отображение суммы с/без НДС.",
+        "severity": "high"
+      },
+      {
+        "id": "vat-in-bids-display",
+        "trigger": "Эпик предполагает, что ставки в кабинете уже включают НДС.",
+        "challenge": "Проверить, где сумма показывается без НДС и где налог добавляется в платёжных документах.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «НДС_ ставки в разных странах, о» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/НДС_ ставки в разных странах, о.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "legal.vat_2026_transition",
+    "kind": "legal",
+    "label": "Переход НДС РФ на 22% с 2026 года",
+    "aliases": [
+      "НДС 22%",
+      "повышение НДС",
+      "НДС 2026",
+      "ставка 22",
+      "остаток с НДС",
+      "постоплата декабрь"
+    ],
+    "summary": "При переходе РФ на ставку НДС 22% с 2026 года важна дата целевого рекламного события и тип расчёта. Остаток на счёте не «сгорает», а пересчитывается по сумме без НДС; расходы до перехода и после него могут отражаться с разными ставками. Постоплатные и овердрафтные сценарии требуют отдельного объяснения по актам, чекам и документам, а рекламный сбор считается от базы без НДС.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.payments_documents",
+      "surface.tax_documents"
+    ],
+    "relatedCards": [
+      "legal.vat_jurisdiction_rates",
+      "legal.electronic_receipts",
+      "concept.overdraft"
+    ],
+    "challengeRules": [
+      {
+        "id": "vat-transition-event-date",
+        "trigger": "Эпик привязывает НДС только к дате выставления счёта.",
+        "challenge": "Попросить проверить дату рекламного события, тип расчёта и документы для переходного периода.",
+        "severity": "high"
+      },
+      {
+        "id": "vat-transition-ad-tax",
+        "trigger": "Эпик смешивает НДС с рекламным сбором.",
+        "challenge": "Уточнить, что рекламный сбор считается от суммы без НДС и не меняется автоматически из-за ставки НДС.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «НДС_ ставки в разных странах, о» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/НДС_ ставки в разных странах, о.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Электронный чек-v1-5_17_2026, 3_53_34 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Электронный чек-v1-5_17_2026, 3_53_34 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "legal.electronic_receipts",
+    "kind": "legal",
+    "label": "Электронные чеки: чек на платёж и чек по акту",
+    "aliases": [
+      "электронный чек",
+      "чек на платёж",
+      "чек по акту",
+      "ФНС",
+      "аванс",
+      "полный расчёт",
+      "оплата кредита"
+    ],
+    "summary": "Для российских плательщиков существуют разные электронные чеки: на платёж и по акту. Чек на платёж связан с оплатой, а чек по акту — с фактом оказания услуг и может формироваться несколько раз на один платёж. При овердрафте и постоплате порядок чеков и признаки расчёта отличаются от обычной предоплаты. Отписаться от чеков нельзя, потому что отправка продиктована законодательными требованиями.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.email_notifications",
+      "surface.payments_documents",
+      "surface.tax_documents"
+    ],
+    "relatedCards": [
+      "legal.electronic_receipt_delivery",
+      "legal.vat_2026_transition",
+      "concept.overdraft",
+      "role.payer"
+    ],
+    "challengeRules": [
+      {
+        "id": "receipt-payment-vs-act",
+        "trigger": "Эпик описывает один чек как универсальное подтверждение оплаты и акта.",
+        "challenge": "Попросить различить чек на платёж, чек по акту, признаки расчёта и постоплатные сценарии.",
+        "severity": "medium"
+      },
+      {
+        "id": "receipt-unsubscribe",
+        "trigger": "Эпик предлагает отключить электронные чеки пользователю.",
+        "challenge": "Проверить законодательную обязанность отправки и вместо отключения описать маршруты получения/дубликатов.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Электронный чек-v1-5_17_2026, 3_53_34 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Электронный чек-v1-5_17_2026, 3_53_34 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "legal.electronic_receipt_delivery",
+    "kind": "legal",
+    "label": "Доставка электронных чеков по типу плательщика",
+    "aliases": [
+      "не пришёл чек",
+      "чек на почту",
+      "чек юрлицу",
+      "чек ИП",
+      "дубликат чека",
+      "чек по акту"
+    ],
+    "summary": "Формирование и автоматическая отправка электронных чеков зависят от типа плательщика и способа оплаты. Чеки по акту могут формироваться для всех, но автоматически отправляться не всем типам плательщиков; юридическим лицам и ИП чаще нужны закрывающие документы или запрос дубликата. Отсутствие письма не всегда означает отсутствие сформированного чека.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.email_notifications",
+      "surface.payments_documents",
+      "surface.support"
+    ],
+    "relatedCards": [
+      "legal.electronic_receipts",
+      "role.payer",
+      "process.invoice_payment"
+    ],
+    "challengeRules": [
+      {
+        "id": "receipt-email-by-payer-type",
+        "trigger": "Эпик считает отсутствие письма с чеком ошибкой для любого плательщика.",
+        "challenge": "Попросить учесть тип плательщика, способ оплаты и маршрут дубликата/закрывающих документов.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Электронный чек-v1-5_17_2026, 3_53_34 PM» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Электронный чек-v1-5_17_2026, 3_53_34 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "legal.nonresident_payment_restrictions",
+    "kind": "legal",
+    "label": "Платёжные ограничения нерезидентов",
+    "aliases": [
+      "нерезидент",
+      "оплата нерезидента",
+      "иностранный клиент",
+      "карта РФ",
+      "карта Беларуси",
+      "валютная оплата"
+    ],
+    "summary": "Нерезидентские оплаты имеют отдельные ограничения по стране, валюте, способу оплаты, документам и допустимым картам. Некоторые карты или кошельки могут быть недоступны, а первая оплата может зависеть от проверки документов. Эпики про платёжные методы должны отделять резидентские сценарии от нерезидентских и не переносить российский UX оплаты на все страны.",
+    "entityLevel": "payer",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.top_up_flow",
+      "surface.payments_documents",
+      "surface.support"
+    ],
+    "relatedCards": [
+      "process.invoice_payment",
+      "concept.funds_crediting",
+      "process.paypal_payment",
+      "legal.vat_jurisdiction_rates"
+    ],
+    "challengeRules": [
+      {
+        "id": "nonresident-payment-method-parity",
+        "trigger": "Эпик предлагает нерезиденту те же карты и кошельки, что резиденту РФ.",
+        "challenge": "Проверить страну, валюту, карты РФ/Беларуси, документы и fallback-способы.",
+        "severity": "high"
+      },
+      {
+        "id": "nonresident-first-payment-docs",
+        "trigger": "Эпик обещает зачисление первой оплаты нерезидента без проверки документов.",
+        "challenge": "Попросить описать зависимость первой оплаты от документов и статуса клиента.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Выставление счета, оплата от н» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/Выставление счета, оплата от н.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «НДС_ ставки в разных странах, о» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/billing-agency-legal-entities-v1/inputs/НДС_ ставки в разных странах, о.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  }
+]
