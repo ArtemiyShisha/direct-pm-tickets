@@ -12,7 +12,7 @@
 
 ## Implementation Status
 
-> Status as of the `knowledge/ad-formats-elements-v1` branch. Tasks 1-9 and 11 are done. Task 10 remains iterative: one source pack at a time, with human review before runtime promotion. Runtime currently uses only sanitized cards exported from `src/knowledge/direct-pro/cards/`.
+> Status as of the current working branch after `formats-shows-v1` promotion. Tasks 1-9 and 11 are done. Task 10 remains iterative: one source pack at a time, with human review before runtime promotion. Runtime currently uses only sanitized cards exported from `src/knowledge/direct-pro/cards/`.
 
 | Task | Status | Commit / branch |
 |------|--------|-----------------|
@@ -26,7 +26,7 @@
 | 7. Wire challenger into evaluation API | Done | `54f1954` |
 | 8. Render challenges in the UI + Markdown export | Done | `30bf5b1` |
 | 9. Source intake docs + manual PDF drop tooling | Done | `ab0bc1a` + later tooling commits |
-| 10. Fill knowledge cards by domain batch | **In progress** — 5 packs promoted to runtime as `review_needed` cards | current branch includes latest ad formats/elements pack |
+| 10. Fill knowledge cards by domain batch | **In progress** — 6 packs promoted to runtime as `review_needed` cards | current branch includes latest formats/shows pack |
 | 11. Human review loop for cards (`card-review-process.md`) | Done | `ab0bc1a` |
 
 ### Runtime knowledge packs currently exported
@@ -41,11 +41,13 @@
 | `campaign-group-settings-v1` | `campaign-group-settings.{json,ts}` | 16 | `review_needed` |
 | off-order `interface-surfaces-v1` | `interface-surfaces.{json,ts}` | 16 | `review_needed` |
 | off-order `ad-formats-elements-v1` | `ad-formats-elements.{json,ts}` | 25 | `review_needed` |
+| off-order `formats-shows-v1` | `formats-shows.{json,ts}` | 17 | `review_needed` |
 
 The off-order packs exist because the user explicitly dropped focused PDF folders and asked to process them:
 
 - `interface-surfaces-v1` covers Direct / Direct.Pro surfaces from `baza_znaniy/interface/`.
 - `ad-formats-elements-v1` covers ad formats, creative assets, and ad elements from `baza_znaniy/banners/`; moderation workflows remain out of scope.
+- `formats-shows-v1` covers ad formats, show/serving variants, placements, and showing diagnostics from `baza_znaniy/formats and shows/`.
 
 ### Tooling that exists for Task 10 batches
 
@@ -56,7 +58,7 @@ The off-order packs exist because the user explicitly dropped focused PDF folder
 
 ### Current Task 10 state
 
-There is no known draft pack currently waiting for promotion after `ad-formats-elements-v1` on this branch. Before starting new work, always check both runtime files in `src/knowledge/direct-pro/cards/` and ignored drafts under `knowledge/drafts/<pack-id>/`.
+There is no known draft pack currently waiting for promotion after `formats-shows-v1` on this branch. Before starting new work, always check both runtime files in `src/knowledge/direct-pro/cards/` and ignored drafts under `knowledge/drafts/<pack-id>/`.
 
 The next planned ordered packs are still:
 
@@ -1040,7 +1042,13 @@ Input: source pack `ad-formats-elements-v1`.
 
 Output cards cover ad text fields, links/tracking, quick links, templates, preview, clarifications, CTA/price, images, video, graphical ads, carousel, organization card, Turbo pages, personalization, and combinatorial EPK ads. Moderation workflows stay out of scope.
 
-- [ ] **Step 6: Continue one domain batch at a time**
+- [x] **Step 6: Fill formats and shows (off-order user-requested pack)**
+
+Input: source pack `formats-shows-v1`.
+
+Output cards cover show variants / search templates, dynamic search places, service gallery, RSY for bloggers, Playable Ads, outdoor advertising, promotion extensions, no-impression diagnostics, low position diagnostics, unexpected query/geography/rendering diagnostics, negative phrase behavior, paused entity shows, blocked placement shows, and similar ads filtering.
+
+- [ ] **Step 7: Continue one domain batch at a time**
 
 Continue in the documented batch order. Each batch must be reviewed before starting the next one.
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { directProKnowledgeCardSchema } from "../schema";
+import { FORMATS_SHOWS_DIRECT_PRO_CARDS } from "./formats-shows";
 import { DIRECT_PRO_KNOWLEDGE_CARDS } from "./index";
 
 describe("DIRECT_PRO_KNOWLEDGE_CARDS", () => {
@@ -15,6 +16,14 @@ describe("DIRECT_PRO_KNOWLEDGE_CARDS", () => {
         "entity.ad_group",
         "entity.ad",
       ]),
+    );
+  });
+
+  it("contains promoted formats and shows cards", () => {
+    expect(DIRECT_PRO_KNOWLEDGE_CARDS.map((card) => card.id)).toEqual(
+      expect.arrayContaining(
+        FORMATS_SHOWS_DIRECT_PRO_CARDS.map((card) => card.id),
+      ),
     );
   });
 

@@ -4,6 +4,7 @@ import { CAMPAIGN_GROUP_SETTINGS_DIRECT_PRO_CARDS } from "./campaign-group-setti
 import { CAMPAIGN_HIERARCHY_LIFECYCLE_DIRECT_PRO_CARDS } from "./campaign-hierarchy";
 import { INTERFACE_SURFACES_DIRECT_PRO_CARDS } from "./interface-surfaces";
 import { AD_FORMATS_ELEMENTS_DIRECT_PRO_CARDS } from "./ad-formats-elements";
+import { FORMATS_SHOWS_DIRECT_PRO_CARDS } from "./formats-shows";
 
 export const DIRECT_PRO_KNOWLEDGE_CARDS = [
   ...CORE_DIRECT_PRO_CARDS,
@@ -12,4 +13,5 @@ export const DIRECT_PRO_KNOWLEDGE_CARDS = [
   ...CAMPAIGN_HIERARCHY_LIFECYCLE_DIRECT_PRO_CARDS,
   ...INTERFACE_SURFACES_DIRECT_PRO_CARDS,
   ...AD_FORMATS_ELEMENTS_DIRECT_PRO_CARDS,
+  ...FORMATS_SHOWS_DIRECT_PRO_CARDS,
 ] as const;

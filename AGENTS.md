@@ -13,8 +13,9 @@ The current product workstream is the **Direct.Pro knowledge map**, Task 10 — 
 - `campaign-group-settings-v1` → `src/knowledge/direct-pro/cards/campaign-group-settings.{json,ts}` (16 cards)
 - off-order `interface-surfaces-v1` → `src/knowledge/direct-pro/cards/interface-surfaces.{json,ts}` (16 cards)
 - off-order `ad-formats-elements-v1` → `src/knowledge/direct-pro/cards/ad-formats-elements.{json,ts}` (25 cards)
+- off-order `formats-shows-v1` → `src/knowledge/direct-pro/cards/formats-shows.{json,ts}` (17 cards)
 
-The `ad-formats-elements-v1` pack was created from `baza_znaniy/banners/` because the user explicitly dropped a focused source folder. It covers ad formats, creative assets, and ad elements; moderation workflows remain out of scope for that pack. Future Task 10 work should continue one focused source pack at a time with human review before runtime promotion.
+The `ad-formats-elements-v1` pack was created from `baza_znaniy/banners/` because the user explicitly dropped a focused source folder. It covers ad formats, creative assets, and ad elements; moderation workflows remain out of scope for that pack. The `formats-shows-v1` pack was created from `baza_znaniy/formats and shows/` and covers ad formats, show/serving variants, placements, and showing diagnostics. Future Task 10 work should continue one focused source pack at a time with human review before runtime promotion.
 
 > **Architecture note (May 2026):** The standalone Product Challenger LLM stage is **OFF by default**. Approved Direct.Pro knowledge cards are now folded into the three group-evaluator prompts (`buildGroupPrompt`), so per-criterion `questions` are themselves Direct.Pro-aware. The legacy Challenger code path still exists and runs only when `PRODUCT_CHALLENGER_ENABLED=true` is set in the environment — kept for A/B comparisons and easy rollback. Task 10 work continues unchanged: the same approved cards now feed group evaluators instead of (or in addition to) the legacy Challenger.
 
@@ -26,6 +27,10 @@ Before touching `src/knowledge/direct-pro/`, `src/app/api/evaluate/route.ts`, th
 - `tools/direct-pro-knowledge/README.md` — hard rule about what may be committed (sanitized cards, manifests, extractor scripts) and what stays gitignored (`knowledge/raw-*`, `knowledge/drafts/`, `work/direct-pro-knowledge/`, `baza_znaniy/`, `.venv-pdf/`). Contains the end-to-end runbook for the manual PDF drop adapter and the validator.
 
 For broader context (Pre-Analysis round, scoring calibration history, key files), read `CONTEXT.md`.
+
+## Local research / test artifacts
+
+Root-level untracked files such as `epic*.md`, `epic-review-*.md`, `challenger-vs-evaluator.xlsx`, and one-off files under `docs/superpowers/specs/` are local research, benchmark, or test inputs used by the user when running epics through agents. Do **not** add or commit these files unless the user explicitly names them and asks to commit them. When committing project work, stage only the relevant source/docs paths and leave these artifacts untracked.
 
 ## Knowledge extraction tooling
 

@@ -1,0 +1,46 @@
+id: formats-shows-v1
+domain: formats_shows
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/formats and shows/. The PDFs themselves are gitignored.
+  - knowledge/drafts/formats-shows-v1/inputs/Playable Ads-v1-5_17_2026, 2_46_56 PM.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Варианты выдачи-v1-5_17_2026, 2_45_31 PM.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Галерея услуг-v1-5_17_2026, 2_48_30 PM.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Динамические места на Поискеβ.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Жалоба на чужие или сходные об.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Запрещенные площадки-v1-5_17_2026, 2.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Идут показы по минус-словам_фр.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Наружная реклама β-v1-5_17_2026, 2_49_0.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Нет показов по расширенному г.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Нет показов-v1-5_17_2026, 2_24_35 PM.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Объявление не показывается на.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Объявление показывается не в .pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Показы по геотаргетингу не из .pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Показы по запросу, которого не.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Показы по остановленным объяв.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/Промоакции-v1-5_17_2026, 2_48_47 PM.pdf
+  - knowledge/drafts/formats-shows-v1/inputs/РСЯ для блогеров-v1-5_17_2026, 2_48_20 PM.pdf
+expected_card_kinds:
+  - format
+  - placement
+  - setting
+  - concept
+  - failure
+out_of_scope:
+  # Topics that may surface in these PDFs but belong to other batches.
+  - detailed moderation workflows and rejection statuses — covered by a future moderation-focused batch
+  - broad targeting and semantics mechanics — covered by targeting-semantics-v1
+  - full reports/statistics product surfaces — covered by reports-statistics-optimization-v1
+  - billing, payers, agency relations — covered by billing-agency-legal-entities-v1
+  - legal marking, ORD, tokens, sanctions — covered by legal-marking-compliance-v1
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/formats-shows-v1/
+
+# Notes:
+# - PDFs live under /baza_znaniy/formats and shows/ (gitignored). Symlinks under
+#   knowledge/drafts/<pack-id>/inputs/ are the stable input paths.
+# - Extract with `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py formats-shows-v1`.
+# - Do not commit the PDFs or the extracted text.
