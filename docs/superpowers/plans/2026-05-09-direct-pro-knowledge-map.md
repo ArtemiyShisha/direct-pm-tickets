@@ -12,7 +12,7 @@
 
 ## Implementation Status
 
-> Status as of the current working branch after `account-access-settings-v1` promotion. Tasks 1-9 and 11 are done. Task 10 remains iterative: one source pack at a time, with human review before runtime promotion. Runtime currently uses only sanitized cards exported from `src/knowledge/direct-pro/cards/`.
+> Status as of the current working branch after `bulk-professional-surfaces-v1` promotion. Tasks 1-9 and 11 are done. Task 10 remains iterative: one source pack at a time, with human review before runtime promotion. Runtime currently uses only sanitized cards exported from `src/knowledge/direct-pro/cards/`.
 
 | Task | Status | Commit / branch |
 |------|--------|-----------------|
@@ -26,7 +26,7 @@
 | 7. Wire challenger into evaluation API | Done | `54f1954` |
 | 8. Render challenges in the UI + Markdown export | Done | `30bf5b1` |
 | 9. Source intake docs + manual PDF drop tooling | Done | `ab0bc1a` + later tooling commits |
-| 10. Fill knowledge cards by domain batch | **In progress** — 10 packs promoted to runtime as `review_needed` cards | current branch includes latest account/access settings pack |
+| 10. Fill knowledge cards by domain batch | **In progress** — 11 packs promoted to runtime as `review_needed` cards | current branch includes latest bulk/professional tools pack |
 | 11. Human review loop for cards (`card-review-process.md`) | Done | `ab0bc1a` |
 
 ### Runtime knowledge packs currently exported
@@ -46,6 +46,7 @@
 | `billing-agency-legal-entities-v1` | `billing-agency-legal-entities.{json,ts}` | 28 | `review_needed` |
 | `reports-statistics-optimization-v1` | `statistics.{json,ts}` | 25 | `review_needed` |
 | off-order `account-access-settings-v1` | `account-access-settings.{json,ts}` | 16 | `review_needed` |
+| `bulk-professional-surfaces-v1` | `bulk-professional-surfaces.{json,ts}` | 18 | `review_needed` |
 
 The off-order packs exist because the user explicitly dropped focused PDF folders and asked to process them:
 
@@ -54,6 +55,7 @@ The off-order packs exist because the user explicitly dropped focused PDF folder
 - `formats-shows-v1` covers ad formats, show/serving variants, placements, and showing diagnostics from `baza_znaniy/formats and shows/`.
 - `targeting-semantics-v1` covers targeting/show-rule semantics from `baza_znaniy/show-rules/`.
 - `account-access-settings-v1` covers account access, representatives, agency interface, agency login issuance, account transfer to agency, blocked access, and PIN-code support identification from `baza_znaniy/acc-settings/`.
+- `bulk-professional-surfaces-v1` covers Direct / Direct.Pro tools and professional surfaces from `baza_znaniy/tools/`: API, XLS/XLSX, Commander, mobile app, campaign change history, feeds, audiences, Wordstat, budget forecast, offline conversions, Conversion Center, Overview/Audit, landings, captcha, and AI tools.
 
 ### Tooling that exists for Task 10 batches
 
@@ -64,31 +66,30 @@ The off-order packs exist because the user explicitly dropped focused PDF folder
 
 ### Current Task 10 state
 
-There is no known draft pack currently waiting for promotion after `account-access-settings-v1` on this branch.
+There is no known draft pack currently waiting for promotion after `bulk-professional-surfaces-v1` on this branch.
 
-The latest promoted pack was drafted from the user-provided focused folder `baza_znaniy/acc-settings/`. Provenance files remain available for review:
+The latest promoted pack was drafted from the user-provided focused folder `baza_znaniy/tools/`. Provenance files remain available for review:
 
-- `docs/knowledge/source-packs/account-access-settings-v1/source-pack.yaml`
-- `docs/knowledge/source-packs/account-access-settings-v1/notes.md`
-- `knowledge/drafts/account-access-settings-v1/coverage-note.md`
-- `knowledge/drafts/account-access-settings-v1/conflicts.md`
-- `knowledge/drafts/account-access-settings-v1/unresolved-questions.md`
-- `knowledge/drafts/account-access-settings-v1/candidate-cards.json`
+- `docs/knowledge/source-packs/bulk-professional-surfaces-v1/source-pack.yaml`
+- `docs/knowledge/source-packs/bulk-professional-surfaces-v1/notes.md`
+- `knowledge/drafts/bulk-professional-surfaces-v1/coverage-note.md`
+- `knowledge/drafts/bulk-professional-surfaces-v1/conflicts.md`
+- `knowledge/drafts/bulk-professional-surfaces-v1/unresolved-questions.md`
+- `knowledge/drafts/bulk-professional-surfaces-v1/candidate-cards.json`
 
 Validation passed before promotion:
 
 ```bash
-npx tsx tools/direct-pro-knowledge/validate-candidates.ts account-access-settings-v1
+npx tsx tools/direct-pro-knowledge/validate-candidates.ts bulk-professional-surfaces-v1
 ```
 
 Before starting new work, always check both runtime files in `src/knowledge/direct-pro/cards/` and ignored drafts under `knowledge/drafts/<pack-id>/`.
 
 The next planned ordered packs are still:
 
-1. `bulk-professional-surfaces-v1` — grids, mass edit, Commander, Excel, API, mobile app, change history. Do not confuse it with off-order `interface-surfaces-v1`, which covered client-facing surfaces and concepts.
-2. moderation-focused pack (old placeholder name `moderation-ad-materials-v1`; do not duplicate ad formats/materials already covered by `ad-formats-elements-v1`)
-3. `legal-marking-compliance-v1`
-4. `support-adjacent-services-v1`
+1. moderation-focused pack (old placeholder name `moderation-ad-materials-v1`; do not duplicate ad formats/materials already covered by `ad-formats-elements-v1`)
+2. `legal-marking-compliance-v1`
+3. `support-adjacent-services-v1`
 
 `Продвижение приложений-v1-5_17_202.pdf` from `baza_znaniy/banners/` was classified as primarily an app-promotion campaign/product-mode source, not an ad-materials source. It should be handled later as a campaign-types top-up or a dedicated app-promotion pack.
 
@@ -974,6 +975,7 @@ Suggested batch order:
 - Done: `src/knowledge/direct-pro/cards/billing-agency-legal-entities.{json,ts}`
 - Done: `src/knowledge/direct-pro/cards/statistics.{json,ts}`
 - Done, off-order: `src/knowledge/direct-pro/cards/account-access-settings.{json,ts}`
+- Done: `src/knowledge/direct-pro/cards/bulk-professional-surfaces.{json,ts}`
 - Create later: `src/knowledge/direct-pro/cards/moderation.ts`
 - Create later: `src/knowledge/direct-pro/cards/legal-compliance.ts`
 - Create later: `src/knowledge/direct-pro/cards/support-adjacent.ts`
@@ -1094,7 +1096,13 @@ Input: source pack `account-access-settings-v1`.
 
 Output cards cover account currency immutability, account deletion and personal data archive, client representatives, main representative, read-only representative, manager account/MCC, agency interface, agency login issuance, agency-client registration via organization in Yandex ID, agency representative roles, account transfer to agency, transfer financial/access effects, inactivity block, account access block reason tree, takeover suspicion, and PIN-code identification.
 
-- [ ] **Step 11: Continue one domain batch at a time**
+- [x] **Step 11: Fill bulk and professional surfaces**
+
+Input: source pack `bulk-professional-surfaces-v1`.
+
+Output cards cover API, API/XLS bulk-operation points, XLS/XLSX import/export, Commander, mobile app, campaign change history, feeds, Yandex Audiences, Wordstat, Budget Forecast, offline conversions, Conversion Center, Promotion Overview, Direct Audit, Landing Builder, captcha behavior, AI assistant, and AI creative editor.
+
+- [ ] **Step 12: Continue one domain batch at a time**
 
 Continue in the documented batch order. Each batch must be reviewed before starting the next one.
 

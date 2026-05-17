@@ -69,7 +69,7 @@
 - 14 критериев в 3 группах, 3 параллельных вызова `gpt-5.5` (унифицирован через `EVALUATION_MODEL`).
 - Step 0: Pre-Analysis (`runPreAnalysis`) с автоопределением типа эпика, продуктов и N/A-критериев.
 - Knowledge cards: `selectDirectProCards(epicText)` поднят на уровень роута. Отобранные карточки прокидываются в каждую из 3 групп через `buildGroupPrompt(groupId, preAnalysis, cards)` — секция «КОНТЕКСТ ДИРЕКТ ПРО» (id+kind+label+summary + challenge rules) добавляется в системный промпт и инструктирует модель формулировать `criterion.questions` с опорой на эти знания.
-- Runtime context now includes 185 Direct.Pro cards: 3 core seed cards plus promoted `review_needed` packs for campaign types (8), campaign hierarchy/lifecycle (13), campaign/group settings (16), interface surfaces (16), ad formats/elements (25), formats/shows (17), targeting/semantics (18), billing/agency/legal entities (28), reports/statistics/optimization (25), and account/access settings (16).
+- Runtime context now includes 203 Direct.Pro cards: 3 core seed cards plus promoted `review_needed` packs for campaign types (8), campaign hierarchy/lifecycle (13), campaign/group settings (16), interface surfaces (16), ad formats/elements (25), formats/shows (17), targeting/semantics (18), billing/agency/legal entities (28), reports/statistics/optimization (25), account/access settings (16), and bulk/professional surfaces (18).
 - Step 4 (legacy, OFF by default): Direct.Pro Product Challenger (`runProductChallenger`) — отдельный LLM-вызов под флагом `PRODUCT_CHALLENGER_ENABLED=true`. Когда выключен, в API возвращается `product_challenges: []`, UI/markdown-секция автоматически скрывается. Когда включён — работает как раньше: structured output, до 12 челленджей, не пересчитывает score, скипается при пустом наборе карточек.
 - Веса: x1.5 (problem, solution, metrics, scenarios, ready_for_dev), x1.0 (potential, analytics, design, corner_cases, launch), x0.7 (onboarding, interfaces, international, logging).
 - N/A-поддержка в типах, схемах, UI, экспорте.
@@ -107,7 +107,7 @@
 - В прод-промпт Challenger'у передаются только релевантные карточки. Сам промпт явно запрещает выдумывать факты о Direct.Pro сверх этих карточек: если знаний не хватает, модель формулирует вопрос как проверку допущения.
 - Любая ошибка Challenger'а ловится и логируется; основной ответ оценки уходит как обычно.
 
-Карточки знания уже вышли за пределы минимального seed-набора: в runtime подключены core cards и десять доменных packs. Все новые packs пока `confidence: "review_needed"` — это значит, что они прошли human review на пригодность для runtime, но не являются product-owner-approved фактами. Реальная польза теперь приходит через вопросы внутри 14 критериев, потому что карточки подмешиваются в group evaluator prompts.
+Карточки знания уже вышли за пределы минимального seed-набора: в runtime подключены core cards и одиннадцать доменных packs. Все новые packs пока `confidence: "review_needed"` — это значит, что они прошли human review на пригодность для runtime, но не являются product-owner-approved фактами. Реальная польза теперь приходит через вопросы внутри 14 критериев, потому что карточки подмешиваются в group evaluator prompts.
 
 **Новые файлы:**
 
@@ -219,6 +219,16 @@
 
 Пак покрывает immutable account currency, account deletion / personal data archive, client representatives, main representative, read-only representative, manager account/MCC, agency interface, agency login issuance, agency-client registration through organization in Yandex ID, agency representative roles, transfer to agency, transfer money/access effects, inactivity block, blocked-access diagnostics, takeover suspicion, and PIN-code identification.
 
+### Раунд 14: Bulk / professional tools pack
+
+Пользователь добавил новую папку `baza_znaniy/tools/` с PDF про инструменты и профессиональные поверхности Директа. Для неё создан source pack `bulk-professional-surfaces-v1`:
+
+- committed docs: `docs/knowledge/source-packs/bulk-professional-surfaces-v1/source-pack.yaml` и `notes.md`;
+- ignored drafts: `knowledge/drafts/bulk-professional-surfaces-v1/{candidate-cards.json,coverage-note.md,conflicts.md,unresolved-questions.md}`;
+- runtime: `src/knowledge/direct-pro/cards/bulk-professional-surfaces.{json,ts}` — 18 cards.
+
+Пак покрывает API, API/XLS bulk-operation points, XLS/XLSX import/export, Commander, mobile app, campaign change history, feeds, Yandex Audiences, Wordstat, Budget Forecast, offline conversions, Conversion Center, Promotion Overview, Direct Audit, Landing Builder, captcha behavior, AI assistant, and AI creative editor.
+
 ### Что нужно проверить
 
 - Прогнать 3 эталонных эпика (`epic1.md`, `epic2.md`, `epic3.md`) после деплоя Challenger.
@@ -251,7 +261,7 @@
 | `src/knowledge/direct-context.ts` | Карта продуктов Директа для Pre-Analysis. |
 | `src/knowledge/direct-pro/schema.ts` | Schema одобренной карточки знания. |
 | `src/knowledge/direct-pro/cards/{core,index}.ts` | Core seed cards and barrel export for all runtime knowledge cards. |
-| `src/knowledge/direct-pro/cards/*.json` + `*.ts` wrappers | Promoted domain packs (`campaign-types`, `campaign-hierarchy`, `campaign-group-settings`, `interface-surfaces`, `ad-formats-elements`, `formats-shows`, `targeting-semantics`, `billing-agency-legal-entities`, `statistics`, `account-access-settings`). |
+| `src/knowledge/direct-pro/cards/*.json` + `*.ts` wrappers | Promoted domain packs (`campaign-types`, `campaign-hierarchy`, `campaign-group-settings`, `interface-surfaces`, `ad-formats-elements`, `formats-shows`, `targeting-semantics`, `billing-agency-legal-entities`, `statistics`, `account-access-settings`, `bulk-professional-surfaces`). |
 | `src/knowledge/direct-pro/select.ts` | Селектор карточек по aliases. |
 | `src/components/evaluation-result.tsx` | UI результата: карточки, бейджи, группы + секция "Продуктовые челленджи". |
 | `src/app/api/evaluate/route.ts` | API endpoint: Pre-Analysis → `selectDirectProCards` → 3 параллельных group eval (с карточками) → force N/A → totalScore → опционально Product Challenger под флагом → JSON. |
@@ -288,7 +298,7 @@
 
 Заполнение знаниевых карточек по доменным батчам. Делается **итеративно**, по одному source pack за раз, с human review между батчами. Подробный how-to — в `docs/superpowers/plans/2026-05-09-direct-pro-knowledge-map.md` (секция "How to resume Task 10 in a fresh session" — там варианты для drafted, already promoted и fresh pack).
 
-**Текущий статус:** в runtime уже подключены packs `campaign-types-v1`, `campaign-hierarchy-lifecycle-v1`, `campaign-group-settings-v1`, off-order `interface-surfaces-v1`, off-order `ad-formats-elements-v1`, off-order `formats-shows-v1`, `targeting-semantics-v1`, `billing-agency-legal-entities-v1`, `reports-statistics-optimization-v1` и off-order `account-access-settings-v1`. Нет известного draft pack, который прямо сейчас ждёт промоушена.
+**Текущий статус:** в runtime уже подключены packs `campaign-types-v1`, `campaign-hierarchy-lifecycle-v1`, `campaign-group-settings-v1`, off-order `interface-surfaces-v1`, off-order `ad-formats-elements-v1`, off-order `formats-shows-v1`, `targeting-semantics-v1`, `billing-agency-legal-entities-v1`, `reports-statistics-optimization-v1`, off-order `account-access-settings-v1` и `bulk-professional-surfaces-v1`. Нет известного draft pack, который прямо сейчас ждёт промоушена.
 
 Очередь батчей (порядок зафиксирован в `docs/knowledge/source-packs/README.md`):
 
@@ -302,7 +312,7 @@
 8. `billing-agency-legal-entities-v1` — promoted (28 cards).
 9. `reports-statistics-optimization-v1` — promoted (25 cards).
 10. `account-access-settings-v1` — promoted off-order (16 cards).
-11. `bulk-professional-surfaces-v1` — pending; grids, mass edit, Commander, Excel, API, mobile app, change history. Не путать с off-order `interface-surfaces-v1`.
+11. `bulk-professional-surfaces-v1` — promoted (18 cards).
 12. moderation-focused pack — pending; do not duplicate ad formats/materials already covered by `ad-formats-elements-v1`.
 13. `legal-marking-compliance-v1` — pending.
 14. `support-adjacent-services-v1` — pending.

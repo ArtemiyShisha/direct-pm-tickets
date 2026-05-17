@@ -1,0 +1,849 @@
+[
+  {
+    "id": "tool.direct_api",
+    "kind": "tool",
+    "label": "API Директа",
+    "aliases": [
+      "API Директа",
+      "Директ API",
+      "API Direct",
+      "Direct API",
+      "программный доступ"
+    ],
+    "summary": "API Директа — программная поверхность для управления объектами и данными рекламного аккаунта через авторизованное приложение и согласие владельца данных. Product changes that affect API-visible objects should specify OAuth/access model, parity or gaps with web UI, request limits, error states, and how changes are coordinated with Commander, XLS import/export, and mobile clients that rely on the same product contract.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.api",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "tool.commander",
+      "tool.excel_import_export",
+      "tool.mobile_app"
+    ],
+    "challengeRules": [
+      {
+        "id": "api-contract-parity-and-limits",
+        "trigger": "Эпик меняет объект или настройку, доступную в веб-интерфейсе, но не описывает API-поведение.",
+        "challenge": "Попросить явно указать, появится ли изменение в API, какие методы/поля меняются, какие лимиты и ошибки получает интегратор и как обеспечивается совместимость с Commander/XLS/mobile.",
+        "severity": "high"
+      },
+      {
+        "id": "api-access-owner-consent",
+        "trigger": "Эпик добавляет API-сценарий без модели доступа к данным аккаунта.",
+        "challenge": "Уточнить, кто авторизует приложение, чей доступ используется, как отзывается доступ и что видит владелец аккаунта при действиях интеграции.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «API» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/API-v1-5_17_2026, 5_31_08 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.bulk_operation_points",
+    "kind": "concept",
+    "label": "Баллы массовых операций API/XLS",
+    "aliases": [
+      "баллы API",
+      "баллы XLS",
+      "лимиты API",
+      "лимиты XLS",
+      "массовые операции"
+    ],
+    "summary": "Массовые операции через API и XLS ограничиваются общей продуктовой моделью нагрузки: доступный объём зависит от начисленных баллов, успешности операций и отдельных правил увеличения лимита. Эпики про импорт, экспорт или массовые правки должны отделять пользовательские ограничения продукта от технических ошибок сервиса и явно описывать, когда операция списывает лимит.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.api",
+      "tool.excel",
+      "surface.bulk_edit"
+    ],
+    "relatedCards": [
+      "tool.direct_api",
+      "tool.excel_import_export"
+    ],
+    "challengeRules": [
+      {
+        "id": "bulk-points-successful-operation-only",
+        "trigger": "Эпик меняет импорт, экспорт или массовое редактирование без правил списания лимита.",
+        "challenge": "Проверить, что описано, какие операции расходуют баллы, что происходит при частичной ошибке, повторе, отмене и сервисном сбое.",
+        "severity": "medium"
+      },
+      {
+        "id": "bulk-points-api-xls-shared-model",
+        "trigger": "Эпик вводит отдельный лимит для API или XLS без связи с общей моделью массовых операций.",
+        "challenge": "Уточнить, почему новый лимит не конфликтует с существующей системой баллов API/XLS и как пользователь видит доступный объём.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «API» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/API-v1-5_17_2026, 5_31_08 PM.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Excel» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Excel (Эксель)-v1-5_17_2026, 5_34_20 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.excel_import_export",
+    "kind": "tool",
+    "label": "Импорт и экспорт XLS/XLSX",
+    "aliases": [
+      "Excel",
+      "Эксель",
+      "XLS",
+      "XLSX",
+      "импорт XLS",
+      "экспорт XLS",
+      "массовая загрузка"
+    ],
+    "summary": "Excel import/export is a professional bulk-edit surface for campaign management through XLS/XLSX files; CSV upload is no longer part of the supported upload path. Requirements that touch file workflows should specify template version, old-vs-new campaign behavior, validation timing, successful import semantics, and compatibility with Direct.Pro, Commander, and account types where web XLS is unavailable.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.excel",
+      "surface.bulk_edit",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "tool.commander",
+      "concept.bulk_operation_points"
+    ],
+    "challengeRules": [
+      {
+        "id": "xls-template-version-and-campaign-type",
+        "trigger": "Эпик меняет XLS import/export без описания шаблонов и типов кампаний.",
+        "challenge": "Попросить указать, какие XLS/XLSX шаблоны поддержаны, что происходит со старыми шаблонами и как различаются ЕПК, МК, приложения и другие типы кампаний.",
+        "severity": "high"
+      },
+      {
+        "id": "xls-csv-unsupported-assumption",
+        "trigger": "Эпик или тест-кейс предполагает загрузку CSV для массовой работы.",
+        "challenge": "Проверить, не нужно ли заменить CSV-сценарий на XLS/XLSX и явно описать ошибку/миграцию для старых пользовательских привычек.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Excel» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Excel (Эксель)-v1-5_17_2026, 5_34_20 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.commander",
+    "kind": "tool",
+    "label": "Коммандер",
+    "aliases": [
+      "Коммандер",
+      "Commander",
+      "Директ Коммандер",
+      "десктопный клиент",
+      "массовое редактирование в Коммандере"
+    ],
+    "summary": "Коммандер is the desktop professional client for campaign management and bulk operations outside the web UI. Product changes should not assume automatic web parity: supported OS baseline, old-client migration, account/organization context, feature gaps, search/replace behavior, bulk-edit semantics, and cross-surface changes with API/XLS/mobile need explicit treatment.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.commander",
+      "surface.bulk_edit"
+    ],
+    "relatedCards": [
+      "tool.direct_api",
+      "tool.excel_import_export",
+      "tool.mobile_app"
+    ],
+    "challengeRules": [
+      {
+        "id": "commander-web-parity-not-assumed",
+        "trigger": "Эпик меняет campaign/group/ad behavior only in web UI but users can edit the same object in Commander.",
+        "challenge": "Попросить описать, поддерживает ли Коммандер новую настройку, как он валидирует/синхронизирует изменения и что происходит при расхождении с веб-интерфейсом.",
+        "severity": "high"
+      },
+      {
+        "id": "commander-client-version-baseline",
+        "trigger": "Эпик зависит от десктопного клиента, но не фиксирует поддерживаемую версию или платформы.",
+        "challenge": "Уточнить минимальные версии ОС/клиента, миграцию пользователей старого клиента и поведение, если клиент обновиться не может.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Коммандер» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Коммандер-v1-5_17_2026, 5_31_59 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.mobile_app",
+    "kind": "tool",
+    "label": "Мобильное приложение Директа",
+    "aliases": [
+      "мобильное приложение",
+      "приложение Директа",
+      "Direct mobile",
+      "мобилка Директа",
+      "мобильный Директ"
+    ],
+    "summary": "The Direct mobile app is a companion surface for Direct and Direct.Pro with selected campaign, statistics, payment, notification, landing, and assistant scenarios. Epics touching mobile must distinguish Direct vs Direct.Pro availability, app-store distribution, push/notification behavior, mobile-specific entry points, and cases where mobile exposes only a subset or wrapper of web functionality.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.mobile_app",
+      "surface.client_interface",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "concept.direct_vs_direct_pro",
+      "tool.direct_landing_builder",
+      "tool.ai_assistant"
+    ],
+    "challengeRules": [
+      {
+        "id": "mobile-direct-vs-pro-scope",
+        "trigger": "Эпик добавляет мобильный сценарий без разделения Директ и Директ Про.",
+        "challenge": "Попросить явно описать, в какой версии интерфейса и в каком мобильном приложении доступна функция, что скрыто, что открывает веб и какие ограничения есть у прямых/агентских пользователей.",
+        "severity": "high"
+      },
+      {
+        "id": "mobile-payment-and-campaign-side-effects",
+        "trigger": "Эпик меняет мобильный flow, который может затрагивать оплату, бюджет, верификацию или кампании.",
+        "challenge": "Проверить, описаны ли side effects для баланса, автоплатежа, овердрафта, статусов кампаний и уведомлений, а не только экран приложения.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Мобильное приложение Директа» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Мобильное приложение Директа-.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.change_history",
+    "kind": "tool",
+    "label": "История изменений в кампании",
+    "aliases": [
+      "история изменений",
+      "история изменений кампании",
+      "журнал изменений",
+      "логи изменений",
+      "кто изменил кампанию"
+    ],
+    "summary": "Campaign change history is a Direct.Pro tool for user-visible events that affect campaign behavior and impressions. It has entry points from campaign/statistics/tools areas, role-dependent visibility, retention/period controls, beta limitations, delayed or incomplete event coverage, and privacy boundaries such as not exposing IP addresses in client-facing UX.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.change_history",
+      "surface.campaign_grid",
+      "surface.statistics"
+    ],
+    "relatedCards": [
+      "role.client_representative",
+      "role.agency_representative",
+      "state.campaign_status"
+    ],
+    "challengeRules": [
+      {
+        "id": "change-history-role-visibility",
+        "trigger": "Эпик добавляет или меняет историю изменений без модели ролей.",
+        "challenge": "Попросить описать, какие события видят клиент, представитель, агентство и сотрудники, и как ограничивается видимость чужих клиентов или внутренних логов.",
+        "severity": "high"
+      },
+      {
+        "id": "change-history-privacy-and-coverage",
+        "trigger": "Эпик обещает полный аудит изменений или раскрывает технические детали изменений пользователю.",
+        "challenge": "Проверить privacy boundaries, задержки, неполноту покрытия событий и запрет на показ IP-адресов в клиентском интерфейсе.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «История изменений в кампании» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/История изменений в кампании-v.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.feed_management",
+    "kind": "tool",
+    "label": "Фиды как профессиональный инструмент",
+    "aliases": [
+      "фид",
+      "фиды",
+      "YML",
+      "офферы",
+      "feed",
+      "товарный фид"
+    ],
+    "summary": "Feeds are structured offer sources used by product and retail advertising flows, with offer types, labels, scores, media fields, validation errors, and filtering behavior that may differ by campaign type and generation scenario. Product changes should treat feeds as a data tool with parsing, refresh, validation, filtering, and fallback behavior rather than as a simple campaign text field.",
+    "entityLevel": "asset",
+    "appliesToCampaignTypes": [
+      "campaign_type.product_campaign",
+      "campaign_type.epk"
+    ],
+    "surfaces": [
+      "tool.feed",
+      "surface.library",
+      "surface.campaign_settings"
+    ],
+    "relatedCards": [
+      "campaign_type.product_campaign",
+      "failure.unexpected_ad_rendering"
+    ],
+    "challengeRules": [
+      {
+        "id": "feed-parsing-validation-refresh",
+        "trigger": "Эпик меняет фиды, товары или генерацию объявлений по фиду без правил обработки данных.",
+        "challenge": "Попросить описать формат, частоту обновления, валидацию, ошибки, приоритеты картинок/видео, labels/scores и fallback при недоступном или частично неверном фиде.",
+        "severity": "high"
+      },
+      {
+        "id": "feed-campaign-type-scope",
+        "trigger": "Эпик говорит про фид универсально для всех кампаний.",
+        "challenge": "Уточнить, для каких типов кампаний и сценариев генерации работает фид, какие фильтры доступны и как поведение отличается в ЕПК, товарных кампаниях и ретаргетинге.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Фиды» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Фиды-v1-5_17_2026, 5_33_57 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.yandex_audiences",
+    "kind": "tool",
+    "label": "Яндекс Аудитории и шаринг сегментов",
+    "aliases": [
+      "Яндекс Аудитории",
+      "Аудитории",
+      "шаринг сегмента",
+      "сегмент Аудиторий",
+      "доступ к сегменту"
+    ],
+    "summary": "Yandex Audiences is an adjacent audience-management surface whose segments can be used in Direct, but segment ownership and sharing do not automatically follow agency/client relationships. Requirements involving shared segments should specify which login owns the segment, which client login receives access, what happens with agencies and passport organizations, and how Direct sees or does not see the segment.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.yandex_audiences",
+      "surface.library",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "setting.audience_segments",
+      "concept.audience_segments_search_vs_network",
+      "role.agency_representative",
+      "role.client_representative"
+    ],
+    "challengeRules": [
+      {
+        "id": "audiences-segment-owner-vs-user",
+        "trigger": "Эпик использует сегменты Аудиторий в агентском или клиентском аккаунте без модели владельца сегмента.",
+        "challenge": "Попросить описать, на каком логине создан сегмент, кому выдан доступ, кто несёт ответственность за данные и почему сегмент появится в нужном аккаунте Директа.",
+        "severity": "high"
+      },
+      {
+        "id": "audiences-adjacent-surface-routing",
+        "trigger": "Эпик предполагает, что Яндекс Аудитории полностью управляются из интерфейса кампании Директа.",
+        "challenge": "Уточнить границу между отдельной поверхностью Аудиторий и Direct.Pro: где пользователь создаёт/шарит сегмент, где выбирает его в кампании и как видит ошибки доступа.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Яндекс Аудитории» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Яндекс Аудитории-v1-5_17_2026, 5_30_49 P.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.wordstat",
+    "kind": "tool",
+    "label": "Вордстат",
+    "aliases": [
+      "Вордстат",
+      "Wordstat",
+      "wordstat.yandex.ru",
+      "подбор слов",
+      "статистика запросов"
+    ],
+    "summary": "Wordstat is a separate keyword demand research tool with its own interface, tabs, data update delays, export behavior, captcha/limit model, and differences from built-in keyword selection. Product changes should not treat Wordstat numbers as exact Direct campaign forecasts or as identical to Budget Forecast, and should document how data freshness, regions, query variants, and exports affect user expectations.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.wordstat",
+      "tool.keyword_planner",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "tool.budget_forecast",
+      "concept.keyword_operators",
+      "failure.direct_captcha"
+    ],
+    "challengeRules": [
+      {
+        "id": "wordstat-vs-direct-keyword-selection",
+        "trigger": "Эпик использует Wordstat and campaign keyword selection as if they were the same tool.",
+        "challenge": "Попросить разделить пользовательские сценарии Wordstat, встроенного подбора фраз и прогноза бюджета: источники данных, свежесть, экспорт, регионы и ограничения различаются.",
+        "severity": "medium"
+      },
+      {
+        "id": "wordstat-data-freshness-and-thresholds",
+        "trigger": "Эпик показывает или сравнивает частотность запросов без правил свежести данных.",
+        "challenge": "Уточнить задержку обновления, минимальные пороги, региональность и объяснение, почему пользователь может не увидеть ожидаемую формулировку запроса.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Вордстат» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Вордстат-v1-5_17_2026, 5_31_26 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.budget_forecast",
+    "kind": "tool",
+    "label": "Прогноз бюджета",
+    "aliases": [
+      "Прогноз бюджета",
+      "прогноз бюджета на Поиске",
+      "advancedForecast",
+      "оценка бюджета",
+      "прогноз запросов"
+    ],
+    "summary": "Budget Forecast estimates Search budget and demand for selected regions and phrases in Direct.Pro; it is probabilistic, exportable to XLS, and not equivalent to a media plan or Wordstat. Requirements should state that forecast values depend on auction signals, quality, phrase operators, region rules, low-frequency phrases, and recent aggregated statistics, and that the tool does not provide a guaranteed exact monthly spend.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.budget_forecast",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "tool.wordstat",
+      "report.traffic_forecast_limits",
+      "concept.keyword_operators"
+    ],
+    "challengeRules": [
+      {
+        "id": "budget-forecast-not-media-plan",
+        "trigger": "Эпик treats Budget Forecast as exact monthly planning or as identical to media planning/Wordstat.",
+        "challenge": "Попросить описать probabilistic nature, differences from media plan and Wordstat, supported placements, export rules and copy explaining why actual spend may differ.",
+        "severity": "high"
+      },
+      {
+        "id": "budget-forecast-phrase-limits",
+        "trigger": "Эпик imports or edits large keyword sets for forecast without phrase/operator limits.",
+        "challenge": "Уточнить ограничения строки, количества слов, операторов, минус-фраз и поведение низкочастотных фраз, чтобы UX не обещал невозможный расчёт.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Прогноз бюджета» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Прогноз бюджета-v1-5_17_2026, 5_33_48 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "integration.offline_conversions",
+    "kind": "integration",
+    "label": "Офлайн-конверсии",
+    "aliases": [
+      "офлайн-конверсии",
+      "offline conversions",
+      "yclid",
+      "ClientID",
+      "UserID",
+      "PurchaseId",
+      "загрузка конверсий"
+    ],
+    "summary": "Offline conversions connect actions outside the site with Direct/Metrica reporting and optimization signals through identifiers, files, CRM formats, calls, API, connectors, or partner tools. Product changes must not treat yclid, ClientID, UserID, and PurchaseId as interchangeable; they should specify attribution windows, upload timing, matching latency, accepted formats, and what happens when the conversion cannot be linked to a visit or click.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.conversion_center",
+      "integration.metrica",
+      "surface.report_wizard"
+    ],
+    "relatedCards": [
+      "tool.conversion_center",
+      "integration.metrica_goals_for_optimization",
+      "concept.conversion_strategy_learning"
+    ],
+    "challengeRules": [
+      {
+        "id": "offline-conversions-identifier-model",
+        "trigger": "Эпик загружает offline conversions without specifying identifiers and matching rules.",
+        "challenge": "Попросить указать supported identifiers, whether yclid/ClientID/UserID/PurchaseId are accepted, matching window, deduplication, and user-facing errors for unmatched rows.",
+        "severity": "high"
+      },
+      {
+        "id": "offline-conversions-reporting-vs-optimization",
+        "trigger": "Эпик uses offline conversions for both reporting and strategy optimization without separating effects.",
+        "challenge": "Уточнить, какие загруженные конверсии попадают в отчёты, какие могут быть сигналом стратегии, когда обновляется статистика и как объясняются задержки.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Офлайн-конверсии и Центр конверсий» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Офлайн-конверсии и Центр конв.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.conversion_center",
+    "kind": "tool",
+    "label": "Центр конверсий",
+    "aliases": [
+      "Центр конверсий",
+      "центр конверсий",
+      "загрузка CRM",
+      "CRM-конверсии",
+      "коннекторы CRM"
+    ],
+    "summary": "Conversion Center is a Direct.Pro surface for setting up selected offline-conversion upload paths and connectors, but not every offline conversion format or integration belongs there. Epics should describe which formats are available in the UI, which require Metrica API/connectors/partner tools, how file validation works, and how users understand format-specific attribution limits.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.conversion_center",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "integration.offline_conversions",
+      "integration.metrica_goals_for_optimization"
+    ],
+    "challengeRules": [
+      {
+        "id": "conversion-center-format-scope",
+        "trigger": "Эпик adds conversion upload to Conversion Center without listing supported formats and connectors.",
+        "challenge": "Попросить явно разделить форматы, доступные в Центре конверсий, API Метрики, CRM-коннекторах и сторонних инструментах, а также показать ошибки неподдержанного формата.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Офлайн-конверсии и Центр конверсий» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Офлайн-конверсии и Центр конв.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "surface.promotion_overview",
+    "kind": "surface",
+    "label": "Обзор результатов продвижения",
+    "aliases": [
+      "Обзор",
+      "обзор результатов",
+      "дашборд продвижения",
+      "виджеты обзора"
+    ],
+    "summary": "Promotion Overview is a dashboard surface with widgets, filters, attribution expectations, third-party spend connectors, account availability constraints, and special report widgets. Requirements should distinguish Overview from Report Wizard and mobile/statistics surfaces, state which campaigns and goals are included, and describe unavailable or limited cases such as app-promotion goals that must be viewed elsewhere.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.promotion_overview",
+      "surface.direct_pro_interface",
+      "surface.report_wizard"
+    ],
+    "relatedCards": [
+      "report.report_wizard",
+      "report.report_library_assistant",
+      "tool.direct_audit"
+    ],
+    "challengeRules": [
+      {
+        "id": "overview-vs-report-wizard-boundary",
+        "trigger": "Эпик adds analytics widgets without saying whether they live in Overview or Report Wizard.",
+        "challenge": "Попросить описать границу поверхностей: какие фильтры/виджеты на Обзоре, какие отчёты в Мастере, что наследует атрибуцию и где пользователь меняет настройки.",
+        "severity": "medium"
+      },
+      {
+        "id": "overview-app-campaign-goal-gap",
+        "trigger": "Эпик обещает единый обзор эффективности для всех кампаний and goals.",
+        "challenge": "Проверить, не нужны ли исключения для продвижения приложений, целей из Метрики, сторонних расходов и ограниченно доступных аккаунтов.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Обзор результатов продвижения» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Обзор результатов продвижени.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.direct_audit",
+    "kind": "tool",
+    "label": "Аудит Директа",
+    "aliases": [
+      "Аудит Директа",
+      "аудит аккаунта",
+      "аудит кампании",
+      "PDF аудит",
+      "рекомендации аудита"
+    ],
+    "summary": "Direct Audit is a generated report/recommendation surface with a limited lifecycle: it can be offered periodically, generated asynchronously, become stale, or fail to produce a file. Product changes should state trigger cadence, eligibility, report lifetime, error handling, and whether the audit is a recommendation artifact or a source of live statistics.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.promotion_overview",
+      "surface.report_library"
+    ],
+    "relatedCards": [
+      "surface.promotion_overview",
+      "report.report_library_assistant"
+    ],
+    "challengeRules": [
+      {
+        "id": "direct-audit-report-lifecycle",
+        "trigger": "Эпик adds an audit/report artifact without lifecycle rules.",
+        "challenge": "Попросить описать, когда отчёт предлагается, сколько генерируется, когда устаревает/исчезает, что делать при ошибке генерации и как пользователь отличает его от live dashboard.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Обзор результатов продвижения» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Обзор результатов продвижени.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.direct_landing_builder",
+    "kind": "tool",
+    "label": "Лендинги в Директе beta",
+    "aliases": [
+      "лендинги в Директе",
+      "лендинг Директа",
+      "создание лендинга",
+      "лендинг без сайта",
+      "резервная посадочная"
+    ],
+    "summary": "Direct Landing Builder creates or edits one-page landing pages for selected Direct/Direct.Pro scenarios and can connect Metrica/JS goals without manual code. Product requirements should state availability by geography/account type, entry points in campaign wizards/mobile/tools, relationship with Yandex Business/contact channels, fallback landing behavior, and what can be exported or reused outside the original campaign context.",
+    "entityLevel": "asset",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk",
+      "campaign_type.master_campaigns",
+      "campaign_type.simple_start"
+    ],
+    "surfaces": [
+      "tool.landing_builder",
+      "surface.direct_pro_interface",
+      "tool.mobile_app"
+    ],
+    "relatedCards": [
+      "campaign_type.simple_start",
+      "surface.master_campaigns_wizard",
+      "integration.metrica_goals_for_optimization"
+    ],
+    "challengeRules": [
+      {
+        "id": "landing-builder-availability-and-goals",
+        "trigger": "Эпик adds landing creation/editing without availability and analytics rules.",
+        "challenge": "Попросить описать, где доступна генерация/редактирование, какие цели Метрики создаются, кто получает доступ к счётчику и что происходит при изменении сайта/организации.",
+        "severity": "high"
+      },
+      {
+        "id": "landing-builder-fallback-and-export",
+        "trigger": "Эпик uses Direct landing as a fallback or reusable asset without scope.",
+        "challenge": "Уточнить, когда лендинг становится резервной посадочной, что можно экспортировать через API/интерфейс и какие ограничения есть на использование вне Директа.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Лендинги в Директе» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Лендинги в Директе-v1-5_17_2026, 5_32_2.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.direct_captcha",
+    "kind": "failure",
+    "label": "Капча в инструментах Директа",
+    "aliases": [
+      "капча",
+      "captcha",
+      "showCaptcha",
+      "капча в Директе",
+      "капча в Вордстате",
+      "капча в прогнозе бюджета"
+    ],
+    "summary": "Captcha can appear in Direct and related tools for different product reasons: account activity signals, service overload, frequent requests, cookies/browser state, geography, or tool-specific limits. PM-facing requirements should separate captcha as product friction from support-only operational details, and must not promise manual removal where the tool intentionally has no user-specific bypass.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.direct_pro_interface",
+      "tool.wordstat",
+      "tool.budget_forecast"
+    ],
+    "relatedCards": [
+      "tool.wordstat",
+      "tool.budget_forecast",
+      "concept.bulk_operation_points"
+    ],
+    "challengeRules": [
+      {
+        "id": "captcha-reason-by-surface",
+        "trigger": "Эпик changes captcha, anti-abuse, or tool limits without separating surfaces.",
+        "challenge": "Попросить указать, где появляется капча, какие причины видит пользователь, какие действия доступны ему самому и почему нельзя обещать ручное снятие для Wordstat/Budget Forecast-like limits.",
+        "severity": "high"
+      },
+      {
+        "id": "captcha-no-bypass-details",
+        "trigger": "Эпик или текст поддержки раскрывает internal bypass/process details.",
+        "challenge": "Убрать operational bypass details and keep the product contract: безопасное объяснение причины, self-service шаги, retry behavior and escalation boundaries.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Капча в Директе» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/Капча в Директе-v1-5_17_2026, 5_31_48 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.ai_assistant",
+    "kind": "tool",
+    "label": "ИИ-помощник в Директе",
+    "aliases": [
+      "ИИ-помощник",
+      "AI помощник",
+      "чат-помощник",
+      "ассистент Директа",
+      "помощник в Директе"
+    ],
+    "summary": "The Direct AI assistant is a chat-based surface with Direct/Direct.Pro-specific capabilities such as answering product questions, summarizing campaign statistics, routing to support, and starting selected campaign flows. Requirements should distinguish general chat answers from Direct.Pro-only statistics/actions, preserve one-topic chat expectations, and define escalation, history, safety, and future action boundaries.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [
+      "campaign_type.simple_start"
+    ],
+    "surfaces": [
+      "surface.ai_assistant",
+      "surface.direct_pro_interface",
+      "tool.mobile_app"
+    ],
+    "relatedCards": [
+      "surface.client_interface",
+      "surface.direct_pro_interface",
+      "campaign_type.simple_start"
+    ],
+    "challengeRules": [
+      {
+        "id": "ai-assistant-action-scope",
+        "trigger": "Эпик adds AI assistant behavior without specifying whether it answers, summarizes, routes, or performs an action.",
+        "challenge": "Попросить разделить informational answers, Direct.Pro statistics, support handoff and campaign-creation actions, including permissions and confirmation before state-changing actions.",
+        "severity": "high"
+      },
+      {
+        "id": "ai-assistant-direct-pro-only-features",
+        "trigger": "Эпик exposes assistant statistics or account-aware answers to all Direct users.",
+        "challenge": "Проверить, какие функции доступны только в Direct.Pro and what fallback/copy users see in the simpler Direct surface.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «ИИ-помощник в Директе» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/ИИ-помощник в Директе-v1-5_17_2026, 5.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "tool.ai_creative_editor",
+    "kind": "tool",
+    "label": "ИИ-редактор креативов beta",
+    "aliases": [
+      "ИИ-редактор креативов",
+      "AI редактор креативов",
+      "генерация изображений",
+      "анимация креатива",
+      "редактор креативов"
+    ],
+    "summary": "The AI creative editor is a beta tool for generating or editing ad images/animations in selected Direct campaign contexts. Requirements should specify eligible campaign types and placements, daily/monthly generation limits, one-task-at-a-time behavior, content-safety errors, asset ownership/export restrictions, and naming/communication changes as the beta evolves.",
+    "entityLevel": "asset",
+    "appliesToCampaignTypes": [
+      "campaign_type.epk",
+      "campaign_type.master_campaigns",
+      "campaign_type.reach_campaign"
+    ],
+    "surfaces": [
+      "tool.ai_creative_editor",
+      "surface.ad_edit",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "asset.image",
+      "asset.video"
+    ],
+    "challengeRules": [
+      {
+        "id": "ai-creative-editor-export-and-rights",
+        "trigger": "Эпик lets users generate creative assets without export/usage rules.",
+        "challenge": "Попросить уточнить, можно ли скачать ассет, где его разрешено использовать, кто видит правовые ограничения and what happens when generation is rejected.",
+        "severity": "high"
+      },
+      {
+        "id": "ai-creative-editor-limits-and-contexts",
+        "trigger": "Эпик adds generation or animation without limits and eligible contexts.",
+        "challenge": "Проверить daily/monthly limits, concurrent task behavior, campaign/placement scope and fallback when the beta is unavailable.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «ИИ-редактор креативов beta» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/bulk-professional-surfaces-v1/inputs/ИИ-редактор креативовβ в Дире.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  }
+]

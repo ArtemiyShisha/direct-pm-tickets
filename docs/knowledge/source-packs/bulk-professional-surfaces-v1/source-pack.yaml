@@ -1,0 +1,47 @@
+id: bulk-professional-surfaces-v1
+domain: bulk_professional_surfaces
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/tools/. The PDFs themselves are gitignored.
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/API-v1-5_17_2026, 5_31_08 PM.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Excel (Эксель)-v1-5_17_2026, 5_34_20 PM.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Библиотека отчётов-v1-5_17_2026, 5_31_.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Вордстат-v1-5_17_2026, 5_31_26 PM.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/ИИ-помощник в Директе-v1-5_17_2026, 5.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/ИИ-редактор креативовβ в Дире.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/История изменений в кампании-v.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Капча в Директе-v1-5_17_2026, 5_31_48 PM.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Коммандер-v1-5_17_2026, 5_31_59 PM.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Лендинги в Директе-v1-5_17_2026, 5_32_2.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Мобильное приложение Директа-.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Нейротехнологии Яндекс Рекла.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Обзор результатов продвижени.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Офлайн-конверсии и Центр конв.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Прогноз бюджета-v1-5_17_2026, 5_33_48 PM.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Фиды-v1-5_17_2026, 5_33_57 PM.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Яндекс Аудитории-v1-5_17_2026, 5_30_49 P.pdf
+  - knowledge/drafts/bulk-professional-surfaces-v1/inputs/Яндекс Выгода-v1-5_17_2026, 5_34_31 PM.pdf
+expected_card_kinds:
+  - tool
+  - surface
+  - integration
+  - report
+  - process
+  - concept
+  - failure
+out_of_scope:
+  - ad text, creative asset, and moderation behavior already covered by ad-formats-elements-v1 or a future moderation pack
+  - statistics interpretation and optimization diagnostics already covered by reports-statistics-optimization-v1 unless the source describes a distinct tool surface
+  - account access, agency roles, and representative permissions already covered by account-access-settings-v1
+  - billing, payer, VAT, refund, and payment flows already covered by billing-agency-legal-entities-v1
+review_owner: product-owner-or-domain-expert
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/bulk-professional-surfaces-v1/
+
+# Notes:
+# - PDFs live under /baza_znaniy/tools/ (gitignored). Symlinks under
+#   knowledge/drafts/<pack-id>/inputs/ are the stable input paths.
+# - Extract with `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py bulk-professional-surfaces-v1`.
+# - Do not commit the PDFs, symlinks, extracted text, or draft card outputs.

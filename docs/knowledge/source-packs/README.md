@@ -37,7 +37,7 @@ Run packs in this order. Each pack must finish review before the next one starts
 1. `campaign-types-v1` — EPK, Master of Campaigns, Simple Start, mobile app promotion, Telegram, product, reach, archived types.
 2. `campaign-hierarchy-lifecycle-v1` — account, campaign, ad group, ad, statuses, start/stop/archive/delete/copy, old vs new campaigns.
 3. `campaign-group-settings-v1` — autotargeting, geo, time targeting, bid adjustments, goals, Metrica, URLs, recommendations, notifications.
-4. `bulk-professional-surfaces-v1` — grids, mass edit, copy, Excel, Commander, API, mobile app, change history.
+4. `bulk-professional-surfaces-v1` — grids, mass edit, copy, Excel, Commander, API, mobile app, change history; promoted from `baza_znaniy/tools/`.
 5. `targeting-semantics-v1` — keywords, negative phrases, audience segments, retargeting, interests, display conditions, semantic matching.
 6. `moderation-ad-materials-v1` — moderation statuses, remoderation, rejection reasons, and review workflows. Ad formats/materials/elements are now covered by off-order `ad-formats-elements-v1`, so do not duplicate them here.
 7. `billing-agency-legal-entities-v1` — payers, shared account, VAT, non-residents, agency/subclient relations, legal entity and country constraints; promoted from `baza_znaniy/money/`.

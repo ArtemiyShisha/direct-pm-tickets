@@ -9,6 +9,7 @@ import { TARGETING_SEMANTICS_DIRECT_PRO_CARDS } from "./targeting-semantics";
 import { BILLING_AGENCY_LEGAL_ENTITIES_DIRECT_PRO_CARDS } from "./billing-agency-legal-entities";
 import { STATISTICS_DIRECT_PRO_CARDS } from "./statistics";
 import { ACCOUNT_ACCESS_SETTINGS_DIRECT_PRO_CARDS } from "./account-access-settings";
+import { BULK_PROFESSIONAL_SURFACES_DIRECT_PRO_CARDS } from "./bulk-professional-surfaces";
 
 export const DIRECT_PRO_KNOWLEDGE_CARDS = [
   ...CORE_DIRECT_PRO_CARDS,
@@ -22,4 +23,5 @@ export const DIRECT_PRO_KNOWLEDGE_CARDS = [
   ...BILLING_AGENCY_LEGAL_ENTITIES_DIRECT_PRO_CARDS,
   ...STATISTICS_DIRECT_PRO_CARDS,
   ...ACCOUNT_ACCESS_SETTINGS_DIRECT_PRO_CARDS,
+  ...BULK_PROFESSIONAL_SURFACES_DIRECT_PRO_CARDS,
 ] as const;
