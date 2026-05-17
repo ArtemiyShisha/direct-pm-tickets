@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { directProKnowledgeCardSchema } from "../schema";
+import { ACCOUNT_ACCESS_SETTINGS_DIRECT_PRO_CARDS } from "./account-access-settings";
 import { FORMATS_SHOWS_DIRECT_PRO_CARDS } from "./formats-shows";
 import { DIRECT_PRO_KNOWLEDGE_CARDS } from "./index";
 import { STATISTICS_DIRECT_PRO_CARDS } from "./statistics";
@@ -41,6 +42,14 @@ describe("DIRECT_PRO_KNOWLEDGE_CARDS", () => {
     expect(DIRECT_PRO_KNOWLEDGE_CARDS.map((card) => card.id)).toEqual(
       expect.arrayContaining(
         STATISTICS_DIRECT_PRO_CARDS.map((card) => card.id),
+      ),
+    );
+  });
+
+  it("contains promoted account access settings cards", () => {
+    expect(DIRECT_PRO_KNOWLEDGE_CARDS.map((card) => card.id)).toEqual(
+      expect.arrayContaining(
+        ACCOUNT_ACCESS_SETTINGS_DIRECT_PRO_CARDS.map((card) => card.id),
       ),
     );
   });

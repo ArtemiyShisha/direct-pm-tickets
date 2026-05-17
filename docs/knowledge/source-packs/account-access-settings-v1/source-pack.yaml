@@ -1,0 +1,27 @@
+id: account-access-settings-v1
+domain: account_access_settings
+input_files:
+  - knowledge/drafts/account-access-settings-v1/inputs/Агентский интерфейс-v1-5_17_2026, 5_0.pdf
+  - knowledge/drafts/account-access-settings-v1/inputs/Аккаунт пользователя Директа-.pdf
+  - knowledge/drafts/account-access-settings-v1/inputs/Выдача агентского логина-v1-5_17_.pdf
+  - knowledge/drafts/account-access-settings-v1/inputs/Доступ к интерфейсу заблокиро.pdf
+  - knowledge/drafts/account-access-settings-v1/inputs/Идентификация по пин-коду в Ди.pdf
+  - knowledge/drafts/account-access-settings-v1/inputs/Перенос аккаунта в агентство-v.pdf
+  - knowledge/drafts/account-access-settings-v1/inputs/Представители-v1-5_17_2026, 5_10_19 PM.pdf
+expected_card_kinds:
+  - role
+  - process
+  - surface
+  - state
+  - failure
+  - concept
+out_of_scope:
+  - campaign and group settings already covered by campaign-group-settings-v1
+  - billing, payments, refunds, and payer constraints already covered by billing-agency-legal-entities-v1
+  - general Direct vs Direct.Pro interface inventory already covered by interface-surfaces-v1
+  - registration/onboarding details unless they directly affect account access
+review_owner: product-owner-or-domain-expert
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/account-access-settings-v1/

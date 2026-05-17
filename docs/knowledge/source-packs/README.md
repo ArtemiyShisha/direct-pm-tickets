@@ -51,6 +51,7 @@ Off-order packs may exist only when the user explicitly drops a focused source f
 - `ad-formats-elements-v1` — ad formats, ad materials, and ad elements from `baza_znaniy/banners/`; moderation workflows remain out of scope.
 - `formats-shows-v1` — ad formats, show/serving variants, placements, and showing diagnostics from `baza_znaniy/formats and shows/`.
 - `targeting-semantics-v1` — targeting/show-rule semantics from `baza_znaniy/show-rules/`; promoted after human review.
+- `account-access-settings-v1` — account access, representatives, agency interface, agency login issuance, transfer to agency, blocked access, and PIN-code support identification from `baza_znaniy/acc-settings/`.
 
 ## Per-Batch Output Contract
 
