@@ -1,0 +1,36 @@
+id: targeting-semantics-v1
+domain: targeting_semantics
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/show-rules/. The PDFs themselves are gitignored.
+  - knowledge/drafts/targeting-semantics-v1/inputs/Автотаргетинг-v1-5_17_2026, 3_12_30 PM.pdf
+  - knowledge/drafts/targeting-semantics-v1/inputs/Интересы и привычки-v1-5_17_2026, 3_12.pdf
+  - knowledge/drafts/targeting-semantics-v1/inputs/Ключевые фразы, операторы, сто.pdf
+  - knowledge/drafts/targeting-semantics-v1/inputs/Минус-слова, минус-фразы, стоп-.pdf
+  - knowledge/drafts/targeting-semantics-v1/inputs/Настройка «Приоритизация объ.pdf
+  - knowledge/drafts/targeting-semantics-v1/inputs/Показы взрослой, медицинской, .pdf
+  - knowledge/drafts/targeting-semantics-v1/inputs/Правила сохранения и обнулени.pdf
+  - knowledge/drafts/targeting-semantics-v1/inputs/Сегменты аудитории (ретаргети.pdf
+  - knowledge/drafts/targeting-semantics-v1/inputs/Семантическое соответствие-v1-.pdf
+expected_card_kinds:
+  - setting
+  - concept
+  - failure
+out_of_scope:
+  # Topics that may surface in these PDFs but belong to other batches or existing cards.
+  - broad campaign and group settings already covered by campaign-group-settings-v1 unless this pack adds targeting-specific semantics
+  - show diagnostics already covered by formats-shows-v1 unless this pack adds a narrower targeting cause
+  - ad format, creative element, preview, and moderation workflow behavior
+  - billing, payers, agency relations, legal marking, ORD, tokens, and sanctions
+  - reports/statistics product surfaces beyond the slices needed to explain targeting behavior
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/targeting-semantics-v1/
+
+# Notes:
+# - PDFs live under /baza_znaniy/show-rules/ (gitignored). Symlinks under
+#   knowledge/drafts/<pack-id>/inputs/ are the stable input paths.
+# - Extract with `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py targeting-semantics-v1`.
+# - Do not commit the PDFs, symlinks, extracted text, or draft card outputs.
