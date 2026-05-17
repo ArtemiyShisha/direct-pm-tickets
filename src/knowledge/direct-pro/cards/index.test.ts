@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { directProKnowledgeCardSchema } from "../schema";
 import { FORMATS_SHOWS_DIRECT_PRO_CARDS } from "./formats-shows";
 import { DIRECT_PRO_KNOWLEDGE_CARDS } from "./index";
+import { STATISTICS_DIRECT_PRO_CARDS } from "./statistics";
 import { TARGETING_SEMANTICS_DIRECT_PRO_CARDS } from "./targeting-semantics";
 
 describe("DIRECT_PRO_KNOWLEDGE_CARDS", () => {
@@ -32,6 +33,14 @@ describe("DIRECT_PRO_KNOWLEDGE_CARDS", () => {
     expect(DIRECT_PRO_KNOWLEDGE_CARDS.map((card) => card.id)).toEqual(
       expect.arrayContaining(
         TARGETING_SEMANTICS_DIRECT_PRO_CARDS.map((card) => card.id),
+      ),
+    );
+  });
+
+  it("contains promoted statistics cards", () => {
+    expect(DIRECT_PRO_KNOWLEDGE_CARDS.map((card) => card.id)).toEqual(
+      expect.arrayContaining(
+        STATISTICS_DIRECT_PRO_CARDS.map((card) => card.id),
       ),
     );
   });

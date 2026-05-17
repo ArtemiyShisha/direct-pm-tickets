@@ -16,8 +16,9 @@ The current product workstream is the **Direct.Pro knowledge map**, Task 10 — 
 - off-order `formats-shows-v1` → `src/knowledge/direct-pro/cards/formats-shows.{json,ts}` (17 cards)
 - `targeting-semantics-v1` → `src/knowledge/direct-pro/cards/targeting-semantics.{json,ts}` (18 cards)
 - `billing-agency-legal-entities-v1` → `src/knowledge/direct-pro/cards/billing-agency-legal-entities.{json,ts}` (28 cards)
+- `reports-statistics-optimization-v1` → `src/knowledge/direct-pro/cards/statistics.{json,ts}` (25 cards)
 
-The `ad-formats-elements-v1` pack was created from `baza_znaniy/banners/` because the user explicitly dropped a focused source folder. It covers ad formats, creative assets, and ad elements; moderation workflows remain out of scope for that pack. The `formats-shows-v1` pack was created from `baza_znaniy/formats and shows/` and covers ad formats, show/serving variants, placements, and showing diagnostics. The `targeting-semantics-v1` pack was created from `baza_znaniy/show-rules/` and covers targeting/show-rule semantics: autotargeting, keywords, negative phrases, semantic matching, interests, audience segments, restricted-topic show rules, and phrase CTR preservation. The `billing-agency-legal-entities-v1` pack was created from `baza_znaniy/money/` and covers money operations: invoice/payment, crediting, refunds, transfers, shared account, overdraft, payer constraints, promo codes, VAT, electronic receipts, non-resident payment limits, and payment failures. Future Task 10 work should continue one focused source pack at a time with human review before runtime promotion.
+The `ad-formats-elements-v1` pack was created from `baza_znaniy/banners/` because the user explicitly dropped a focused source folder. It covers ad formats, creative assets, and ad elements; moderation workflows remain out of scope for that pack. The `formats-shows-v1` pack was created from `baza_znaniy/formats and shows/` and covers ad formats, show/serving variants, placements, and showing diagnostics. The `targeting-semantics-v1` pack was created from `baza_znaniy/show-rules/` and covers targeting/show-rule semantics: autotargeting, keywords, negative phrases, semantic matching, interests, audience segments, restricted-topic show rules, and phrase CTR preservation. The `billing-agency-legal-entities-v1` pack was created from `baza_znaniy/money/` and covers money operations: invoice/payment, crediting, refunds, transfers, shared account, overdraft, payer constraints, promo codes, VAT, electronic receipts, non-resident payment limits, and payment failures. The `reports-statistics-optimization-v1` pack was created from `baza_znaniy/stats/` and covers reporting/statistics behavior: Report Wizard, Direct-vs-Metrica discrepancies, Metrica goals, traffic forecast limits, spikes/drops, invalid clicks/conversions, statistics corrections, optimization flows, strategy learning, and A/B experiments. Future Task 10 work should continue one focused source pack at a time with human review before runtime promotion.
 
 > **Architecture note (May 2026):** The standalone Product Challenger LLM stage is **OFF by default**. Approved Direct.Pro knowledge cards are now folded into the three group-evaluator prompts (`buildGroupPrompt`), so per-criterion `questions` are themselves Direct.Pro-aware. The legacy Challenger code path still exists and runs only when `PRODUCT_CHALLENGER_ENABLED=true` is set in the environment — kept for A/B comparisons and easy rollback. Task 10 work continues unchanged: the same approved cards now feed group evaluators instead of (or in addition to) the legacy Challenger.
 
@@ -27,6 +28,21 @@ Before touching `src/knowledge/direct-pro/`, `src/app/api/evaluate/route.ts`, th
 - `docs/knowledge/source-packs/README.md` — source pack manifest format and the fixed 10-batch order.
 - `docs/knowledge/card-review-process.md` — card lifecycle (`draft → review_needed → approved → deprecated`) and the promotion criteria.
 - `tools/direct-pro-knowledge/README.md` — hard rule about what may be committed (sanitized cards, manifests, extractor scripts) and what stays gitignored (`knowledge/raw-*`, `knowledge/drafts/`, `work/direct-pro-knowledge/`, `baza_znaniy/`, `.venv-pdf/`). Contains the end-to-end runbook for the manual PDF drop adapter and the validator.
+
+### Canonical Task 10 flow for `baza_znaniy` drops
+
+When the user points at `@baza_znaniy/<folder>` and says to add the new Direct/Direct.Pro knowledge to the agent context, treat it as the standard Task 10 source-pack workflow. Do not restart a brainstorming/design-approval loop, and do not ask the user again whether to do `draft_only`, `extract_only`, `promote_review_needed`, or whether the folder should count as one pack. The default is fixed:
+
+1. Use the referenced folder as one focused source pack. If it contains mixed topics, choose the best pack id/domain, keep the pack narrow in `notes.md`, and record out-of-scope material in `coverage-note.md` or `unresolved-questions.md`.
+2. Create or update `docs/knowledge/source-packs/<pack-id>/source-pack.yaml` and `notes.md`.
+3. Create symlink inputs under `knowledge/drafts/<pack-id>/inputs/` that point to the PDFs in `baza_znaniy/<folder>/`; never commit the raw PDFs or extracted text.
+4. Run `tools/direct-pro-knowledge/extract_pdf_text.py <pack-id>`.
+5. Author the gitignored draft outputs: `candidate-cards.json`, `coverage-note.md`, `conflicts.md`, and `unresolved-questions.md`.
+6. Run `npx tsx tools/direct-pro-knowledge/validate-candidates.ts <pack-id>` and fix validation issues.
+7. If the user's request says "add to context" / "agent should know this" / "учитывать при оценке", promote safe cards into `src/knowledge/direct-pro/cards/<domain>.json` plus `<domain>.ts`, export them from `cards/index.ts`, and keep `confidence: "review_needed"` unless explicit product-owner approval says `approved`.
+8. Run `npx vitest run`; run `npm run build` when runtime TypeScript or prompt wiring changed.
+
+Ask the user only for a real blocker: the referenced folder is missing or unreadable, the intended source pack/domain cannot be inferred after reading filenames and existing pack docs, sources appear unsafe to summarize, promotion would duplicate or contradict existing runtime cards, or the user explicitly asks for a review gate before runtime promotion. Otherwise proceed with the canonical flow and report the chosen pack id/domain in the progress update.
 
 For broader context (Pre-Analysis round, scoring calibration history, key files), read `CONTEXT.md`.
 

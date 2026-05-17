@@ -12,7 +12,7 @@
 
 ## Implementation Status
 
-> Status as of the current working branch after `billing-agency-legal-entities-v1` promotion. Tasks 1-9 and 11 are done. Task 10 remains iterative: one source pack at a time, with human review before runtime promotion. Runtime currently uses only sanitized cards exported from `src/knowledge/direct-pro/cards/`.
+> Status as of the current working branch after `reports-statistics-optimization-v1` promotion. Tasks 1-9 and 11 are done. Task 10 remains iterative: one source pack at a time, with human review before runtime promotion. Runtime currently uses only sanitized cards exported from `src/knowledge/direct-pro/cards/`.
 
 | Task | Status | Commit / branch |
 |------|--------|-----------------|
@@ -26,7 +26,7 @@
 | 7. Wire challenger into evaluation API | Done | `54f1954` |
 | 8. Render challenges in the UI + Markdown export | Done | `30bf5b1` |
 | 9. Source intake docs + manual PDF drop tooling | Done | `ab0bc1a` + later tooling commits |
-| 10. Fill knowledge cards by domain batch | **In progress** — 8 packs promoted to runtime as `review_needed` cards | current branch includes latest billing/money pack |
+| 10. Fill knowledge cards by domain batch | **In progress** — 9 packs promoted to runtime as `review_needed` cards | current branch includes latest reports/statistics pack |
 | 11. Human review loop for cards (`card-review-process.md`) | Done | `ab0bc1a` |
 
 ### Runtime knowledge packs currently exported
@@ -44,6 +44,7 @@
 | off-order `formats-shows-v1` | `formats-shows.{json,ts}` | 17 | `review_needed` |
 | `targeting-semantics-v1` | `targeting-semantics.{json,ts}` | 18 | `review_needed` |
 | `billing-agency-legal-entities-v1` | `billing-agency-legal-entities.{json,ts}` | 28 | `review_needed` |
+| `reports-statistics-optimization-v1` | `statistics.{json,ts}` | 25 | `review_needed` |
 
 The off-order packs exist because the user explicitly dropped focused PDF folders and asked to process them:
 
@@ -61,21 +62,21 @@ The off-order packs exist because the user explicitly dropped focused PDF folder
 
 ### Current Task 10 state
 
-There is no known draft pack currently waiting for promotion after `billing-agency-legal-entities-v1` on this branch.
+There is no known draft pack currently waiting for promotion after `reports-statistics-optimization-v1` on this branch.
 
-The latest promoted pack was drafted from the user-provided focused folder `baza_znaniy/money/`. Provenance files remain available for review:
+The latest promoted pack was drafted from the user-provided focused folder `baza_znaniy/stats/`. Provenance files remain available for review:
 
-- `docs/knowledge/source-packs/billing-agency-legal-entities-v1/source-pack.yaml`
-- `docs/knowledge/source-packs/billing-agency-legal-entities-v1/notes.md`
-- `knowledge/drafts/billing-agency-legal-entities-v1/coverage-note.md`
-- `knowledge/drafts/billing-agency-legal-entities-v1/conflicts.md`
-- `knowledge/drafts/billing-agency-legal-entities-v1/unresolved-questions.md`
-- `knowledge/drafts/billing-agency-legal-entities-v1/candidate-cards.json`
+- `docs/knowledge/source-packs/reports-statistics-optimization-v1/source-pack.yaml`
+- `docs/knowledge/source-packs/reports-statistics-optimization-v1/notes.md`
+- `knowledge/drafts/reports-statistics-optimization-v1/coverage-note.md`
+- `knowledge/drafts/reports-statistics-optimization-v1/conflicts.md`
+- `knowledge/drafts/reports-statistics-optimization-v1/unresolved-questions.md`
+- `knowledge/drafts/reports-statistics-optimization-v1/candidate-cards.json`
 
 Validation passed before promotion:
 
 ```bash
-npx tsx tools/direct-pro-knowledge/validate-candidates.ts billing-agency-legal-entities-v1
+npx tsx tools/direct-pro-knowledge/validate-candidates.ts reports-statistics-optimization-v1
 ```
 
 Before starting new work, always check both runtime files in `src/knowledge/direct-pro/cards/` and ignored drafts under `knowledge/drafts/<pack-id>/`.
@@ -84,9 +85,8 @@ The next planned ordered packs are still:
 
 1. `bulk-professional-surfaces-v1` — grids, mass edit, Commander, Excel, API, mobile app, change history. Do not confuse it with off-order `interface-surfaces-v1`, which covered client-facing surfaces and concepts.
 2. moderation-focused pack (old placeholder name `moderation-ad-materials-v1`; do not duplicate ad formats/materials already covered by `ad-formats-elements-v1`)
-3. `reports-statistics-optimization-v1`
-4. `legal-marking-compliance-v1`
-5. `support-adjacent-services-v1`
+3. `legal-marking-compliance-v1`
+4. `support-adjacent-services-v1`
 
 `Продвижение приложений-v1-5_17_202.pdf` from `baza_znaniy/banners/` was classified as primarily an app-promotion campaign/product-mode source, not an ad-materials source. It should be handled later as a campaign-types top-up or a dedicated app-promotion pack.
 
@@ -970,8 +970,8 @@ Suggested batch order:
 - Done, off-order: `src/knowledge/direct-pro/cards/formats-shows.{json,ts}`
 - Done: `src/knowledge/direct-pro/cards/targeting-semantics.{json,ts}`
 - Done: `src/knowledge/direct-pro/cards/billing-agency-legal-entities.{json,ts}`
+- Done: `src/knowledge/direct-pro/cards/statistics.{json,ts}`
 - Create later: `src/knowledge/direct-pro/cards/moderation.ts`
-- Create later: `src/knowledge/direct-pro/cards/statistics.ts`
 - Create later: `src/knowledge/direct-pro/cards/legal-compliance.ts`
 - Create later: `src/knowledge/direct-pro/cards/support-adjacent.ts`
 
@@ -1079,7 +1079,13 @@ Input: source pack `billing-agency-legal-entities-v1`.
 
 Output cards cover invoice/payment, payment crediting, ELS bank-transfer reconciliation, autopayment, payment failures, PayPal, donations, refunds, blocked-account refund edge cases, money transfers, agency/cross-login transfer constraints, missing funds, fraudulent-charge boundaries, shared account, shared-account daily budget, overdraft, payer constraints, promo codes, VAT, electronic receipts, and non-resident payment restrictions.
 
-- [ ] **Step 9: Continue one domain batch at a time**
+- [x] **Step 9: Fill reports, statistics, and optimization**
+
+Input: source pack `reports-statistics-optimization-v1`.
+
+Output cards cover Report Wizard, saved/shared/exported reports, period comparison, report library and AI-assisted report creation, Direct-vs-Metrica attribution and revenue discrepancies, Metrica counters/goals, report scope differences, competitive analysis, traffic forecast limits, spikes/drops diagnostics, semantic matching statistics effects, invalid-click and conversion-fraud investigation boundaries, statistics corrections, campaign optimization, performance-improvement flows, conversion-strategy learning, and Direct.Pro A/B experiments.
+
+- [ ] **Step 10: Continue one domain batch at a time**
 
 Continue in the documented batch order. Each batch must be reviewed before starting the next one.
 

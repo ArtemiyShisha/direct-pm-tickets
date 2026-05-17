@@ -1,0 +1,1115 @@
+[
+  {
+    "id": "report.report_wizard",
+    "kind": "report",
+    "label": "Новый Мастер отчётов",
+    "aliases": [
+      "Мастер отчётов",
+      "новый Мастер отчётов",
+      "отчётность",
+      "статистика",
+      "отчёты Директа"
+    ],
+    "summary": "Мастер отчётов является основной поверхностью для работы со статистикой Direct.Pro: пользователь собирает отчёт из периодов, срезов, метрик, фильтров и визуализаций. При изменениях в этой зоне важно явно описывать миграцию со старых отчётов, доступность сохранённых шаблонов, работу ссылок и то, какие сценарии остаются в старом интерфейсе или требуют пересоздания отчёта.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.statistics",
+      "surface.direct_pro_interface"
+    ],
+    "relatedCards": [
+      "report.saved_reports",
+      "report.period_comparison",
+      "report.report_library_assistant"
+    ],
+    "challengeRules": [
+      {
+        "id": "report-wizard-migration-state",
+        "trigger": "Эпик меняет отчёты или статистику, но не описывает поведение старого и нового Мастера отчётов.",
+        "challenge": "Попросить уточнить, какие входы ведут в новый Мастер, что происходит со старыми ссылками и сохранёнными отчётами, и как пользователь понимает, где теперь собирать нужный отчёт.",
+        "severity": "high"
+      },
+      {
+        "id": "report-wizard-template-parity",
+        "trigger": "Эпик предполагает полную эквивалентность старых и новых отчётов.",
+        "challenge": "Проверить, есть ли паритет по ключевым срезам, фильтрам, выгрузкам и сценариям шаринга, либо нужен список временных ограничений.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Новый Мастер отчётов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Новый Мастер отчётов-v1-5_17_2026, 4_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "report.saved_reports",
+    "kind": "report",
+    "label": "Сохранённые отчёты и шаринг",
+    "aliases": [
+      "сохранённый отчёт",
+      "сохранить отчёт",
+      "поделиться отчётом",
+      "экспорт отчёта",
+      "выгрузка статистики"
+    ],
+    "summary": "Сохранённые отчёты и доступ к ним зависят от владельца, области видимости и способа шаринга. Для пользовательского сценария важно различать сохранение нового отчёта, редактирование общего отчёта, продуктовый share-механизм и простое копирование URL, а также формат выгрузки и настройки экспорта.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.my_reports",
+      "surface.report_export"
+    ],
+    "relatedCards": [
+      "report.report_wizard"
+    ],
+    "challengeRules": [
+      {
+        "id": "saved-report-access-and-owner",
+        "trigger": "Эпик добавляет сохранение или шаринг отчёта без модели владельца и доступа.",
+        "challenge": "Попросить описать, кто видит отчёт, что происходит при редактировании shared-отчёта и какой способ шаринга официально поддержан.",
+        "severity": "high"
+      },
+      {
+        "id": "report-export-format-defaults",
+        "trigger": "Эпик меняет выгрузку статистики без форматов и настроек по умолчанию.",
+        "challenge": "Уточнить поддержанные форматы, дефолтный формат и совместимость с существующими пользовательскими ожиданиями по файлам.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Новый Мастер отчётов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Новый Мастер отчётов-v1-5_17_2026, 4_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "report.period_comparison",
+    "kind": "report",
+    "label": "Сравнение периодов и графики в отчётах",
+    "aliases": [
+      "сравнение периодов",
+      "график отчёта",
+      "динамика статистики",
+      "сравнить периоды",
+      "визуализация отчёта"
+    ],
+    "summary": "Отчёты могут сравнивать периоды и показывать таблицы вместе с графиками, но итоговые значения в таблице и визуализации могут расходиться, если фильтры или тип метрики применяются не одинаково. Для продуктовых изменений нужно явно задавать правила подсветки, фильтрации, агрегации и ограничения типов графиков для абсолютных и относительных метрик.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.statistics_chart"
+    ],
+    "relatedCards": [
+      "report.report_wizard",
+      "concept.direct_report_discrepancies"
+    ],
+    "challengeRules": [
+      {
+        "id": "period-comparison-filter-scope",
+        "trigger": "Эпик сравнивает периоды или графики, но ожидает идентичные totals без правил фильтрации.",
+        "challenge": "Проверить, где применяются фильтры: к таблице, графику или обоим слоям, и как пользователь увидит объяснение расхождения.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Новый Мастер отчётов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Новый Мастер отчётов-v1-5_17_2026, 4_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "report.report_library_assistant",
+    "kind": "report",
+    "label": "Библиотека отчётов и AI-помощник",
+    "aliases": [
+      "библиотека отчётов",
+      "шаблоны отчётов",
+      "AI помощник отчётов",
+      "пресет отчёта",
+      "готовый отчёт"
+    ],
+    "summary": "Пользователь может стартовать отчёт из библиотеки готовых сценариев или через AI-помощника, а затем донастроить и сохранить результат. При переходах между отчётами часть фильтров может наследоваться, поэтому эпики должны описывать, какие параметры переносятся, какие сбрасываются и как пользователь понимает контекст нового отчёта.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_library",
+      "surface.report_wizard",
+      "surface.ai_assistant"
+    ],
+    "relatedCards": [
+      "report.report_wizard",
+      "report.saved_reports"
+    ],
+    "challengeRules": [
+      {
+        "id": "report-navigation-inherited-filters",
+        "trigger": "Эпик добавляет навигацию между отчётами, но не описывает наследование фильтров.",
+        "challenge": "Уточнить, какие фильтры наследуются при переходе, где пользователь видит активный контекст и как сбросить нежелательные параметры.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Новый Мастер отчётов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Новый Мастер отчётов-v1-5_17_2026, 4_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "report.income_value_metrics",
+    "kind": "report",
+    "label": "Доход и ценность конверсий в отчётах",
+    "aliases": [
+      "доход в отчётах",
+      "ценность конверсии",
+      "ROI",
+      "ROAS",
+      "ДРР",
+      "ценность цели"
+    ],
+    "summary": "Доход, ценность конверсий и производные метрики зависят от выбранных целей, настроек ценности, источника данных и модели атрибуции. Изменение набора целей или источника ценности может пересчитать исторические значения, поэтому продуктовые требования должны фиксировать, какие цели учитываются, откуда берётся value и как это объясняется в отчёте.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.goal_settings",
+      "tool.metrica"
+    ],
+    "relatedCards": [
+      "integration.direct_metrica_revenue",
+      "integration.metrica_goals_for_optimization"
+    ],
+    "challengeRules": [
+      {
+        "id": "income-metric-goal-selection",
+        "trigger": "Эпик использует доход, ROI, ROAS или ДРР без набора целей и источника value.",
+        "challenge": "Попросить явно указать, какие цели считаются доходными, какая модель атрибуции используется и что происходит с историей при изменении настроек.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Новый Мастер отчётов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Новый Мастер отчётов-v1-5_17_2026, 4_.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Отчёты Директа и Метрики» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Отчёты Директа и Метрики, разн.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.direct_report_discrepancies",
+    "kind": "concept",
+    "label": "Расхождения между отчётами Директа",
+    "aliases": [
+      "расхождения отчётов",
+      "цифры не сходятся",
+      "разная статистика",
+      "итоги не совпадают",
+      "статистика Директа отличается"
+    ],
+    "summary": "Разные отчёты Директа могут показывать разные числа из-за срезов, дефолтных фильтров, площадок, округления, набора целей, настроек атрибуции и периода. Такое расхождение не всегда ошибка: для сравнения нужно выровнять период, тип площадки, фильтры, цели, валюту/НДС и уровень агрегации.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.campaign_grid",
+      "surface.statistics"
+    ],
+    "relatedCards": [
+      "report.search_queries_scope",
+      "report.period_comparison",
+      "integration.direct_metrica_attribution"
+    ],
+    "challengeRules": [
+      {
+        "id": "direct-reports-align-dimensions",
+        "trigger": "Эпик трактует любое расхождение статистики как баг.",
+        "challenge": "Проверить, сравниваются ли одинаковые периоды, площадки, цели, фильтры и атрибуция; если нет, требовать пользовательское объяснение различий.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Отчёты Директа и Метрики» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Отчёты Директа и Метрики, разн.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Новый Мастер отчётов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Новый Мастер отчётов-v1-5_17_2026, 4_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "report.search_queries_scope",
+    "kind": "report",
+    "label": "Область отчёта по поисковым запросам",
+    "aliases": [
+      "поисковые запросы",
+      "отчёт по запросам",
+      "запросы пользователей",
+      "Search Queries",
+      "SQ report"
+    ],
+    "summary": "Отчёт по поисковым запросам ориентирован на поисковые показы и клики; сравнение его итогов с отчётами по всем площадкам требует выравнивания типа площадки и фильтров. Дефолтные шаблоны могут скрывать строки без кликов, поэтому totals по показам могут отличаться от более широких отчётов.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.search_queries_report"
+    ],
+    "relatedCards": [
+      "concept.direct_report_discrepancies",
+      "concept.semantic_matching_stats_effect"
+    ],
+    "challengeRules": [
+      {
+        "id": "search-query-report-placement-scope",
+        "trigger": "Эпик сравнивает отчёт по запросам с общей статистикой без типа площадки.",
+        "challenge": "Попросить выровнять search/network-срезы и дефолтные фильтры, иначе пользователь получит необъяснимые totals.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Отчёты Директа и Метрики» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Отчёты Директа и Метрики, разн.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Новый Мастер отчётов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Новый Мастер отчётов-v1-5_17_2026, 4_.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "integration.direct_metrica_attribution",
+    "kind": "integration",
+    "label": "Сравнение Директа и Метрики по атрибуции",
+    "aliases": [
+      "Директ и Метрика",
+      "расхождение с Метрикой",
+      "клики и визиты",
+      "атрибуция Метрики",
+      "визиты из Директа"
+    ],
+    "summary": "Директ и Метрика отвечают на разные вопросы: Директ опирается на рекламные клики и собственную модель статистики, Метрика показывает визиты и события сайта по выбранной атрибуции. Для корректного сравнения нужно зафиксировать модель атрибуции, дату клика или визита, теги, счётчик, цели и лаг обработки; строгого совпадения по датам и totals ожидать нельзя без этих условий.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "tool.metrica",
+      "surface.metrica_reports"
+    ],
+    "relatedCards": [
+      "integration.direct_metrica_revenue",
+      "integration.metrica_questions",
+      "concept.direct_report_discrepancies"
+    ],
+    "challengeRules": [
+      {
+        "id": "direct-metrica-attribution-clock",
+        "trigger": "Эпик обещает совпадение кликов, визитов или конверсий между Директом и Метрикой без атрибуции.",
+        "challenge": "Попросить указать модель атрибуции, дату события, счётчик/цели и допустимые лаги обработки.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Отчёты Директа и Метрики» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Отчёты Директа и Метрики, разн.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Вопросы по Метрике» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Вопросы по Метрике-v1-5_17_2026, 4_32_1.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "integration.direct_metrica_revenue",
+    "kind": "integration",
+    "label": "Расхождения дохода между Директом и Метрикой",
+    "aliases": [
+      "доход Метрики",
+      "доход Директа",
+      "расхождение дохода",
+      "выручка в Метрике",
+      "ценность заказа"
+    ],
+    "summary": "Доход в Директе и Метрике может расходиться из-за разных целей, value-настроек, импортов, модели атрибуции, периода и полноты загрузки данных. Для требований к отчётам важно описывать источник выручки, правила пересчёта, обработку offline/imported revenue и пользовательское объяснение, почему показатели не равны один к одному.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "tool.metrica",
+      "surface.goal_settings"
+    ],
+    "relatedCards": [
+      "report.income_value_metrics",
+      "integration.direct_metrica_attribution"
+    ],
+    "challengeRules": [
+      {
+        "id": "direct-metrica-revenue-source",
+        "trigger": "Эпик меняет доходные метрики без источника revenue и правил атрибуции.",
+        "challenge": "Попросить описать, какой источник value считается каноническим, как обрабатываются импорты и как объясняется расхождение с Метрикой.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Отчёты Директа и Метрики» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Отчёты Директа и Метрики, разн.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Вопросы по Метрике» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Вопросы по Метрике-v1-5_17_2026, 4_32_1.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "integration.metrica_questions",
+    "kind": "integration",
+    "label": "Вопросы по Метрике в контексте Директа",
+    "aliases": [
+      "вопросы по Метрике",
+      "счётчик Метрики",
+      "цели Метрики",
+      "отчёты Метрики",
+      "Метрика не считает"
+    ],
+    "summary": "Метрика в связке с Директом влияет на цели, визиты, качество трафика, доход и оптимизацию, но не является тем же источником данных, что рекламная статистика. Эпики должны различать счётчик, цели, доступы, теги, отчёты Метрики и рекламные отчёты Директа, особенно когда пользователь ждёт одинаковых чисел или автоматического переноса настроек.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "tool.metrica",
+      "surface.report_wizard",
+      "surface.campaign_settings"
+    ],
+    "relatedCards": [
+      "integration.direct_metrica_attribution",
+      "integration.metrica_goals_for_optimization"
+    ],
+    "challengeRules": [
+      {
+        "id": "metrica-counter-goal-access",
+        "trigger": "Эпик завязан на Метрику, но не описывает счётчик, цели или права доступа.",
+        "challenge": "Попросить уточнить, какой счётчик и цели используются, кто имеет доступ и что пользователь видит при ошибке связи.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Вопросы по Метрике» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Вопросы по Метрике-v1-5_17_2026, 4_32_1.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "report.competitive_analysis",
+    "kind": "report",
+    "label": "Конкурентный анализ и бенчмарки",
+    "aliases": [
+      "конкурентный анализ",
+      "бенчмарк",
+      "сравнение с конкурентами",
+      "индустриальный отчёт",
+      "CPA по рынку"
+    ],
+    "summary": "Конкурентный или индустриальный анализ является отдельным аналитическим deliverable и не должен автоматически обещаться как self-service кнопка в отчётах. Требования должны описывать доступность, уровень агрегации, анонимизацию сравнения, коммерческие ограничения и альтернативный сценарий, если аккаунт не подходит под менеджерский анализ.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.analytics_deliverable",
+      "surface.account_management"
+    ],
+    "relatedCards": [
+      "report.report_wizard",
+      "process.performance_improvement"
+    ],
+    "challengeRules": [
+      {
+        "id": "competitive-analysis-service-boundary",
+        "trigger": "Эпик обещает конкурентные бенчмарки как обычный отчёт без условий доступности.",
+        "challenge": "Уточнить, это self-service отчёт или менеджерский аналитический deliverable, какие данные анонимизированы и что увидит пользователь без доступа.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Конкурентный анализ» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Конкурентный анализ-v1-5_17_2026, 4_3.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "report.traffic_forecast_limits",
+    "kind": "report",
+    "label": "Недостаточно данных для прогноза трафика",
+    "aliases": [
+      "прогноз трафика",
+      "не хватает данных для прогноза",
+      "мало статистики для прогноза",
+      "прогноз показов",
+      "прогноз кликов"
+    ],
+    "summary": "Предупреждение о нехватке данных для прогноза означает, что по текущим условиям системе недостаточно свежих сигналов аукциона или показов для надёжной оценки. Это не равно абсолютной блокировке показов: пользователь должен понимать, какие настройки, ставки, таргетинг, паузы, география или история активности влияют на появление прогноза.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.campaign_edit",
+      "surface.forecast",
+      "surface.report_wizard"
+    ],
+    "relatedCards": [
+      "failure.impressions_drop",
+      "concept.conversion_strategy_learning"
+    ],
+    "challengeRules": [
+      {
+        "id": "traffic-forecast-warning-not-blocker",
+        "trigger": "Эпик трактует отсутствие прогноза как полную остановку кампании.",
+        "challenge": "Попросить описать, какие показы всё ещё возможны, какие настройки проверяются и как пользователь поймёт, что прогноз снова доступен.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Для прогноза трафика не хватает данных» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Для прогноза трафика не хвата.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.network_traffic_variability",
+    "kind": "concept",
+    "label": "Нестабильность трафика в сетях",
+    "aliases": [
+      "трафик в РСЯ",
+      "нестабильные показы",
+      "плавают клики",
+      "сети",
+      "РСЯ"
+    ],
+    "summary": "В сетевых размещениях объём показов и кликов зависит от доступного инвентаря, конкуренции, бюджета, спроса и качества подбора; заметные колебания возможны даже без изменения настроек. Для PM-сценариев важно отделять нормальную волатильность от диагностируемой проблемы и всегда смотреть разрез Search vs Networks.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.campaign_settings"
+    ],
+    "relatedCards": [
+      "failure.impressions_clicks_spike",
+      "failure.impressions_drop"
+    ],
+    "challengeRules": [
+      {
+        "id": "network-traffic-not-automatic-fraud",
+        "trigger": "Эпик объясняет сетевой всплеск или спад только фродом или поломкой.",
+        "challenge": "Попросить сравнить периоды, бюджет, стратегию, площадки и Search/Networks-срез перед выводом о дефекте.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Всплески показов и кликов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Всплески показов и кликов-v1-5_17.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Спад показов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Спад показов-v1-5_17_2026, 4_30_53 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.impressions_clicks_spike",
+    "kind": "failure",
+    "label": "Всплески показов и кликов",
+    "aliases": [
+      "всплеск показов",
+      "всплеск кликов",
+      "резкий рост расхода",
+      "рост показов",
+      "рост кликов"
+    ],
+    "summary": "Диагностика всплеска начинается с локализации по дню, кампании, площадке, фразе, типу соответствия и истории изменений. Типичные причины включают изменения бюджета, стратегии, ставок, географии, расписания, площадок, фраз, креативов, сезонного спроса или семантического расширения; сам факт ускоренного расхода не доказывает склик.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "tool.change_history",
+      "surface.campaign_settings"
+    ],
+    "relatedCards": [
+      "concept.network_traffic_variability",
+      "concept.semantic_matching_stats_effect",
+      "process.click_fraud_investigation"
+    ],
+    "challengeRules": [
+      {
+        "id": "spike-requires-slice-and-change-history",
+        "trigger": "Эпик реагирует на всплеск без срезов и истории изменений.",
+        "challenge": "Попросить описать диагностику по периодам, площадкам, фразам, matching type и изменениям настроек перед эскалацией.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Всплески показов и кликов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Всплески показов и кликов-v1-5_17.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.impressions_drop",
+    "kind": "failure",
+    "label": "Спад показов",
+    "aliases": [
+      "спад показов",
+      "мало показов",
+      "кампания перестала показываться",
+      "падение трафика",
+      "нет показов"
+    ],
+    "summary": "Спад показов обычно проверяется через ограничения бюджета и стратегии, обучение автостратегии, сужение таргетингов, минус-фразы, площадки, географию, расписание, статусы кампаний/объявлений/фраз, модерационные ограничения и цену цели. Сравнение двух похожих кампаний не гарантирует одинаковый объём, потому что модели и история обучения отличаются.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.campaign_settings",
+      "tool.change_history"
+    ],
+    "relatedCards": [
+      "concept.conversion_strategy_learning",
+      "concept.network_traffic_variability",
+      "report.traffic_forecast_limits"
+    ],
+    "challengeRules": [
+      {
+        "id": "drop-diagnosis-before-platform-blame",
+        "trigger": "Эпик описывает спад как дефект платформы без проверок ограничений.",
+        "challenge": "Попросить проверить бюджет, стратегию, обучение, статусы, таргетинг, минус-фразы и историю изменений в том же периоде.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Спад показов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Спад показов-v1-5_17_2026, 4_30_53 PM.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.semantic_matching_stats_effect",
+    "kind": "concept",
+    "label": "Влияние семантического подбора на статистику",
+    "aliases": [
+      "семантическое соответствие",
+      "синонимы",
+      "левые запросы",
+      "подбор запросов",
+      "matching type"
+    ],
+    "summary": "Семантическое расширение и подбор запросов могут менять состав поискового трафика, показы и клики во времени. Неожиданные запросы требуют анализа качества и разрезов отчёта, но не являются автоматическим доказательством недействительных кликов или фрода.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.search_queries_report",
+      "surface.campaign_settings"
+    ],
+    "relatedCards": [
+      "report.search_queries_scope",
+      "failure.impressions_clicks_spike"
+    ],
+    "challengeRules": [
+      {
+        "id": "semantic-matching-not-click-fraud",
+        "trigger": "Эпик приравнивает новые запросы или синонимы к склику.",
+        "challenge": "Попросить отделить качество запроса, настройки семантического подбора и критерии эскалации в invalid traffic.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Всплески показов и кликов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Всплески показов и кликов-v1-5_17.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.invalid_clicks_filtering",
+    "kind": "failure",
+    "label": "Фильтрация недействительных кликов и конверсий",
+    "aliases": [
+      "недействительные клики",
+      "invalid clicks",
+      "антифрод",
+      "склик",
+      "фильтрация кликов",
+      "недействительные конверсии"
+    ],
+    "summary": "Защита от недействительной активности работает не только как мгновенная проверка: часть событий может быть отфильтрована сразу, а часть пересмотрена позже с корректировкой статистики и денежных эффектов. Поэтому свежие внутридневные данные нельзя трактовать как окончательный billed outcome; продукт должен объяснять лаг, статус проверки и различие между статистической корректировкой и зачислением средств.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.statistics",
+      "surface.balance"
+    ],
+    "relatedCards": [
+      "process.click_fraud_investigation",
+      "process.statistics_correction"
+    ],
+    "challengeRules": [
+      {
+        "id": "invalid-clicks-not-final-intraday",
+        "trigger": "Эпик принимает свежие клики или конверсии за окончательный счёт.",
+        "challenge": "Попросить описать лаг фильтрации, какие данные считаются стабильными и как пользователь видит корректировки.",
+        "severity": "high"
+      },
+      {
+        "id": "invalid-traffic-stats-vs-money",
+        "trigger": "Эпик смешивает статистическую корректировку и возврат денег.",
+        "challenge": "Уточнить, что меняется в отчётах, что зачисляется на баланс и какие уведомления пользователь может получить.",
+        "severity": "medium"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Жалоба на фрод кликов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод кликов (склик)_ .pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Запрос на корректировку» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Запрос на корректировку или к.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.click_fraud_investigation",
+    "kind": "process",
+    "label": "Расследование жалобы на склик",
+    "aliases": [
+      "жалоба на склик",
+      "фрод кликов",
+      "проверить клики",
+      "верните деньги за клики",
+      "скликивание"
+    ],
+    "summary": "Жалоба на склик требует структурированных признаков аномалии: период, кампании, площадки, источники, динамика, отличие от обычного трафика и связь со списаниями. Для слишком свежих данных автоматическая фильтрация может ещё идти, а для старых периодов ручная проверка ограничена; сценарий должен различать ожидание фильтрации, ручную эскалацию и объяснение отказа, если данных недостаточно.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.support_intake",
+      "surface.report_wizard",
+      "surface.statistics"
+    ],
+    "relatedCards": [
+      "failure.invalid_clicks_filtering",
+      "failure.impressions_clicks_spike",
+      "process.statistics_correction"
+    ],
+    "challengeRules": [
+      {
+        "id": "click-fraud-evidence-checklist",
+        "trigger": "Эпик принимает жалобу на склик без evidence checklist и окна проверки.",
+        "challenge": "Попросить описать обязательные данные для проверки, свежесть периода, статус автоматической фильтрации и пользовательское сообщение при недостаточных признаках.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Жалоба на фрод кликов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод кликов (склик)_ .pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Жалоба на фрод кликов: инструкция» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод кликов_ инструк.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "failure.conversion_fraud",
+    "kind": "failure",
+    "label": "Подозрительные или фродовые конверсии",
+    "aliases": [
+      "фрод конверсий",
+      "спам заявки",
+      "левые лиды",
+      "подозрительные конверсии",
+      "оплата за конверсии"
+    ],
+    "summary": "Подозрительные лиды не всегда означают фрод платформы: причиной могут быть настройки целей, повторные посещения thank-you страниц, широкая атрибуция, слабая валидация формы, звонковые цели или качество CRM-обработки. Для продуктового сценария нужно отделять плохое качество лида от ошибочной атрибуции, недействительной конверсии и реально массового паттерна злоупотребления.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "tool.metrica",
+      "surface.goal_settings",
+      "surface.support_intake"
+    ],
+    "relatedCards": [
+      "failure.invalid_clicks_filtering",
+      "integration.direct_metrica_attribution",
+      "integration.metrica_goals_for_optimization"
+    ],
+    "challengeRules": [
+      {
+        "id": "conversion-fraud-vs-lead-quality",
+        "trigger": "Эпик считает любой плохой лид фродовой конверсией.",
+        "challenge": "Попросить проверить цели, атрибуцию, источник конверсии, повторные события и критерии массового злоупотребления.",
+        "severity": "high"
+      },
+      {
+        "id": "conversion-billing-alignment",
+        "trigger": "Эпик обещает возврат за конверсии без проверки, что они были оплачены и атрибутированы Директу.",
+        "challenge": "Уточнить, как сверяются отчёты Директа, Метрики и биллинговое событие за тот же период.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Жалоба на фрод конверсий» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод конверсий (стра.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Жалоба на фрод конверсий: инструкция» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод конверсий_ инст.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.statistics_correction",
+    "kind": "process",
+    "label": "Корректировка статистики и компенсации",
+    "aliases": [
+      "корректировка статистики",
+      "компенсация",
+      "возврат за ошибку",
+      "пересчёт статистики",
+      "исправить статистику"
+    ],
+    "summary": "Корректировка может менять статистику, денежный остаток или оба результата в зависимости от причины и механики. Пользовательское поведение должно различать пересчёт отчётов, зачисление средств, отсутствие или наличие уведомления, налогово-документальные ожидания и то, какие исторические показатели остаются неизменными.",
+    "entityLevel": "account",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.balance",
+      "surface.notifications"
+    ],
+    "relatedCards": [
+      "failure.invalid_clicks_filtering",
+      "process.click_fraud_investigation"
+    ],
+    "challengeRules": [
+      {
+        "id": "statistics-correction-outcome-model",
+        "trigger": "Эпик говорит о компенсации без модели результата.",
+        "challenge": "Попросить разделить, меняется ли статистика, баланс, документы, уведомления и как это объясняется пользователю.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Запрос на корректировку» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Запрос на корректировку или к.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Жалоба на фрод кликов» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод кликов (склик)_ .pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.campaign_optimization",
+    "kind": "process",
+    "label": "Оптимизация кампании после запуска",
+    "aliases": [
+      "оптимизация кампании",
+      "повысить эффективность",
+      "нет результатов",
+      "улучшить кампанию",
+      "рекомендации по кампании"
+    ],
+    "summary": "Запрос на оптимизацию нужно отделять от точечной диагностики показов, объявлений, таргетинга или оплаты. Для assisted/self-service оптимизации важны цель рекламодателя, история статистики, ограничения бюджета, статусы материалов, доступность счётчика и целей, тип кампании, качество посадочной страницы и то, какие изменения пользователь принимает сам.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.recommendations",
+      "surface.campaign_settings",
+      "surface.report_wizard",
+      "surface.support_intake"
+    ],
+    "relatedCards": [
+      "integration.metrica_goals_for_optimization",
+      "concept.conversion_strategy_learning",
+      "process.performance_improvement"
+    ],
+    "challengeRules": [
+      {
+        "id": "optimization-split-diagnostics",
+        "trigger": "Эпик смешивает общий запрос на эффективность с конкретной проблемой показов или настроек.",
+        "challenge": "Попросить разделить optimization workflow и предметную диагностику, чтобы пользователь не получил универсальный совет вместо решения проблемы.",
+        "severity": "medium"
+      },
+      {
+        "id": "optimization-preconditions",
+        "trigger": "Эпик обещает оптимизацию без данных, целей или статусов кампании.",
+        "challenge": "Уточнить минимальные входные условия: статистика, счётчик, цели, бюджет, статус объявлений и кто применяет изменения.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Оптимизация кампании» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Оптимизация кампании — для те.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Повышение эффективности» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Повышение эффективности — дл.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.performance_improvement",
+    "kind": "process",
+    "label": "Повышение эффективности по цели рекламодателя",
+    "aliases": [
+      "повышение эффективности",
+      "увеличить конверсии",
+      "снизить CPC",
+      "повысить CTR",
+      "больше кликов",
+      "снизить отказы"
+    ],
+    "summary": "Эффективность диагностируется по цели рекламодателя: больше охвата/кликов, более качественный трафик, больше конверсий, ниже CPC или выше CTR. Каждая цель требует своих разрезов статистики и проверок: бюджет, конкурирующие кампании, фразы, автотаргетинг, интересы, минус-фразы, география, расписание, площадки, креативы, посадочная страница и измерение конверсий.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.report_wizard",
+      "surface.recommendations",
+      "surface.campaign_settings"
+    ],
+    "relatedCards": [
+      "process.campaign_optimization",
+      "concept.conversion_strategy_learning",
+      "failure.impressions_drop"
+    ],
+    "challengeRules": [
+      {
+        "id": "performance-goal-specific-diagnosis",
+        "trigger": "Эпик даёт один совет для всех проблем эффективности.",
+        "challenge": "Попросить выбрать цель оптимизации и соответствующие метрики/разрезы, а не применять общий рецепт.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Повышение эффективности» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Повышение эффективности — дл.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "integration.metrica_goals_for_optimization",
+    "kind": "integration",
+    "label": "Счётчик и цели Метрики для обучения стратегий",
+    "aliases": [
+      "цели Метрики",
+      "счётчик для кампании",
+      "автоцели",
+      "цели не считаются",
+      "обучение стратегии"
+    ],
+    "summary": "Стратегии и оценка эффективности зависят от корректного счётчика Метрики, выбранных целей и связи счётчика с продвигаемым сайтом. Если счётчик недоступен, цели выбраны неверно, сайт отличается или измерение невозможно для конкретной посадочной, продукт должен явно описывать fallback: пропуск проверки, выбор другой цели, автоцели или накопление статистики другим способом.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.campaign_settings",
+      "tool.metrica",
+      "surface.goal_settings"
+    ],
+    "relatedCards": [
+      "integration.metrica_questions",
+      "concept.conversion_strategy_learning",
+      "report.income_value_metrics"
+    ],
+    "challengeRules": [
+      {
+        "id": "metrica-goals-counter-alignment",
+        "trigger": "Эпик строит оптимизацию на конверсиях, но не проверяет счётчик и цели.",
+        "challenge": "Попросить описать, какой счётчик и цели используются, как обрабатывается mismatch сайта и что делать, если измерение невозможно.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Оптимизация кампании» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Оптимизация кампании — для те.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Вопросы по Метрике» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Вопросы по Метрике-v1-5_17_2026, 4_32_1.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "concept.conversion_strategy_learning",
+    "kind": "concept",
+    "label": "Обучение конверсионных стратегий",
+    "aliases": [
+      "обучение стратегии",
+      "мало конверсий",
+      "стратегия режет показы",
+      "цена конверсии",
+      "CPA",
+      "оплата за конверсии"
+    ],
+    "summary": "Конверсионные автостратегии нуждаются в достаточном и стабильном сигнале по выбранным целям, бюджете и ставочным ограничениям. Низкая частота конверсий, слишком жёсткая цена цели, паузы, смена целей, недельный бюджет и max bid caps могут ограничивать показы; иногда нужно перейти на более верхнеуровневую цель или временно накопить статистику на кликовой модели.",
+    "entityLevel": "strategy",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.strategy_settings",
+      "surface.report_wizard",
+      "surface.campaign_settings"
+    ],
+    "relatedCards": [
+      "integration.metrica_goals_for_optimization",
+      "failure.impressions_drop",
+      "process.performance_improvement"
+    ],
+    "challengeRules": [
+      {
+        "id": "strategy-learning-budget-signal",
+        "trigger": "Эпик требует больше конверсий при жёстких ограничениях, но не описывает обучение стратегии.",
+        "challenge": "Попросить проверить объём конверсий, бюджет, цену цели, паузы, смену целей и fallback-стратегию для накопления сигнала.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Повышение эффективности» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Повышение эффективности — дл.pdf",
+        "reviewedBy": "extractor"
+      },
+      {
+        "label": "internal Direct.Pro support page «Оптимизация кампании» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Оптимизация кампании — для те.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  },
+  {
+    "id": "process.ab_experiments",
+    "kind": "process",
+    "label": "A/B-эксперименты в Direct.Pro",
+    "aliases": [
+      "A/B-тест",
+      "А/Б тест",
+      "эксперимент",
+      "эксперименты Директа",
+      "сплит тест"
+    ],
+    "summary": "A/B-эксперименты в Direct.Pro задают варианты, доли аудитории, основную метрику отчёта и ожидаемую длительность, но фактическая интерпретация зависит от остановки эксперимента, статистической значимости, ограничений по типам кампаний, активным экспериментам и кампаниям в эксперименте. Доли задают аудитории, а не гарантируют идеально пропорциональные показы или клики.",
+    "entityLevel": "campaign",
+    "appliesToCampaignTypes": [],
+    "surfaces": [
+      "surface.direct_pro_interface",
+      "surface.experiments_library",
+      "surface.report_wizard"
+    ],
+    "relatedCards": [
+      "process.performance_improvement",
+      "report.report_wizard"
+    ],
+    "challengeRules": [
+      {
+        "id": "ab-experiment-audience-not-impressions",
+        "trigger": "Эпик обещает точное распределение показов по процентам эксперимента.",
+        "challenge": "Попросить объяснить разделение аудитории, влияние аукциона и качества объявлений на фактические показы и клики.",
+        "severity": "high"
+      },
+      {
+        "id": "ab-experiment-completion-and-winner",
+        "trigger": "Эпик добавляет эксперименты без правил завершения и применения победителя.",
+        "challenge": "Уточнить, когда эксперимент считается завершённым, как выбирается победитель и что происходит с проигравшими вариантами.",
+        "severity": "high"
+      }
+    ],
+    "sourceRefs": [
+      {
+        "label": "internal Direct.Pro support page «Эксперименты (А/Б-тесты)» (PDF v1, 5/17/2026)",
+        "location": "knowledge/drafts/reports-statistics-optimization-v1/inputs/Эксперименты (А_Б-тесты)-v1-5_17_202.pdf",
+        "reviewedBy": "extractor"
+      }
+    ],
+    "confidence": "review_needed"
+  }
+]

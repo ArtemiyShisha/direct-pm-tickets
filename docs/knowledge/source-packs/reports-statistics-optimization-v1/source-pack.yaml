@@ -1,0 +1,44 @@
+id: reports-statistics-optimization-v1
+domain: reports_statistics_optimization
+input_files:
+  # Symlinks under knowledge/drafts/<pack-id>/inputs/ pointing at user-provided
+  # PDFs in /baza_znaniy/stats/. The PDFs themselves are gitignored.
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Вопросы по Метрике-v1-5_17_2026, 4_32_1.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Всплески показов и кликов-v1-5_17.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Для прогноза трафика не хвата.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод кликов (склик)_ .pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод кликов_ инструк.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод конверсий (стра.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Жалоба на фрод конверсий_ инст.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Запрос на корректировку или к.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Конкурентный анализ-v1-5_17_2026, 4_3.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Новый Мастер отчётов-v1-5_17_2026, 4_.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Оптимизация кампании — для те.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Отчёты Директа и Метрики, разн.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Повышение эффективности — дл.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Спад показов-v1-5_17_2026, 4_30_53 PM.pdf
+  - knowledge/drafts/reports-statistics-optimization-v1/inputs/Эксперименты (А_Б-тесты)-v1-5_17_202.pdf
+expected_card_kinds:
+  - report
+  - concept
+  - process
+  - failure
+  - integration
+  - setting
+out_of_scope:
+  # Topics that may surface in these PDFs but belong to other batches or existing cards.
+  - campaign creation, hierarchy, group settings, targeting setup, ad materials, and show diagnostics unless tied to analytics interpretation
+  - billing/payment/refund flows already covered by billing-agency-legal-entities-v1
+  - legal marking, ORD, sanctions, and compliance outside statistics/reporting consequences
+  - support-only operator scripts that do not change PM-visible Direct.Pro behavior
+review_owner: product-owner
+forbidden_inputs:
+  - raw Arcadia paths
+  - unreviewed Wiki dumps committed to repo
+output_path: knowledge/drafts/reports-statistics-optimization-v1/
+
+# Notes:
+# - PDFs live under /baza_znaniy/stats/ (gitignored). Symlinks under
+#   knowledge/drafts/<pack-id>/inputs/ are the stable input paths.
+# - Extract with `.venv-pdf/bin/python tools/direct-pro-knowledge/extract_pdf_text.py reports-statistics-optimization-v1`.
+# - Do not commit the PDFs, symlinks, extracted text, or draft card outputs.
